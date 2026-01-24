@@ -2,7 +2,7 @@ import { Editor, MarkdownView, Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient, createPublicClient } from "./auth";
-import { getCollections, getProfile } from "./lib";
+import { getProfile } from "./lib";
 import { SembleCollectionsView, VIEW_TYPE_SEMBLE_COLLECTIONS } from "views/collections";
 import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "views/cards";
 import { CreateCardModal } from "components/cardForm";
@@ -26,12 +26,12 @@ export default class ATmarkPlugin extends Plugin {
 		});
 		this.addCommand({
 			id: 'semble-add-card',
-			name: 'Create Semble Card',
+			name: 'Create semble card',
 			editorCheckCallback: (checking: boolean, editor: Editor, _view: MarkdownView) => {
 				const sel = editor.getSelection()
 
 				if (!this.settings.identifier || !this.settings.appPassword) {
-					new Notice("Please set your Bluesky credentials in the plugin settings to create new records.");
+					new Notice("Please set your credentials in the plugin settings to create new records.");
 					return false;
 				}
 				if (!checking) {
@@ -45,14 +45,14 @@ export default class ATmarkPlugin extends Plugin {
 
 		this.addCommand({
 			id: "view-semble-collections",
-			name: "View Semble Collections",
-			callback: () => this.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS),
+			name: "View semble collections",
+			callback: () => { void this.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS); },
 		});
 
 		this.addCommand({
 			id: "view-semble-cards",
-			name: "View Semble Cards",
-			callback: () => this.activateView(VIEW_TYPE_SEMBLE_CARDS),
+			name: "View semble cards",
+			callback: () => { void this.activateView(VIEW_TYPE_SEMBLE_CARDS); },
 		});
 
 		this.addSettingTab(new SettingTab(this.app, this));
@@ -65,9 +65,10 @@ export default class ATmarkPlugin extends Plugin {
 			try {
 				this.client = await createAuthenticatedClient({ identifier, password: appPassword });
 				await this.fetchProfile();
-				new Notice("Connected to Bluesky");
-			} catch (e) {
-				new Notice(`Auth failed: ${e}`);
+				new Notice("Connected");
+			} catch (err) {
+				const message = err instanceof Error ? err.message : String(err);
+				new Notice(`Auth failed: ${message}`);
 				this.client = createPublicClient();
 				this.profile = null;
 			}
@@ -114,7 +115,7 @@ export default class ATmarkPlugin extends Plugin {
 		if (leaves.length > 0) {
 			// A leaf with our view already exists, use that
 			leaf = leaves[0] as WorkspaceLeaf;
-			workspace.revealLeaf(leaf);
+			void workspace.revealLeaf(leaf);
 			return;
 		}
 
@@ -126,7 +127,7 @@ export default class ATmarkPlugin extends Plugin {
 
 		// "Reveal" the leaf in case it is in a collapsed sidebar
 		if (leaf) {
-			workspace.revealLeaf(leaf);
+			void workspace.revealLeaf(leaf);
 		}
 	}
 
@@ -138,11 +139,11 @@ export default class ATmarkPlugin extends Plugin {
 		const view = leaf.view as SembleCardsView;
 		view.setCollection(uri, name);
 
-		workspace.revealLeaf(leaf);
+		void workspace.revealLeaf(leaf);
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<AtProtoSettings>);
 	}
 
 	async saveSettings() {

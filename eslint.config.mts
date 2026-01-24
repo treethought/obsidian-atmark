@@ -30,5 +30,7 @@ export default tseslint.config(
 		"version-bump.mjs",
 		"versions.json",
 		"main.js",
+		"lex.config.js",
+		"src/lexicons",
 	]),
 );

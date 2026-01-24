@@ -35,6 +35,51 @@ export async function createCollection(client: Client, repo: string, name: strin
 	});
 }
 
+
+export async function createNoteCard(client: Client, repo: string, text: string, originalCard?: { uri: string; cid: string }) {
+	return await client.post("com.atproto.repo.createRecord", {
+		input: {
+			repo: repo as ActorIdentifier,
+			collection: "network.cosmik.card" as Nsid,
+			record: {
+				$type: "network.cosmik.card",
+				type: "NOTE",
+				content: {
+					$type: "network.cosmik.card#noteContent",
+					text,
+				},
+				originalCard: originalCard ? { uri: originalCard.uri, cid: originalCard.cid } : undefined,
+				createdAt: new Date().toISOString(),
+			},
+		},
+	});
+}
+
+export async function createUrlCard(client: Client, repo: string, url: string, metadata?: {
+	title?: string;
+	description?: string;
+	imageUrl?: string;
+	siteName?: string;
+}) {
+	return await client.post("com.atproto.repo.createRecord", {
+		input: {
+			repo: repo as ActorIdentifier,
+			collection: "network.cosmik.card" as Nsid,
+			record: {
+				$type: "network.cosmik.card",
+				type: "URL",
+				url,
+				content: {
+					$type: "network.cosmik.card#urlContent",
+					url,
+					metadata: metadata ? { $type: "network.cosmik.card#urlMetadata", ...metadata } : undefined,
+				},
+				createdAt: new Date().toISOString(),
+			},
+		},
+	});
+}
+
 export async function getCards(client: Client, repo: string) {
 	return await client.get("com.atproto.repo.listRecords", {
 		params: {

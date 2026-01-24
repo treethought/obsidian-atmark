@@ -7,6 +7,7 @@ import type { Main as Collection } from "../lexicons/types/network/cosmik/collec
 import { VIEW_TYPE_SEMBLE_COLLECTIONS } from "./collections";
 import { renderProfileIcon } from "../components/profileIcon";
 import { EditCardModal } from "../components/editCardModal";
+import { CardDetailModal } from "../components/cardDetailModal";
 
 export const VIEW_TYPE_SEMBLE_CARDS = "semble-cards-view";
 
@@ -14,6 +15,15 @@ interface CardRecord {
 	uri: string;
 	cid: string;
 	value: Card;
+}
+
+export interface AttachedNote {
+	uri: string;
+	text: string;
+}
+
+export interface CardWithNotes extends CardRecord {
+	attachedNotes: AttachedNote[];
 }
 
 interface CollectionLinkRecord {
@@ -58,16 +68,55 @@ export class SembleCardsView extends ItemView {
 		await this.render();
 	}
 
-	async getAllCards() {
+	/**
+	 * Process cards to attach notes to their parent cards and filter out attached notes.
+	 * Notes with originalCard or parentCard references are attached to those cards
+	 * instead of being shown as separate cards.
+	 */
+	private processCardsWithNotes(cards: CardRecord[]): CardWithNotes[] {
+		// Build a map of card URI -> attached notes with their URIs
+		const notesMap = new Map<string, AttachedNote[]>();
+
+		// Find all NOTE cards that reference other cards
+		for (const record of cards) {
+			if (record.value.type === "NOTE") {
+				const parentUri = record.value.originalCard?.uri || record.value.parentCard?.uri;
+				if (parentUri) {
+					const noteContent = record.value.content as NoteContent;
+					const existing = notesMap.get(parentUri) || [];
+					existing.push({ uri: record.uri, text: noteContent.text });
+					notesMap.set(parentUri, existing);
+				}
+			}
+		}
+
+		// Filter out NOTE cards that are attached to other cards
+		const filteredCards = cards.filter((record) => {
+			if (record.value.type === "NOTE") {
+				const hasParent = record.value.originalCard?.uri || record.value.parentCard?.uri;
+				return !hasParent; // Only keep standalone notes
+			}
+			return true;
+		});
+
+		// Add attached notes to each card
+		return filteredCards.map((record) => ({
+			...record,
+			attachedNotes: notesMap.get(record.uri) || [],
+		}));
+	}
+
+	async getAllCards(): Promise<CardWithNotes[]> {
 		if (!this.plugin.client) return [];
 
 		const repo = this.plugin.settings.identifier;
 		const cardsResp = await getCards(this.plugin.client, repo);
 		if (!cardsResp.ok) return [];
-		return cardsResp.data.records as unknown as CardRecord[];
+		const cards = cardsResp.data.records as unknown as CardRecord[];
+		return this.processCardsWithNotes(cards);
 	}
 
-	async getCardsInCollection(collectionUri: string) {
+	async getCardsInCollection(collectionUri: string): Promise<CardWithNotes[]> {
 		if (!this.plugin.client) return [];
 
 		const repo = this.plugin.settings.identifier;
@@ -87,7 +136,7 @@ export class SembleCardsView extends ItemView {
 		const cardUris = new Set(links.map((link) => String(link.value.card.uri)));
 		const cards = allCards.filter((card) => cardUris.has(String(card.uri)));
 
-		return cards;
+		return this.processCardsWithNotes(cards);
 	}
 
 	async render() {
@@ -104,7 +153,7 @@ export class SembleCardsView extends ItemView {
 
 		try {
 
-			let cards: CardRecord[] = [];
+			let cards: CardWithNotes[] = [];
 			try {
 				if (this.collectionUri) {
 					cards = await this.getCardsInCollection(this.collectionUri);
@@ -195,9 +244,16 @@ export class SembleCardsView extends ItemView {
 		}
 	}
 
-	private renderCard(container: HTMLElement, record: CardRecord) {
+	private renderCard(container: HTMLElement, record: CardWithNotes) {
 		const card = record.value;
 		const el = container.createEl("div", { cls: "semble-card" });
+
+		// Open detail modal on click
+		el.addEventListener("click", () => {
+			new CardDetailModal(this.plugin, record, () => {
+				void this.render();
+			}).open();
+		});
 
 		const header = el.createEl("div", { cls: "semble-card-header" });
 		header.createEl("span", {
@@ -214,6 +270,13 @@ export class SembleCardsView extends ItemView {
 				void this.render();
 			}).open();
 		});
+
+		// Display attached notes at the top of the card
+		if (record.attachedNotes.length > 0) {
+			for (const note of record.attachedNotes) {
+				el.createEl("p", { text: note.text, cls: "semble-card-note" });
+			}
+		}
 
 		if (card.type === "NOTE") {
 			const content = card.content as NoteContent;

@@ -1,11 +1,10 @@
-import { Editor, MarkdownView, Notice, Plugin, WorkspaceLeaf } from "obsidian";
+import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient, createPublicClient } from "./auth";
 import { getProfile } from "./lib";
 import { SembleCollectionsView, VIEW_TYPE_SEMBLE_COLLECTIONS } from "views/collections";
 import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "views/cards";
-import { CreateCardModal } from "components/cardForm";
 import type { ProfileData } from "components/profileIcon";
 
 export default class ATmarkPlugin extends Plugin {
@@ -24,23 +23,6 @@ export default class ATmarkPlugin extends Plugin {
 		this.registerView(VIEW_TYPE_SEMBLE_CARDS, (leaf) => {
 			return new SembleCardsView(leaf, this);
 		});
-		this.addCommand({
-			id: 'semble-add-card',
-			name: 'Create semble card',
-			editorCheckCallback: (checking: boolean, editor: Editor, _view: MarkdownView) => {
-				const sel = editor.getSelection()
-
-				if (!this.settings.identifier || !this.settings.appPassword) {
-					new Notice("Please set your credentials in the plugin settings to create new records.");
-					return false;
-				}
-				if (!checking) {
-					new CreateCardModal(this, sel).open();
-				}
-				return true;
-
-			},
-		})
 
 
 		this.addCommand({

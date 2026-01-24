@@ -2,14 +2,16 @@ import { Editor, MarkdownView, Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient, createPublicClient } from "./auth";
-import { getCollections } from "./lib";
+import { getCollections, getProfile } from "./lib";
 import { SembleCollectionsView, VIEW_TYPE_SEMBLE_COLLECTIONS } from "views/collections";
 import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "views/cards";
 import { CreateCardModal } from "components/cardForm";
+import type { ProfileData } from "components/profileIcon";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
 	client: Client | null = null;
+	profile: ProfileData | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -62,13 +64,39 @@ export default class ATmarkPlugin extends Plugin {
 		if (identifier && appPassword) {
 			try {
 				this.client = await createAuthenticatedClient({ identifier, password: appPassword });
+				await this.fetchProfile();
 				new Notice("Connected to Bluesky");
 			} catch (e) {
 				new Notice(`Auth failed: ${e}`);
 				this.client = createPublicClient();
+				this.profile = null;
 			}
 		} else {
 			this.client = createPublicClient();
+			this.profile = null;
+		}
+	}
+
+	private async fetchProfile() {
+		if (!this.client || !this.settings.identifier) {
+			this.profile = null;
+			return;
+		}
+		try {
+			const resp = await getProfile(this.client, this.settings.identifier);
+			if (resp.ok) {
+				this.profile = {
+					did: resp.data.did,
+					handle: resp.data.handle,
+					displayName: resp.data.displayName,
+					avatar: resp.data.avatar,
+				};
+			} else {
+				this.profile = null;
+			}
+		} catch (e) {
+			console.error("Failed to fetch profile:", e);
+			this.profile = null;
 		}
 	}
 
@@ -92,8 +120,8 @@ export default class ATmarkPlugin extends Plugin {
 
 		// Our view could not be found in the workspace, create a new leaf
 		// in the right sidebar for it
-		// leaf = workspace.getRightLeaf(false);
-		leaf = workspace.getMostRecentLeaf()
+		leaf = workspace.getRightLeaf(false);
+		// leaf = workspace.getMostRecentLeaf()
 		await leaf?.setViewState({ type: v, active: true });
 
 		// "Reveal" the leaf in case it is in a collapsed sidebar

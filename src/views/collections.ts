@@ -3,6 +3,8 @@ import type ATmarkPlugin from "../main";
 import { getCollections } from "../lib";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "./cards";
+import { renderProfileIcon } from "../components/profileIcon";
+import { CreateCollectionModal } from "../components/createCollectionModal";
 
 export const VIEW_TYPE_SEMBLE_COLLECTIONS = "semble-collections-view";
 
@@ -54,6 +56,9 @@ export class SembleCollectionsView extends ItemView {
 		const header = container.createEl("div", { cls: "semble-page-header" });
 		const nav = header.createEl("div", { cls: "semble-nav-row" });
 		nav.createEl("span", { text: "Semble", cls: "semble-brand" });
+
+		renderProfileIcon(nav, this.plugin.profile);
+
 		header.createEl("h2", { text: "Collections", cls: "semble-page-title" });
 
 		if (!this.plugin.client) {
@@ -66,6 +71,22 @@ export class SembleCollectionsView extends ItemView {
 			container.createEl("p", { text: "No identifier configured in settings." });
 			return;
 		}
+
+		const toolbar = container.createEl("div", { cls: "semble-toolbar" });
+
+		const createBtn = toolbar.createEl("button", { cls: "semble-create-btn" });
+		setIcon(createBtn, "plus");
+		createBtn.createEl("span", { text: "New Collection" });
+		createBtn.addEventListener("click", () => {
+			new CreateCollectionModal(this.plugin, () => this.render()).open();
+		});
+
+		const allCardsBtn = toolbar.createEl("button", { cls: "semble-toolbar-btn" });
+		setIcon(allCardsBtn, "layers");
+		allCardsBtn.createEl("span", { text: "All Cards" });
+		allCardsBtn.addEventListener("click", () => {
+			this.plugin.activateView(VIEW_TYPE_SEMBLE_CARDS);
+		});
 
 		const loading = container.createEl("p", { text: "Loading..." });
 

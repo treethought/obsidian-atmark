@@ -8,18 +8,18 @@
 .semble-card {
 	background: var(--background-secondary);
 	border: 1px solid var(--background-modifier-border);
-	border-radius: 8px;
+	border-radius: var(--radius-m);
 	padding: 16px;
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	transition: box-shadow 0.15s ease;
+	transition: box-shadow 0.15s ease, border-color 0.15s ease;
 	cursor: pointer;
 }
 
 .semble-card:hover {
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-	border-color: var(--interactive-accent);
+	box-shadow: var(--shadow-s);
+	border-color: var(--background-modifier-border-hover);
 }
 
 .semble-card-header {
@@ -30,17 +30,17 @@
 }
 
 .semble-card-title {
-	font-weight: 600;
+	font-weight: var(--font-semibold);
 	font-size: 1.1em;
 	color: var(--text-normal);
 }
 
 .semble-badge {
-	font-size: 0.7em;
+	font-size: var(--font-smallest);
 	padding: 2px 8px;
-	border-radius: 12px;
+	border-radius: var(--radius-s);
 	text-transform: uppercase;
-	font-weight: 500;
+	font-weight: var(--font-medium);
 	flex-shrink: 0;
 }
 
@@ -59,30 +59,25 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 24px;
-	height: 24px;
-	border-radius: 50%;
 	flex-shrink: 0;
 }
 
 .semble-access-icon svg {
-	width: 14px;
-	height: 14px;
+	width: 12px;
+	height: 12px;
 }
 
 .semble-access-open {
-	background: var(--color-green);
-	color: var(--text-on-accent);
+	color: var(--color-green);
 }
 
 .semble-access-closed {
-	background: var(--color-orange);
-	color: var(--text-on-accent);
+	color: var(--color-orange);
 }
 
 .semble-card-desc {
 	color: var(--text-muted);
-	font-size: 0.9em;
+	font-size: var(--font-small);
 	margin: 0;
 	flex-grow: 1;
 }
@@ -90,7 +85,7 @@
 .semble-card-footer {
 	display: flex;
 	justify-content: space-between;
-	font-size: 0.8em;
+	font-size: var(--font-smallest);
 	color: var(--text-faint);
 	margin-top: auto;
 	padding-top: 8px;
@@ -127,8 +122,8 @@
 }
 
 .semble-brand {
-	font-size: 0.85em;
-	font-weight: 600;
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
 	color: var(--text-accent);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
@@ -136,19 +131,20 @@
 
 .semble-page-title {
 	margin: 0;
-	font-size: 1.8em;
-	font-weight: 700;
+	font-size: var(--h1-size);
+	font-weight: var(--font-bold);
 	color: var(--text-normal);
 }
 
 .semble-card-text {
 	margin: 0;
 	white-space: pre-wrap;
-	line-height: 1.5;
+	line-height: var(--line-height-normal);
+	color: var(--text-normal);
 }
 
 .semble-card-url {
-	font-size: 0.85em;
+	font-size: var(--font-small);
 	color: var(--text-accent);
 	text-decoration: none;
 	word-break: break-all;
@@ -159,7 +155,7 @@
 }
 
 .semble-card-site {
-	font-size: 0.8em;
+	font-size: var(--font-smallest);
 	color: var(--text-faint);
 }
 
@@ -167,7 +163,7 @@
 	width: 100%;
 	max-height: 120px;
 	object-fit: cover;
-	border-radius: 4px;
+	border-radius: var(--radius-s);
 	margin: 4px 0;
 }
 
@@ -181,7 +177,7 @@
 	padding: 0;
 	background: transparent;
 	border: 1px solid var(--background-modifier-border);
-	border-radius: 6px;
+	border-radius: var(--radius-s);
 	cursor: pointer;
 	color: var(--text-muted);
 }
@@ -201,11 +197,11 @@
 
 .semble-chip {
 	padding: 6px 14px;
-	border-radius: 16px;
+	border-radius: var(--radius-full);
 	border: 1px solid var(--background-modifier-border);
 	background: var(--background-secondary);
 	color: var(--text-muted);
-	font-size: 0.85em;
+	font-size: var(--font-small);
 	cursor: pointer;
 	transition: all 0.15s ease;
 }
@@ -223,4 +219,341 @@
 
 .semble-chip-active:hover {
 	background: var(--interactive-accent-hover);
+}
+
+/* Profile Icon */
+.semble-profile-icon {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	margin-left: auto;
+}
+
+.semble-avatar-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	background: var(--background-secondary);
+	border: 2px solid var(--background-modifier-border);
+	border-radius: var(--radius-full);
+	cursor: pointer;
+	overflow: hidden;
+	transition: opacity 0.15s ease;
+}
+
+.semble-avatar-btn:hover {
+	opacity: 0.8;
+}
+
+.semble-avatar-img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	border-radius: var(--radius-full);
+}
+
+.semble-avatar-initials {
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+}
+
+.semble-avatar-placeholder {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	background: var(--background-secondary);
+	border: 2px solid var(--background-modifier-border);
+	border-radius: var(--radius-full);
+	color: var(--text-faint);
+	font-size: var(--font-small);
+}
+
+.semble-profile-info {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	gap: 2px;
+}
+
+.semble-profile-name {
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+	line-height: 1.2;
+}
+
+.semble-profile-handle {
+	font-size: var(--font-smallest);
+	color: var(--text-muted);
+	line-height: 1.2;
+}
+
+/* Card Menu Button */
+.semble-card-menu-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	margin-left: auto;
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-faint);
+	opacity: 0.6;
+	transition: all 0.15s ease;
+}
+
+.semble-card:hover .semble-card-menu-btn {
+	opacity: 1;
+}
+
+.semble-card-menu-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+	opacity: 1;
+}
+
+.semble-card-menu-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Collection Modal */
+.semble-collection-modal {
+	padding: 16px;
+}
+
+.semble-collection-modal h2 {
+	margin: 0 0 16px 0;
+	font-size: var(--h2-size);
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+
+.semble-collection-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 300px;
+	overflow-y: auto;
+	margin-bottom: 16px;
+}
+
+.semble-collection-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px 16px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.semble-collection-item:hover {
+	background: var(--background-modifier-hover);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.semble-collection-checkbox {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	cursor: pointer;
+	accent-color: var(--interactive-accent);
+}
+
+.semble-collection-item-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+}
+
+.semble-collection-item-name {
+	font-weight: var(--font-semibold);
+	color: var(--text-normal);
+}
+
+.semble-collection-item-desc {
+	font-size: var(--font-small);
+	color: var(--text-muted);
+}
+
+/* Modal Actions */
+.semble-modal-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding-top: 16px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.semble-spacer {
+	flex: 1;
+}
+
+.semble-btn {
+	padding: 8px 16px;
+	border-radius: var(--radius-s);
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.semble-btn:disabled {
+	opacity: 0.5;
+	cursor: not-allowed;
+}
+
+.semble-btn-secondary {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	color: var(--text-normal);
+}
+
+.semble-btn-secondary:hover:not(:disabled) {
+	background: var(--background-modifier-hover);
+}
+
+.semble-btn-primary {
+	background: var(--interactive-accent);
+	border: 1px solid var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.semble-btn-primary:hover:not(:disabled) {
+	background: var(--interactive-accent-hover);
+}
+
+.semble-btn-danger {
+	background: color-mix(in srgb, var(--color-red) 15%, transparent);
+	border: none;
+	color: var(--color-red);
+}
+
+.semble-btn-danger:hover:not(:disabled) {
+	background: color-mix(in srgb, var(--color-red) 25%, transparent);
+}
+
+/* Warning text */
+.semble-warning-text {
+	color: var(--text-muted);
+	margin-bottom: 16px;
+}
+
+/* Toolbar */
+.semble-toolbar {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.semble-create-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	background: var(--interactive-accent);
+	border: none;
+	border-radius: var(--radius-s);
+	color: var(--text-on-accent);
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.semble-create-btn:hover {
+	background: var(--interactive-accent-hover);
+}
+
+.semble-create-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+.semble-toolbar-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 12px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-normal);
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.semble-toolbar-btn:hover {
+	background: var(--background-modifier-hover);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.semble-toolbar-btn svg {
+	width: 14px;
+	height: 14px;
+}
+
+/* Form Elements */
+.semble-form {
+	display: flex;
+	flex-direction: column;
+	gap: 16px;
+}
+
+.semble-form-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+
+.semble-form-group label {
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	color: var(--text-normal);
+}
+
+.semble-input,
+.semble-textarea {
+	padding: 8px 12px;
+	background: var(--background-primary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-normal);
+	font-size: var(--font-ui-medium);
+	font-family: inherit;
+	transition: border-color 0.15s ease;
+}
+
+.semble-input:focus,
+.semble-textarea:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+	box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
+}
+
+.semble-input::placeholder,
+.semble-textarea::placeholder {
+	color: var(--text-faint);
+}
+
+.semble-textarea {
+	resize: vertical;
+	min-height: 60px;
 }

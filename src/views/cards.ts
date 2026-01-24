@@ -5,6 +5,8 @@ import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/ne
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import { VIEW_TYPE_SEMBLE_COLLECTIONS } from "./collections";
+import { renderProfileIcon } from "../components/profileIcon";
+import { EditCardModal } from "../components/editCardModal";
 
 export const VIEW_TYPE_SEMBLE_CARDS = "semble-cards-view";
 
@@ -136,7 +138,7 @@ export class SembleCardsView extends ItemView {
 			const grid = container.createEl("div", { cls: "semble-card-grid" });
 			for (const record of cards) {
 				try {
-					this.renderCard(grid, record.value);
+					this.renderCard(grid, record);
 				} catch (e) {
 					console.log(JSON.stringify(record.value, null, 2));
 					console.error(`Failed to render card ${record.uri}: ${e}`);
@@ -161,6 +163,8 @@ export class SembleCardsView extends ItemView {
 		});
 
 		nav.createEl("span", { text: "Semble", cls: "semble-brand" });
+
+		renderProfileIcon(nav, this.plugin.profile);
 
 		header.createEl("h2", { text: this.collectionName, cls: "semble-page-title" });
 
@@ -188,13 +192,24 @@ export class SembleCardsView extends ItemView {
 		}
 	}
 
-	private renderCard(container: HTMLElement, card: Card) {
+	private renderCard(container: HTMLElement, record: CardRecord) {
+		const card = record.value;
 		const el = container.createEl("div", { cls: "semble-card" });
 
 		const header = el.createEl("div", { cls: "semble-card-header" });
 		header.createEl("span", {
 			text: card.type,
 			cls: `semble-badge semble-badge-${card.type?.toLowerCase() || "unknown"}`,
+		});
+
+		const addBtn = header.createEl("button", { cls: "semble-card-menu-btn" });
+		setIcon(addBtn, "more-vertical");
+		addBtn.setAttribute("aria-label", "Manage collections");
+		addBtn.addEventListener("click", (e) => {
+			e.stopPropagation();
+			new EditCardModal(this.plugin, record.uri, record.cid, () => {
+				this.render();
+			}).open();
 		});
 
 		if (card.type === "NOTE") {

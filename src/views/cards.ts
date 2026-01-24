@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
-import type MyPlugin from "../main";
+import type ATmarkPlugin from "../main";
 import { getCollections, getCollectionLinks, getCards } from "../lib";
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
@@ -25,11 +25,11 @@ interface CollectionRecord {
 }
 
 export class SembleCardsView extends ItemView {
-	plugin: MyPlugin;
+	plugin: ATmarkPlugin;
 	collectionUri: string | null = null;
 	collectionName: string = "All Cards";
 
-	constructor(leaf: WorkspaceLeaf, plugin: MyPlugin) {
+	constructor(leaf: WorkspaceLeaf, plugin: ATmarkPlugin) {
 		super(leaf);
 		this.plugin = plugin;
 	}
@@ -160,7 +160,7 @@ export class SembleCardsView extends ItemView {
 			this.plugin.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS);
 		});
 
-		const brand = nav.createEl("span", { text: "Semble", cls: "semble-brand" });
+		nav.createEl("span", { text: "Semble", cls: "semble-brand" });
 
 		header.createEl("h2", { text: this.collectionName, cls: "semble-page-title" });
 
@@ -194,7 +194,7 @@ export class SembleCardsView extends ItemView {
 		const header = el.createEl("div", { cls: "semble-card-header" });
 		header.createEl("span", {
 			text: card.type,
-			cls: `semble-badge semble-badge-${card.type.toLowerCase()}`,
+			cls: `semble-badge semble-badge-${card.type?.toLowerCase() || "unknown"}`,
 		});
 
 		if (card.type === "NOTE") {

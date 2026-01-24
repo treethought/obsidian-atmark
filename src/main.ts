@@ -1,12 +1,13 @@
-import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
+import { Editor, MarkdownView, Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient, createPublicClient } from "./auth";
 import { getCollections } from "./lib";
 import { SembleCollectionsView, VIEW_TYPE_SEMBLE_COLLECTIONS } from "views/collections";
 import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "views/cards";
+import { CreateCardModal } from "components/cardForm";
 
-export default class MyPlugin extends Plugin {
+export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
 	client: Client | null = null;
 
@@ -21,13 +22,24 @@ export default class MyPlugin extends Plugin {
 		this.registerView(VIEW_TYPE_SEMBLE_CARDS, (leaf) => {
 			return new SembleCardsView(leaf, this);
 		});
-
-
 		this.addCommand({
-			id: "list-collections",
-			name: "List Collections",
-			callback: () => this.listCollections(),
-		});
+			id: 'semble-add-card',
+			name: 'Create Semble Card',
+			editorCheckCallback: (checking: boolean, editor: Editor, _view: MarkdownView) => {
+				const sel = editor.getSelection()
+
+				if (!this.settings.identifier || !this.settings.appPassword) {
+					new Notice("Please set your Bluesky credentials in the plugin settings to create new records.");
+					return false;
+				}
+				if (!checking) {
+					new CreateCardModal(this, sel).open();
+				}
+				return true;
+
+			},
+		})
+
 
 		this.addCommand({
 			id: "view-semble-collections",
@@ -64,27 +76,6 @@ export default class MyPlugin extends Plugin {
 		await this.initClient();
 	}
 
-	private async listCollections() {
-		if (!this.client) return;
-
-		const repo = this.settings.identifier
-
-		try {
-			const resp = await getCollections(this.client, repo);
-			if (!resp.ok) {
-				new Notice(`Failed: ${resp.data?.error}`);
-				return;
-			}
-			if (resp.data.records.length === 0) {
-				new Notice("No collections found");
-				return;
-			}
-			console.log("Collections:", resp.data.records);
-			new Notice(`Found ${resp.data.records.length} collections`);
-		} catch (e) {
-			new Notice(`Failed: ${e}`);
-		}
-	}
 
 	async activateView(v: string) {
 		const { workspace } = this.app;
@@ -93,7 +84,6 @@ export default class MyPlugin extends Plugin {
 		const leaves = workspace.getLeavesOfType(v);
 
 		if (leaves.length > 0) {
-			console.log("Found existing leaves:", leaves);
 			// A leaf with our view already exists, use that
 			leaf = leaves[0] as WorkspaceLeaf;
 			workspace.revealLeaf(leaf);

@@ -1,5 +1,5 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
-import type MyPlugin from "../main";
+import type ATmarkPlugin from "../main";
 import { getCollections } from "../lib";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "./cards";
@@ -12,9 +12,9 @@ interface CollectionRecord {
 }
 
 export class SembleCollectionsView extends ItemView {
-	plugin: MyPlugin;
+	plugin: ATmarkPlugin;
 
-	constructor(leaf: WorkspaceLeaf, plugin: MyPlugin) {
+	constructor(leaf: WorkspaceLeaf, plugin: ATmarkPlugin) {
 		super(leaf);
 		this.plugin = plugin;
 	}
@@ -51,7 +51,10 @@ export class SembleCollectionsView extends ItemView {
 		container.empty();
 		container.addClass("semble-collections-view");
 
-		container.createEl("h4", { text: "Collections" });
+		const header = container.createEl("div", { cls: "semble-page-header" });
+		const nav = header.createEl("div", { cls: "semble-nav-row" });
+		nav.createEl("span", { text: "Semble", cls: "semble-brand" });
+		header.createEl("h2", { text: "Collections", cls: "semble-page-title" });
 
 		if (!this.plugin.client) {
 			container.createEl("p", { text: "Not connected. Configure credentials in settings." });

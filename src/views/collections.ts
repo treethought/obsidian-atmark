@@ -26,7 +26,7 @@ export class SembleCollectionsView extends ItemView {
 	}
 
 	getDisplayText() {
-		return "Semble Collections";
+		return "Semble collections";
 	}
 
 	getIcon() {
@@ -45,7 +45,7 @@ export class SembleCollectionsView extends ItemView {
 		const view = leaf.view as SembleCardsView;
 		view.setCollection(uri, name);
 
-		workspace.revealLeaf(leaf);
+		void workspace.revealLeaf(leaf);
 	}
 
 	async render() {
@@ -76,16 +76,16 @@ export class SembleCollectionsView extends ItemView {
 
 		const createBtn = toolbar.createEl("button", { cls: "semble-create-btn" });
 		setIcon(createBtn, "plus");
-		createBtn.createEl("span", { text: "New Collection" });
+		createBtn.createEl("span", { text: "New collection" });
 		createBtn.addEventListener("click", () => {
-			new CreateCollectionModal(this.plugin, () => this.render()).open();
+			new CreateCollectionModal(this.plugin, () => { void this.render(); }).open();
 		});
 
 		const allCardsBtn = toolbar.createEl("button", { cls: "semble-toolbar-btn" });
 		setIcon(allCardsBtn, "layers");
-		allCardsBtn.createEl("span", { text: "All Cards" });
+		allCardsBtn.createEl("span", { text: "All cards" });
 		allCardsBtn.addEventListener("click", () => {
-			this.plugin.activateView(VIEW_TYPE_SEMBLE_CARDS);
+			void this.plugin.activateView(VIEW_TYPE_SEMBLE_CARDS);
 		});
 
 		const loading = container.createEl("p", { text: "Loading..." });
@@ -95,7 +95,8 @@ export class SembleCollectionsView extends ItemView {
 			loading.remove();
 
 			if (!resp.ok) {
-				container.createEl("p", { text: `Error: ${resp.data?.error}`, cls: "semble-error" });
+				const errorMsg = resp.data?.error ? String(resp.data.error) : "Unknown error";
+				container.createEl("p", { text: `Error: ${errorMsg}`, cls: "semble-error" });
 				return;
 			}
 
@@ -113,13 +114,13 @@ export class SembleCollectionsView extends ItemView {
 				const card = grid.createEl("div", { cls: "semble-card" });
 
 				card.addEventListener("click", () => {
-					this.plugin.openCollection(record.uri, col.name);
+					void this.plugin.openCollection(record.uri, col.name);
 				});
 
-				const header = card.createEl("div", { cls: "semble-card-header" });
-				header.createEl("span", { text: col.name, cls: "semble-card-title" });
+				const cardHeader = card.createEl("div", { cls: "semble-card-header" });
+				cardHeader.createEl("span", { text: col.name, cls: "semble-card-title" });
 
-				const accessIcon = header.createEl("span", {
+				const accessIcon = cardHeader.createEl("span", {
 					cls: `semble-access-icon semble-access-${col.accessType.toLowerCase()}`,
 					attr: { "aria-label": col.accessType },
 				});
@@ -143,9 +144,10 @@ export class SembleCollectionsView extends ItemView {
 					});
 				}
 			}
-		} catch (e) {
+		} catch (err) {
 			loading.remove();
-			container.createEl("p", { text: `Failed to load: ${e}`, cls: "semble-error" });
+			const message = err instanceof Error ? err.message : String(err);
+			container.createEl("p", { text: `Failed to load: ${message}`, cls: "semble-error" });
 		}
 	}
 

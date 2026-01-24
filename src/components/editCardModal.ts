@@ -42,7 +42,7 @@ export class EditCardModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("semble-collection-modal");
 
-		contentEl.createEl("h2", { text: "Edit Collections" });
+		contentEl.createEl("h2", { text: "Edit collections" });
 
 		if (!this.plugin.client) {
 			contentEl.createEl("p", { text: "Not connected." });
@@ -89,9 +89,10 @@ export class EditCardModal extends Modal {
 			}));
 
 			this.renderCollectionList(contentEl);
-		} catch (e) {
+		} catch (err) {
 			loading.remove();
-			contentEl.createEl("p", { text: `Error: ${e}`, cls: "semble-error" });
+			const message = err instanceof Error ? err.message : String(err);
+			contentEl.createEl("p", { text: `Error: ${message}`, cls: "semble-error" });
 		}
 	}
 
@@ -119,22 +120,22 @@ export class EditCardModal extends Modal {
 		const actions = contentEl.createEl("div", { cls: "semble-modal-actions" });
 
 		const deleteBtn = actions.createEl("button", { text: "Delete", cls: "semble-btn semble-btn-danger" });
-		deleteBtn.addEventListener("click", () => this.confirmDelete(contentEl));
+		deleteBtn.addEventListener("click", () => { this.confirmDelete(contentEl); });
 
-		const spacer = actions.createEl("div", { cls: "semble-spacer" });
+		actions.createEl("div", { cls: "semble-spacer" });
 
 		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "semble-btn semble-btn-secondary" });
-		cancelBtn.addEventListener("click", () => this.close());
+		cancelBtn.addEventListener("click", () => { this.close(); });
 
 		const saveBtn = actions.createEl("button", { text: "Save", cls: "semble-btn semble-btn-primary" });
 		saveBtn.id = "semble-save-btn";
 		saveBtn.disabled = true;
-		saveBtn.addEventListener("click", () => this.saveChanges());
+		saveBtn.addEventListener("click", () => { void this.saveChanges(); });
 	}
 
 	private confirmDelete(contentEl: HTMLElement) {
 		contentEl.empty();
-		contentEl.createEl("h2", { text: "Delete Card" });
+		contentEl.createEl("h2", { text: "Delete card" });
 		contentEl.createEl("p", { text: "Delete this card?", cls: "semble-warning-text" });
 
 		const actions = contentEl.createEl("div", { cls: "semble-modal-actions" });
@@ -142,11 +143,11 @@ export class EditCardModal extends Modal {
 		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "semble-btn semble-btn-secondary" });
 		cancelBtn.addEventListener("click", () => {
 			// Re-render the modal
-			this.onOpen();
+			void this.onOpen();
 		});
 
 		const confirmBtn = actions.createEl("button", { text: "Delete", cls: "semble-btn semble-btn-danger" });
-		confirmBtn.addEventListener("click", () => this.deleteCard());
+		confirmBtn.addEventListener("click", () => { void this.deleteCard(); });
 	}
 
 	private async deleteCard() {
@@ -160,7 +161,7 @@ export class EditCardModal extends Modal {
 			const rkey = this.cardUri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid card URI.", cls: "semble-error" });
+				contentEl.createEl("p", { text: "Invalid card uri.", cls: "semble-error" });
 				return;
 			}
 
@@ -174,14 +175,15 @@ export class EditCardModal extends Modal {
 			new Notice("Card deleted");
 			this.close();
 			this.onSuccess?.();
-		} catch (e) {
+		} catch (err) {
 			contentEl.empty();
-			contentEl.createEl("p", { text: `Failed to delete: ${e}`, cls: "semble-error" });
+			const message = err instanceof Error ? err.message : String(err);
+			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "semble-error" });
 		}
 	}
 
 	private updateSaveButton() {
-		const saveBtn = document.getElementById("semble-save-btn") as HTMLButtonElement;
+		const saveBtn = document.getElementById("semble-save-btn") as HTMLButtonElement | null;
 		if (!saveBtn) return;
 
 		// Check if any changes were made
@@ -235,7 +237,7 @@ export class EditCardModal extends Modal {
 					this.cardUri,
 					this.cardCid,
 					state.collection.uri,
-					collectionResp.data.cid as string
+					String(collectionResp.data.cid)
 				);
 			}
 
@@ -251,9 +253,10 @@ export class EditCardModal extends Modal {
 
 			this.close();
 			this.onSuccess?.();
-		} catch (e) {
+		} catch (err) {
 			contentEl.empty();
-			contentEl.createEl("p", { text: `Failed to save: ${e}`, cls: "semble-error" });
+			const message = err instanceof Error ? err.message : String(err);
+			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "semble-error" });
 		}
 	}
 

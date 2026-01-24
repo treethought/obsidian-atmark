@@ -51,7 +51,7 @@ export class SembleCardsView extends ItemView {
 	setCollection(uri: string | null, name: string) {
 		this.collectionUri = uri;
 		this.collectionName = name;
-		this.render();
+		void this.render();
 	}
 
 	async onOpen() {
@@ -84,8 +84,8 @@ export class SembleCardsView extends ItemView {
 		const links = allLinks.filter((link) => link.value.collection.uri === collectionUri);
 
 		// Get cards in collection
-		const cardUris = new Set(links.map((link) => link.value.card.uri as string));
-		const cards = allCards.filter((card) => cardUris.has(card.uri as string));
+		const cardUris = new Set(links.map((link) => String(link.value.card.uri)));
+		const cards = allCards.filter((card) => cardUris.has(String(card.uri)));
 
 		return cards;
 	}
@@ -111,16 +111,18 @@ export class SembleCardsView extends ItemView {
 				} else {
 					cards = await this.getAllCards();
 				}
-			} catch (e) {
+			} catch (err) {
 				loading.remove();
-				container.createEl("p", { text: `Failed to load cards: ${e}`, cls: "semble-error" });
+				const message = err instanceof Error ? err.message : String(err);
+				container.createEl("p", { text: `Failed to load cards: ${message}`, cls: "semble-error" });
 				return;
 			}
 
 			const collectionsResp = await getCollections(this.plugin.client, this.plugin.settings.identifier);
 			if (!collectionsResp.ok) {
 				loading.remove();
-				container.createEl("p", { text: `Failed to load collections: ${collectionsResp.data?.error}`, cls: "semble-error" });
+				const errorMsg = collectionsResp.data?.error ? String(collectionsResp.data.error) : "Unknown error";
+				container.createEl("p", { text: `Failed to load collections: ${errorMsg}`, cls: "semble-error" });
 				return;
 			}
 			const collections = collectionsResp.data?.records as unknown as CollectionRecord[];
@@ -139,14 +141,15 @@ export class SembleCardsView extends ItemView {
 			for (const record of cards) {
 				try {
 					this.renderCard(grid, record);
-				} catch (e) {
-					console.log(JSON.stringify(record.value, null, 2));
-					console.error(`Failed to render card ${record.uri}: ${e}`);
+				} catch (err) {
+					const message = err instanceof Error ? err.message : String(err);
+					console.error(`Failed to render card ${record.uri}: ${message}`);
 				}
 			}
-		} catch (e) {
+		} catch (err) {
 			loading.remove();
-			container.createEl("p", { text: `Failed to load: ${e}`, cls: "semble-error" });
+			const message = err instanceof Error ? err.message : String(err);
+			container.createEl("p", { text: `Failed to load: ${message}`, cls: "semble-error" });
 		}
 	}
 
@@ -159,7 +162,7 @@ export class SembleCardsView extends ItemView {
 		const backBtn = nav.createEl("button", { cls: "semble-back-btn" });
 		setIcon(backBtn, "arrow-left");
 		backBtn.addEventListener("click", () => {
-			this.plugin.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS);
+			void this.plugin.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS);
 		});
 
 		nav.createEl("span", { text: "Semble", cls: "semble-brand" });
@@ -208,7 +211,7 @@ export class SembleCardsView extends ItemView {
 		addBtn.addEventListener("click", (e) => {
 			e.stopPropagation();
 			new EditCardModal(this.plugin, record.uri, record.cid, () => {
-				this.render();
+				void this.render();
 			}).open();
 		});
 

@@ -17,7 +17,7 @@ export class CreateCollectionModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("semble-collection-modal");
 
-		contentEl.createEl("h2", { text: "New Collection" });
+		contentEl.createEl("h2", { text: "New collection" });
 
 		if (!this.plugin.client) {
 			contentEl.createEl("p", { text: "Not connected." });
@@ -59,38 +59,46 @@ export class CreateCollectionModal extends Modal {
 			type: "submit",
 		});
 
-		form.addEventListener("submit", async (e) => {
+		form.addEventListener("submit", (e) => {
 			e.preventDefault();
-
-			const name = nameInput.value.trim();
-			if (!name) {
-				new Notice("Please enter a collection name");
-				return;
-			}
-
-			createBtn.disabled = true;
-			createBtn.textContent = "Creating...";
-
-			try {
-				await createCollection(
-					this.plugin.client!,
-					this.plugin.settings.identifier,
-					name,
-					descInput.value.trim()
-				);
-
-				new Notice(`Created collection "${name}"`);
-				this.close();
-				this.onSuccess?.();
-			} catch (e) {
-				new Notice(`Failed to create collection: ${e}`);
-				createBtn.disabled = false;
-				createBtn.textContent = "Create";
-			}
+			void this.handleSubmit(nameInput, descInput, createBtn);
 		});
 
 		// Focus name input
 		nameInput.focus();
+	}
+
+	private async handleSubmit(
+		nameInput: HTMLInputElement,
+		descInput: HTMLTextAreaElement,
+		createBtn: HTMLButtonElement
+	) {
+		const name = nameInput.value.trim();
+		if (!name) {
+			new Notice("Please enter a collection name");
+			return;
+		}
+
+		createBtn.disabled = true;
+		createBtn.textContent = "Creating...";
+
+		try {
+			await createCollection(
+				this.plugin.client!,
+				this.plugin.settings.identifier,
+				name,
+				descInput.value.trim()
+			);
+
+			new Notice(`Created collection "${name}"`);
+			this.close();
+			this.onSuccess?.();
+		} catch (err) {
+			const message = err instanceof Error ? err.message : String(err);
+			new Notice(`Failed to create collection: ${message}`);
+			createBtn.disabled = false;
+			createBtn.textContent = "Create";
+		}
 	}
 
 	onClose() {

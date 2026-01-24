@@ -1,8 +1,226 @@
-/*
+.semble-card-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: 16px;
+	padding: 8px 0;
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+.semble-card {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 8px;
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	transition: box-shadow 0.15s ease;
+	cursor: pointer;
+}
 
-If your plugin does not need CSS, delete this file.
+.semble-card:hover {
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+	border-color: var(--interactive-accent);
+}
 
-*/
+.semble-card-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.semble-card-title {
+	font-weight: 600;
+	font-size: 1.1em;
+	color: var(--text-normal);
+}
+
+.semble-badge {
+	font-size: 0.7em;
+	padding: 2px 8px;
+	border-radius: 12px;
+	text-transform: uppercase;
+	font-weight: 500;
+	flex-shrink: 0;
+}
+
+.semble-badge-open {
+	background: var(--color-green);
+	color: var(--text-on-accent);
+}
+
+.semble-badge-closed {
+	background: var(--color-orange);
+	color: var(--text-on-accent);
+}
+
+/* Access type icons */
+.semble-access-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	flex-shrink: 0;
+}
+
+.semble-access-icon svg {
+	width: 14px;
+	height: 14px;
+}
+
+.semble-access-open {
+	background: var(--color-green);
+	color: var(--text-on-accent);
+}
+
+.semble-access-closed {
+	background: var(--color-orange);
+	color: var(--text-on-accent);
+}
+
+.semble-card-desc {
+	color: var(--text-muted);
+	font-size: 0.9em;
+	margin: 0;
+	flex-grow: 1;
+}
+
+.semble-card-footer {
+	display: flex;
+	justify-content: space-between;
+	font-size: 0.8em;
+	color: var(--text-faint);
+	margin-top: auto;
+	padding-top: 8px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.semble-error {
+	color: var(--text-error);
+}
+
+/* Card type badges */
+.semble-badge-note {
+	background: var(--color-blue);
+	color: var(--text-on-accent);
+}
+
+.semble-badge-url {
+	background: var(--color-purple);
+	color: var(--text-on-accent);
+}
+
+/* Page header */
+.semble-page-header {
+	margin-bottom: 16px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.semble-nav-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 8px;
+}
+
+.semble-brand {
+	font-size: 0.85em;
+	font-weight: 600;
+	color: var(--text-accent);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.semble-page-title {
+	margin: 0;
+	font-size: 1.8em;
+	font-weight: 700;
+	color: var(--text-normal);
+}
+
+.semble-card-text {
+	margin: 0;
+	white-space: pre-wrap;
+	line-height: 1.5;
+}
+
+.semble-card-url {
+	font-size: 0.85em;
+	color: var(--text-accent);
+	text-decoration: none;
+	word-break: break-all;
+}
+
+.semble-card-url:hover {
+	text-decoration: underline;
+}
+
+.semble-card-site {
+	font-size: 0.8em;
+	color: var(--text-faint);
+}
+
+.semble-card-image {
+	width: 100%;
+	max-height: 120px;
+	object-fit: cover;
+	border-radius: 4px;
+	margin: 4px 0;
+}
+
+/* Back button */
+.semble-back-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 6px;
+	cursor: pointer;
+	color: var(--text-muted);
+}
+
+.semble-back-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Filter chips */
+.semble-filter-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	margin-bottom: 16px;
+}
+
+.semble-chip {
+	padding: 6px 14px;
+	border-radius: 16px;
+	border: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+	color: var(--text-muted);
+	font-size: 0.85em;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.semble-chip:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.semble-chip-active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.semble-chip-active:hover {
+	background: var(--interactive-accent-hover);
+}

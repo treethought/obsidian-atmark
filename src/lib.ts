@@ -26,3 +26,23 @@ export async function getCards(client: Client, repo: string) {
 		},
 	});
 }
+
+export async function getCollectionLinks(client: Client, repo: string) {
+	return await client.get("com.atproto.repo.listRecords", {
+		params: {
+			repo: repo as ActorIdentifier,
+			collection: "network.cosmik.collectionLink" as Nsid,
+			limit: 100,
+		},
+	});
+}
+
+export async function getRecord(client: Client, repo: string, collection: string, rkey: string) {
+	return await client.get("com.atproto.repo.getRecord", {
+		params: {
+			repo: repo as ActorIdentifier,
+			collection: collection as Nsid,
+			rkey,
+		},
+	});
+}

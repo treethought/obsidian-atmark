@@ -1,4 +1,5 @@
 import type { Client } from "@atcute/client";
+import { setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { getBookmarks } from "../lib";
 import type { ATmarkItem, DataSource, SourceFilter } from "./types";
@@ -30,6 +31,15 @@ class BookmarkItem implements ATmarkItem {
 
 	canAddNotes(): boolean {
 		return false;
+	}
+
+	canEdit(): boolean {
+		return true;
+	}
+
+	openEditModal(onSuccess?: () => void): void {
+		const { EditBookmarkModal } = require("../components/editBookmarkModal");
+		new EditBookmarkModal(this.plugin, this.record, onSuccess).open();
 	}
 
 	render(container: HTMLElement): void {
@@ -183,9 +193,18 @@ export class BookmarkSource implements DataSource {
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, any>, onChange: () => void): void {
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, any>, onChange: () => void, plugin: ATmarkPlugin): void {
 		const section = container.createEl("div", { cls: "atmark-filter-section" });
-		section.createEl("h3", { text: "Tags", cls: "atmark-filter-title" });
+
+		const titleRow = section.createEl("div", { cls: "atmark-filter-title-row" });
+		titleRow.createEl("h3", { text: "Tags", cls: "atmark-filter-title" });
+
+		const createBtn = titleRow.createEl("button", { cls: "atmark-filter-create-btn" });
+		setIcon(createBtn, "plus");
+		createBtn.addEventListener("click", () => {
+			const { CreateTagModal } = require("../components/createTagModal");
+			new CreateTagModal(plugin, onChange).open();
+		});
 
 		const chips = section.createEl("div", { cls: "atmark-filter-chips" });
 

@@ -5,6 +5,7 @@ Obsidian plugin for AT Protocol bookmarking platforms.
 ## Supported platforms
 
 - **Semble** (`network.cosmik.*`) - Collections and cards
+- **Bookmarks** (`community.lexicon.bookmarks.*`) - Community bookmarks lexicon with tag filtering (supports kipclip tags)
 
 ## Installation
 
@@ -13,7 +14,7 @@ Install via [BRAT](https://github.com/TfTHacker/obsidian42-brat):
 1. Install the BRAT plugin from Community Plugins
 2. Open BRAT settings
 3. Click "Add Beta plugin"
-4. Enter: `treethought/obsidian-atmark`
+4. Enter the GitHub URL: `https://github.com/treethought/obsidian-atmark`
 5. Enable the plugin in Community Plugins
 
 ## Configuration

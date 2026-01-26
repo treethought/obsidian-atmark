@@ -36,6 +36,15 @@ class SembleItem implements ATmarkItem {
 		return true;
 	}
 
+	canEdit(): boolean {
+		return true;
+	}
+
+	openEditModal(onSuccess?: () => void): void {
+		const { EditCardModal } = require("../components/editCardModal");
+		new EditCardModal(this.plugin, this.record.uri, this.record.cid, onSuccess).open();
+	}
+
 	render(container: HTMLElement): void {
 		const el = container.createEl("div", { cls: "semble-card-content" });
 
@@ -223,9 +232,18 @@ export class SembleSource implements DataSource {
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, any>, onChange: () => void): void {
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, any>, onChange: () => void, plugin: ATmarkPlugin): void {
 		const section = container.createEl("div", { cls: "atmark-filter-section" });
-		section.createEl("h3", { text: "Semble Collections", cls: "atmark-filter-title" });
+
+		const titleRow = section.createEl("div", { cls: "atmark-filter-title-row" });
+		titleRow.createEl("h3", { text: "Semble Collections", cls: "atmark-filter-title" });
+
+		const createBtn = titleRow.createEl("button", { cls: "atmark-filter-create-btn" });
+		setIcon(createBtn, "plus");
+		createBtn.addEventListener("click", () => {
+			const { CreateCollectionModal } = require("../components/createCollectionModal");
+			new CreateCollectionModal(plugin, onChange).open();
+		});
 
 		const chips = section.createEl("div", { cls: "atmark-filter-chips" });
 

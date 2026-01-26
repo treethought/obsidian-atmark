@@ -1,4 +1,4 @@
-export { getRecord, deleteRecord, getProfile } from "./lib/atproto";
+export { getRecord, deleteRecord, putRecord, getProfile } from "./lib/atproto";
 
 export {
 	getSembleCollections as getCollections,

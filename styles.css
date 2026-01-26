@@ -84,6 +84,13 @@
 	gap: 8px;
 }
 
+.atmark-filter-title-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+}
+
 .atmark-filter-title {
 	margin: 0;
 	font-size: var(--font-small);
@@ -91,6 +98,32 @@
 	color: var(--text-muted);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
+}
+
+.atmark-filter-create-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-muted);
+	transition: all 0.15s ease;
+}
+
+.atmark-filter-create-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.atmark-filter-create-btn svg {
+	width: 14px;
+	height: 14px;
 }
 
 .atmark-filter-chips {
@@ -154,6 +187,38 @@
 	justify-content: space-between;
 	align-items: flex-start;
 	gap: 8px;
+}
+
+.atmark-item-edit-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	padding: 0;
+	margin-left: auto;
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-faint);
+	opacity: 0.6;
+	transition: all 0.15s ease;
+}
+
+.atmark-item:hover .atmark-item-edit-btn {
+	opacity: 1;
+}
+
+.atmark-item-edit-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+	opacity: 1;
+}
+
+.atmark-item-edit-btn svg {
+	width: 14px;
+	height: 14px;
 }
 
 .atmark-badge {
@@ -1034,4 +1099,31 @@
 
 .semble-add-note-form .semble-btn {
 	align-self: flex-end;
+}
+
+/* Tag editing */
+.semble-tags-container {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin-bottom: 8px;
+}
+
+.semble-tag-row {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.semble-tag-row .semble-input {
+	flex: 1;
+}
+
+.semble-tag-remove-btn {
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	font-size: 20px;
+	line-height: 1;
+	flex-shrink: 0;
 }

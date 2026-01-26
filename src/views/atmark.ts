@@ -138,7 +138,8 @@ export class ATmarkView extends ItemView {
 			sourceData.source.renderFilterUI(
 				filtersContainer,
 				sourceData.filters,
-				() => void this.render()
+				() => void this.render(),
+				this.plugin
 			);
 		}
 	}
@@ -146,7 +147,11 @@ export class ATmarkView extends ItemView {
 	private renderItem(container: HTMLElement, item: ATmarkItem) {
 		const el = container.createEl("div", { cls: "atmark-item" });
 
-		el.addEventListener("click", () => {
+		el.addEventListener("click", (e) => {
+			// Don't open detail if clicking the edit button
+			if ((e.target as HTMLElement).closest(".atmark-item-edit-btn")) {
+				return;
+			}
 			new CardDetailModal(this.plugin, item, () => {
 				void this.render();
 			}).open();
@@ -158,6 +163,20 @@ export class ATmarkView extends ItemView {
 			text: source,
 			cls: `atmark-badge atmark-badge-${source}`,
 		});
+
+		// Add edit button if item supports it
+		if (item.canEdit()) {
+			const editBtn = header.createEl("button", {
+				cls: "atmark-item-edit-btn",
+			});
+			setIcon(editBtn, "more-vertical");
+			editBtn.addEventListener("click", (e) => {
+				e.stopPropagation();
+				item.openEditModal(() => {
+					void this.render();
+				});
+			});
+		}
 
 		item.render(el);
 

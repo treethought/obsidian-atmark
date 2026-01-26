@@ -1,8 +1,28 @@
+import type { Client } from "@atcute/client";
+import { getProfile } from "../lib";
+
 export interface ProfileData {
 	did: string;
 	handle: string;
 	displayName?: string;
 	avatar?: string;
+}
+
+export async function fetchProfileData(client: Client, actor: string): Promise<ProfileData | null> {
+	try {
+		const resp = await getProfile(client, actor);
+		if (!resp.ok) return null;
+
+		return {
+			did: resp.data.did,
+			handle: resp.data.handle,
+			displayName: resp.data.displayName,
+			avatar: resp.data.avatar,
+		};
+	} catch (e) {
+		console.error("Failed to fetch profile:", e);
+		return null;
+	}
 }
 
 export function renderProfileIcon(

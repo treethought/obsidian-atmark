@@ -3,8 +3,7 @@ import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient, createPublicClient } from "./auth";
 import { getProfile } from "./lib";
-import { SembleCollectionsView, VIEW_TYPE_SEMBLE_COLLECTIONS } from "views/collections";
-import { SembleCardsView, VIEW_TYPE_SEMBLE_CARDS } from "views/cards";
+import { ATmarkView, VIEW_TYPE_ATMARK } from "views/atmark";
 import type { ProfileData } from "components/profileIcon";
 
 export default class ATmarkPlugin extends Plugin {
@@ -16,25 +15,14 @@ export default class ATmarkPlugin extends Plugin {
 		await this.loadSettings();
 		await this.initClient();
 
-		this.registerView(VIEW_TYPE_SEMBLE_COLLECTIONS, (leaf) => {
-			return new SembleCollectionsView(leaf, this);
-		});
-
-		this.registerView(VIEW_TYPE_SEMBLE_CARDS, (leaf) => {
-			return new SembleCardsView(leaf, this);
-		});
-
-
-		this.addCommand({
-			id: "view-semble-collections",
-			name: "View semble collections",
-			callback: () => { void this.activateView(VIEW_TYPE_SEMBLE_COLLECTIONS); },
+		this.registerView(VIEW_TYPE_ATMARK, (leaf) => {
+			return new ATmarkView(leaf, this);
 		});
 
 		this.addCommand({
-			id: "view-semble-cards",
-			name: "View semble cards",
-			callback: () => { void this.activateView(VIEW_TYPE_SEMBLE_CARDS); },
+			id: "view-atmark",
+			name: "View ATmark",
+			callback: () => { void this.activateView(VIEW_TYPE_ATMARK); },
 		});
 
 		this.addSettingTab(new SettingTab(this.app, this));
@@ -102,26 +90,13 @@ export default class ATmarkPlugin extends Plugin {
 		}
 
 		// Our view could not be found in the workspace, create a new leaf
-		// in the right sidebar for it
-		leaf = workspace.getRightLeaf(false);
-		// leaf = workspace.getMostRecentLeaf()
+		leaf = workspace.getMostRecentLeaf()
 		await leaf?.setViewState({ type: v, active: true });
 
 		// "Reveal" the leaf in case it is in a collapsed sidebar
 		if (leaf) {
 			void workspace.revealLeaf(leaf);
 		}
-	}
-
-	async openCollection(uri: string, name: string) {
-		const { workspace } = this.app;
-		const leaf = workspace.getLeaf("tab");
-		await leaf.setViewState({ type: VIEW_TYPE_SEMBLE_CARDS, active: true });
-
-		const view = leaf.view as SembleCardsView;
-		view.setCollection(uri, name);
-
-		void workspace.revealLeaf(leaf);
 	}
 
 	async loadSettings() {

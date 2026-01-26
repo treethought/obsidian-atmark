@@ -1,3 +1,201 @@
+/* ATmark View */
+.atmark-view {
+	padding: 20px;
+}
+
+.atmark-header {
+	margin-bottom: 24px;
+	padding-bottom: 16px;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.atmark-nav {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 16px;
+}
+
+.atmark-title {
+	margin: 0;
+	font-size: var(--h1-size);
+	font-weight: var(--font-bold);
+	color: var(--text-accent);
+}
+
+.atmark-source-selector {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.atmark-source-option {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	padding: 8px 20px;
+	cursor: pointer;
+	user-select: none;
+	border-radius: var(--radius-m);
+	border: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+	transition: all 0.15s ease;
+}
+
+.atmark-source-option:hover {
+	background: var(--background-modifier-hover);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.atmark-source-option:has(input:checked) {
+	background: var(--interactive-accent);
+	border-color: var(--interactive-accent);
+}
+
+.atmark-source-option:has(input:checked) .atmark-source-text {
+	color: var(--text-on-accent);
+}
+
+.atmark-source-radio {
+	display: none;
+}
+
+.atmark-source-text {
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
+	color: var(--text-normal);
+}
+
+.atmark-filters {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	margin-bottom: 16px;
+}
+
+.atmark-filter-section {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.atmark-filter-title {
+	margin: 0;
+	font-size: var(--font-small);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.atmark-filter-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.atmark-chip {
+	padding: 6px 14px;
+	border-radius: var(--radius-full);
+	border: 1px solid var(--background-modifier-border);
+	background: var(--background-secondary);
+	color: var(--text-muted);
+	font-size: var(--font-small);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.atmark-chip:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+.atmark-chip-active {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+	border-color: var(--interactive-accent);
+}
+
+.atmark-chip-active:hover {
+	background: var(--interactive-accent-hover);
+}
+
+.atmark-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+	gap: 16px;
+	padding: 8px 0;
+}
+
+.atmark-item {
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	transition: box-shadow 0.15s ease, border-color 0.15s ease;
+	cursor: pointer;
+}
+
+.atmark-item:hover {
+	box-shadow: var(--shadow-s);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.atmark-item-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
+	gap: 8px;
+}
+
+.atmark-badge {
+	font-size: var(--font-smallest);
+	padding: 2px 8px;
+	border-radius: var(--radius-s);
+	text-transform: uppercase;
+	font-weight: var(--font-medium);
+	flex-shrink: 0;
+	opacity: 0.8;
+}
+
+.atmark-badge-semble {
+	background: var(--color-green);
+	color: var(--text-on-accent);
+}
+
+.atmark-badge-bookmark {
+	background: var(--color-cyan);
+	color: var(--text-on-accent);
+}
+
+.atmark-item-footer {
+	display: flex;
+	justify-content: space-between;
+	font-size: var(--font-smallest);
+	color: var(--text-faint);
+	margin-top: auto;
+	padding-top: 8px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmark-date {
+	font-size: var(--font-smallest);
+	color: var(--text-faint);
+}
+
+.atmark-error {
+	color: var(--text-error);
+}
+
+/* Legacy Semble classes for backwards compatibility */
 .semble-card-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -107,6 +305,44 @@
 	color: var(--text-on-accent);
 }
 
+.semble-badge-bookmark {
+	background: var(--color-cyan);
+	color: var(--text-on-accent);
+}
+
+.semble-badge-source {
+	font-size: var(--font-smallest);
+	opacity: 0.8;
+}
+
+.semble-badge-semble {
+	background: var(--color-green);
+	color: var(--text-on-accent);
+}
+
+/* Tags */
+.semble-card-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.semble-tag {
+	font-size: var(--font-smallest);
+	padding: 2px 8px;
+	border-radius: var(--radius-s);
+	background: var(--background-modifier-border);
+	color: var(--text-muted);
+	border: 1px solid var(--background-modifier-border-hover);
+}
+
+.semble-detail-tags-section {
+	margin-top: 20px;
+	padding-top: 20px;
+	border-top: 1px solid var(--background-modifier-border);
+}
+
 /* Page header */
 .semble-page-header {
 	margin-bottom: 16px;
@@ -197,6 +433,36 @@
 
 .semble-back-btn:hover {
 	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+}
+
+/* Source filter toggles */
+.semble-source-filters {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	padding: 12px 0;
+	margin-bottom: 12px;
+}
+
+.semble-source-filter-label {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.semble-source-filter-checkbox {
+	width: 16px;
+	height: 16px;
+	cursor: pointer;
+	accent-color: var(--interactive-accent);
+}
+
+.semble-source-filter-text {
+	font-size: var(--font-small);
+	font-weight: var(--font-medium);
 	color: var(--text-normal);
 }
 

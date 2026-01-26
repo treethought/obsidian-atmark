@@ -52,7 +52,7 @@ export class ATmarkView extends ItemView {
 	}
 
 	getIcon() {
-		return "bookmark";
+		return "layers";
 	}
 
 	async onOpen() {
@@ -115,8 +115,9 @@ export class ATmarkView extends ItemView {
 		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		nav.createEl("h1", { text: "ATmark", cls: "atmark-title" });
 
-		// Source selector in the center
-		const sourceSelector = nav.createEl("div", { cls: "atmark-source-selector" });
+		renderProfileIcon(nav, this.plugin.profile);
+
+		const sourceSelector = header.createEl("div", { cls: "atmark-source-selector" });
 		const sources: SourceType[] = ["semble", "bookmark", "margin"];
 
 		for (const source of sources) {
@@ -138,8 +139,6 @@ export class ATmarkView extends ItemView {
 				cls: "atmark-source-text",
 			});
 		}
-
-		renderProfileIcon(nav, this.plugin.profile);
 
 		// Let the active source render its filters
 		const filtersContainer = container.createEl("div", { cls: "atmark-filters" });

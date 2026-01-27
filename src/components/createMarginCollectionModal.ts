@@ -26,7 +26,6 @@ export class CreateMarginCollectionModal extends Modal {
 
 		const form = contentEl.createEl("form", { cls: "atmark-form" });
 
-		// Name field
 		const nameGroup = form.createEl("div", { cls: "atmark-form-group" });
 		nameGroup.createEl("label", { text: "Name", attr: { for: "collection-name" } });
 		const nameInput = nameGroup.createEl("input", {
@@ -35,7 +34,6 @@ export class CreateMarginCollectionModal extends Modal {
 			attr: { id: "collection-name", placeholder: "Collection name", required: "true" },
 		});
 
-		// Icon field
 		const iconGroup = form.createEl("div", { cls: "atmark-form-group" });
 		iconGroup.createEl("label", { text: "Icon (optional)", attr: { for: "collection-icon" } });
 		const iconInput = iconGroup.createEl("input", {
@@ -44,7 +42,6 @@ export class CreateMarginCollectionModal extends Modal {
 			attr: { id: "collection-icon" },
 		});
 
-		// Description field
 		const descGroup = form.createEl("div", { cls: "atmark-form-group" });
 		descGroup.createEl("label", { text: "Description", attr: { for: "collection-desc" } });
 		const descInput = descGroup.createEl("textarea", {
@@ -52,7 +49,6 @@ export class CreateMarginCollectionModal extends Modal {
 			attr: { id: "collection-desc", placeholder: "Optional description", rows: "3" },
 		});
 
-		// Action buttons
 		const actions = form.createEl("div", { cls: "atmark-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
@@ -73,7 +69,6 @@ export class CreateMarginCollectionModal extends Modal {
 			void this.handleSubmit(nameInput, iconInput, descInput, createBtn);
 		});
 
-		// Focus name input
 		nameInput.focus();
 	}
 

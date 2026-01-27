@@ -39,7 +39,6 @@ export function renderProfileIcon(
 		return wrapper;
 	}
 
-	// Avatar button
 	const avatarBtn = wrapper.createEl("button", { cls: "semble-avatar-btn" });
 
 	if (profile.avatar) {
@@ -57,7 +56,6 @@ export function renderProfileIcon(
 		avatarBtn.createEl("span", { text: initials, cls: "semble-avatar-initials" });
 	}
 
-	// User info (display name and handle)
 	const info = wrapper.createEl("div", { cls: "semble-profile-info" });
 
 	if (profile.displayName) {

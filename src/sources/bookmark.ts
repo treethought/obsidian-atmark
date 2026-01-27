@@ -52,7 +52,6 @@ class BookmarkItem implements ATmarkItem {
 		const bookmark = this.record.value;
 		const enriched = bookmark.enriched;
 
-		// Display tags
 		if (bookmark.tags && bookmark.tags.length > 0) {
 			const tagsContainer = el.createEl("div", { cls: "atmark-item-tags" });
 			for (const tag of bookmark.tags) {
@@ -129,7 +128,6 @@ class BookmarkItem implements ATmarkItem {
 		});
 		link.setAttr("target", "_blank");
 
-		// Tags section
 		if (bookmark.tags && bookmark.tags.length > 0) {
 			const tagsSection = container.createEl("div", { cls: "atmark-item-tags-section" });
 			tagsSection.createEl("h3", { text: "Tags", cls: "atmark-detail-section-title" });
@@ -165,7 +163,6 @@ export class BookmarkSource implements DataSource {
 
 		let bookmarks = bookmarksResp.data.records as BookmarkRecord[];
 
-		// Apply tag filter if specified
 		const tagFilter = filters.find(f => f.type === "bookmarkTag");
 		if (tagFilter && tagFilter.value) {
 			bookmarks = bookmarks.filter((record: BookmarkRecord) =>
@@ -180,7 +177,6 @@ export class BookmarkSource implements DataSource {
 		const bookmarksResp = await getBookmarks(this.client, this.repo);
 		if (!bookmarksResp.ok) return [];
 
-		// Extract unique tags
 		const tagSet = new Set<string>();
 		const records = bookmarksResp.data.records as BookmarkRecord[];
 		for (const record of records) {
@@ -212,7 +208,6 @@ export class BookmarkSource implements DataSource {
 
 		const chips = section.createEl("div", { cls: "atmark-filter-chips" });
 
-		// All chip
 		const allChip = chips.createEl("button", {
 			text: "All",
 			cls: `atmark-chip ${!activeFilters.has("bookmarkTag") ? "atmark-chip-active" : ""}`,
@@ -222,7 +217,6 @@ export class BookmarkSource implements DataSource {
 			onChange();
 		});
 
-		// Get tags and render chips
 		void this.getAvailableFilters().then(tags => {
 			for (const tag of tags) {
 				const chip = chips.createEl("button", {

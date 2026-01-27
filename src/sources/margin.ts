@@ -57,7 +57,6 @@ class MarginItem implements ATmarkItem {
 		const el = container.createEl("div", { cls: "atmark-item-content" });
 		const bookmark = this.record.value;
 
-		// Display collections
 		if (this.collections.length > 0) {
 			const collectionsContainer = el.createEl("div", { cls: "atmark-item-collections" });
 			for (const collection of this.collections) {
@@ -65,7 +64,6 @@ class MarginItem implements ATmarkItem {
 			}
 		}
 
-		// Display tags
 		if (bookmark.tags && bookmark.tags.length > 0) {
 			const tagsContainer = el.createEl("div", { cls: "atmark-item-tags" });
 			for (const tag of bookmark.tags) {
@@ -112,7 +110,6 @@ class MarginItem implements ATmarkItem {
 		});
 		link.setAttr("target", "_blank");
 
-		// Collections section
 		if (this.collections.length > 0) {
 			const collectionsSection = container.createEl("div", { cls: "atmark-item-collections-section" });
 			collectionsSection.createEl("h3", { text: "Collections", cls: "atmark-detail-section-title" });
@@ -122,7 +119,6 @@ class MarginItem implements ATmarkItem {
 			}
 		}
 
-		// Tags section
 		if (bookmark.tags && bookmark.tags.length > 0) {
 			const tagsSection = container.createEl("div", { cls: "atmark-item-tags-section" });
 			tagsSection.createEl("h3", { text: "Tags", cls: "atmark-detail-section-title" });
@@ -184,7 +180,6 @@ export class MarginSource implements DataSource {
 			}
 		}
 
-		// Apply collection filter if specified
 		const collectionFilter = filters.find(f => f.type === "marginCollection");
 		if (collectionFilter && collectionFilter.value) {
 			if (itemsResp.ok) {
@@ -197,7 +192,6 @@ export class MarginSource implements DataSource {
 			}
 		}
 
-		// Apply tag filter if specified
 		const tagFilter = filters.find(f => f.type === "marginTag");
 		if (tagFilter && tagFilter.value) {
 			bookmarks = bookmarks.filter((record: MarginBookmarkRecord) =>
@@ -213,7 +207,6 @@ export class MarginSource implements DataSource {
 	async getAvailableFilters(): Promise<SourceFilter[]> {
 		const filters: SourceFilter[] = [];
 
-		// Get collections
 		const collectionsResp = await getMarginCollections(this.client, this.repo);
 		if (collectionsResp.ok) {
 			const collections = collectionsResp.data.records as MarginCollectionRecord[];
@@ -224,7 +217,6 @@ export class MarginSource implements DataSource {
 			})));
 		}
 
-		// Get tags
 		const bookmarksResp = await getMarginBookmarks(this.client, this.repo);
 		if (bookmarksResp.ok) {
 			const tagSet = new Set<string>();
@@ -247,7 +239,6 @@ export class MarginSource implements DataSource {
 	}
 
 	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void {
-		// Collections section
 		const collectionsSection = container.createEl("div", { cls: "atmark-filter-section" });
 
 		const collectionsTitleRow = collectionsSection.createEl("div", { cls: "atmark-filter-title-row" });
@@ -261,7 +252,6 @@ export class MarginSource implements DataSource {
 
 		const collectionsChips = collectionsSection.createEl("div", { cls: "atmark-filter-chips" });
 
-		// All collections chip
 		const allCollectionsChip = collectionsChips.createEl("button", {
 			text: "All",
 			cls: `atmark-chip ${!activeFilters.has("marginCollection") ? "atmark-chip-active" : ""}`,
@@ -271,7 +261,6 @@ export class MarginSource implements DataSource {
 			onChange();
 		});
 
-		// Tags section
 		const tagsSection = container.createEl("div", { cls: "atmark-filter-section" });
 
 		const tagsTitleRow = tagsSection.createEl("div", { cls: "atmark-filter-title-row" });
@@ -279,7 +268,6 @@ export class MarginSource implements DataSource {
 
 		const tagsChips = tagsSection.createEl("div", { cls: "atmark-filter-chips" });
 
-		// All tags chip
 		const allTagsChip = tagsChips.createEl("button", {
 			text: "All",
 			cls: `atmark-chip ${!activeFilters.has("marginTag") ? "atmark-chip-active" : ""}`,
@@ -289,7 +277,6 @@ export class MarginSource implements DataSource {
 			onChange();
 		});
 
-		// Get filters and render chips
 		void this.getAvailableFilters().then(filters => {
 			for (const filter of filters) {
 				if (filter.type === "marginCollection") {

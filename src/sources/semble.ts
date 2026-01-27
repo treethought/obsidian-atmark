@@ -163,7 +163,6 @@ export class SembleSource implements DataSource {
 
 		const allSembleCards = cardsResp.data.records as CardRecord[];
 
-		// Build notes map
 		const notesMap = new Map<string, Array<{ uri: string; text: string }>>();
 		for (const record of allSembleCards) {
 			if (record.value.type === "NOTE") {
@@ -186,7 +185,6 @@ export class SembleSource implements DataSource {
 			return true;
 		});
 
-		// Apply collection filter if specified
 		const collectionFilter = filters.find(f => f.type === "sembleCollection");
 		if (collectionFilter && collectionFilter.value) {
 			const linksResp = await getCollectionLinks(this.client, this.repo);
@@ -200,7 +198,6 @@ export class SembleSource implements DataSource {
 			}
 		}
 
-		// Create SembleItem objects
 		return sembleCards.map((record: CardRecord) =>
 			new SembleItem(record, notesMap.get(record.uri) || [], plugin)
 		);
@@ -232,7 +229,6 @@ export class SembleSource implements DataSource {
 
 		const chips = section.createEl("div", { cls: "atmark-filter-chips" });
 
-		// All chip
 		const allChip = chips.createEl("button", {
 			text: "All",
 			cls: `atmark-chip ${!activeFilters.has("sembleCollection") ? "atmark-chip-active" : ""}`,

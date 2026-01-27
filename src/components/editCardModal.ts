@@ -40,7 +40,7 @@ export class EditCardModal extends Modal {
 	async onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("semble-collection-modal");
+		contentEl.addClass("atmark-modal");
 
 		contentEl.createEl("h2", { text: "Edit collections" });
 
@@ -52,7 +52,6 @@ export class EditCardModal extends Modal {
 		const loading = contentEl.createEl("p", { text: "Loading..." });
 
 		try {
-			// Fetch collections and existing links in parallel
 			const [collectionsResp, linksResp] = await Promise.all([
 				getCollections(this.plugin.client, this.plugin.settings.identifier),
 				getCollectionLinks(this.plugin.client, this.plugin.settings.identifier),
@@ -61,7 +60,7 @@ export class EditCardModal extends Modal {
 			loading.remove();
 
 			if (!collectionsResp.ok) {
-				contentEl.createEl("p", { text: "Failed to load collections.", cls: "semble-error" });
+				contentEl.createEl("p", { text: "Failed to load collections.", cls: "atmark-error" });
 				return;
 			}
 
@@ -73,14 +72,12 @@ export class EditCardModal extends Modal {
 				return;
 			}
 
-			// Find which collections this card is already in
 			const cardLinks = links.filter(link => link.value.card.uri === this.cardUri);
 			const linkedCollectionUris = new Map<string, string>();
 			for (const link of cardLinks) {
 				linkedCollectionUris.set(link.value.collection.uri, link.uri);
 			}
 
-			// Build collection states
 			this.collectionStates = collections.map(collection => ({
 				collection,
 				isSelected: linkedCollectionUris.has(collection.uri),
@@ -92,43 +89,42 @@ export class EditCardModal extends Modal {
 		} catch (err) {
 			loading.remove();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Error: ${message}`, cls: "semble-error" });
+			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmark-error" });
 		}
 	}
 
 	private renderCollectionList(contentEl: HTMLElement) {
-		const list = contentEl.createEl("div", { cls: "semble-collection-list" });
+		const list = contentEl.createEl("div", { cls: "atmark-collection-list" });
 
 		for (const state of this.collectionStates) {
-			const item = list.createEl("label", { cls: "semble-collection-item" });
+			const item = list.createEl("label", { cls: "atmark-collection-item" });
 
-			const checkbox = item.createEl("input", { type: "checkbox", cls: "semble-collection-checkbox" });
+			const checkbox = item.createEl("input", { type: "checkbox", cls: "atmark-collection-checkbox" });
 			checkbox.checked = state.isSelected;
 			checkbox.addEventListener("change", () => {
 				state.isSelected = checkbox.checked;
 				this.updateSaveButton();
 			});
 
-			const info = item.createEl("div", { cls: "semble-collection-item-info" });
-			info.createEl("span", { text: state.collection.value.name, cls: "semble-collection-item-name" });
+			const info = item.createEl("div", { cls: "atmark-collection-item-info" });
+			info.createEl("span", { text: state.collection.value.name, cls: "atmark-collection-item-name" });
 			if (state.collection.value.description) {
-				info.createEl("span", { text: state.collection.value.description, cls: "semble-collection-item-desc" });
+				info.createEl("span", { text: state.collection.value.description, cls: "atmark-collection-item-desc" });
 			}
 		}
 
-		// Action buttons
-		const actions = contentEl.createEl("div", { cls: "semble-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
 
-		const deleteBtn = actions.createEl("button", { text: "Delete", cls: "semble-btn semble-btn-danger" });
+		const deleteBtn = actions.createEl("button", { text: "Delete", cls: "atmark-btn atmark-btn-danger" });
 		deleteBtn.addEventListener("click", () => { this.confirmDelete(contentEl); });
 
-		actions.createEl("div", { cls: "semble-spacer" });
+		actions.createEl("div", { cls: "atmark-spacer" });
 
-		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "semble-btn semble-btn-secondary" });
+		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "atmark-btn atmark-btn-secondary" });
 		cancelBtn.addEventListener("click", () => { this.close(); });
 
-		const saveBtn = actions.createEl("button", { text: "Save", cls: "semble-btn semble-btn-primary" });
-		saveBtn.id = "semble-save-btn";
+		const saveBtn = actions.createEl("button", { text: "Save", cls: "atmark-btn atmark-btn-primary" });
+		saveBtn.id = "atmark-save-btn";
 		saveBtn.disabled = true;
 		saveBtn.addEventListener("click", () => { void this.saveChanges(); });
 	}
@@ -136,17 +132,16 @@ export class EditCardModal extends Modal {
 	private confirmDelete(contentEl: HTMLElement) {
 		contentEl.empty();
 		contentEl.createEl("h2", { text: "Delete card" });
-		contentEl.createEl("p", { text: "Delete this card?", cls: "semble-warning-text" });
+		contentEl.createEl("p", { text: "Delete this card?", cls: "atmark-warning-text" });
 
-		const actions = contentEl.createEl("div", { cls: "semble-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
 
-		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "semble-btn semble-btn-secondary" });
+		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "atmark-btn atmark-btn-secondary" });
 		cancelBtn.addEventListener("click", () => {
-			// Re-render the modal
 			void this.onOpen();
 		});
 
-		const confirmBtn = actions.createEl("button", { text: "Delete", cls: "semble-btn semble-btn-danger" });
+		const confirmBtn = actions.createEl("button", { text: "Delete", cls: "atmark-btn atmark-btn-danger" });
 		confirmBtn.addEventListener("click", () => { void this.deleteCard(); });
 	}
 
@@ -161,7 +156,7 @@ export class EditCardModal extends Modal {
 			const rkey = this.cardUri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid card uri.", cls: "semble-error" });
+				contentEl.createEl("p", { text: "Invalid card uri.", cls: "atmark-error" });
 				return;
 			}
 
@@ -178,15 +173,14 @@ export class EditCardModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "semble-error" });
+			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "atmark-error" });
 		}
 	}
 
 	private updateSaveButton() {
-		const saveBtn = document.getElementById("semble-save-btn") as HTMLButtonElement | null;
+		const saveBtn = document.getElementById("atmark-save-btn") as HTMLButtonElement | null;
 		if (!saveBtn) return;
 
-		// Check if any changes were made
 		const hasChanges = this.collectionStates.some(s => s.isSelected !== s.wasSelected);
 		saveBtn.disabled = !hasChanges;
 	}
@@ -202,7 +196,6 @@ export class EditCardModal extends Modal {
 			const toAdd = this.collectionStates.filter(s => s.isSelected && !s.wasSelected);
 			const toRemove = this.collectionStates.filter(s => !s.isSelected && s.wasSelected);
 
-			// Process removals
 			for (const state of toRemove) {
 				if (state.linkUri) {
 					const rkey = state.linkUri.split("/").pop();
@@ -217,7 +210,6 @@ export class EditCardModal extends Modal {
 				}
 			}
 
-			// Process additions
 			for (const state of toAdd) {
 				const collectionRkey = state.collection.uri.split("/").pop();
 				if (!collectionRkey) continue;
@@ -256,7 +248,7 @@ export class EditCardModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "semble-error" });
+			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "atmark-error" });
 		}
 	}
 

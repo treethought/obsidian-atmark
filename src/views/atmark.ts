@@ -24,7 +24,6 @@ export class ATmarkView extends ItemView {
 		super(leaf);
 		this.plugin = plugin;
 
-		// Initialize sources
 		if (this.plugin.client) {
 			const repo = this.plugin.settings.identifier;
 			this.sources.set("semble", {
@@ -140,7 +139,6 @@ export class ATmarkView extends ItemView {
 			});
 		}
 
-		// Let the active source render its filters
 		const filtersContainer = container.createEl("div", { cls: "atmark-filters" });
 		const sourceData = this.sources.get(this.activeSource);
 		if (sourceData) {
@@ -173,7 +171,6 @@ export class ATmarkView extends ItemView {
 			cls: `atmark-badge atmark-badge-${source}`,
 		});
 
-		// Add edit button if item supports it
 		if (item.canEdit()) {
 			const editBtn = header.createEl("button", {
 				cls: "atmark-item-edit-btn",

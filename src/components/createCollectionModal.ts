@@ -15,7 +15,7 @@ export class CreateCollectionModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("semble-collection-modal");
+		contentEl.addClass("atmark-modal");
 
 		contentEl.createEl("h2", { text: "New collection" });
 
@@ -24,38 +24,35 @@ export class CreateCollectionModal extends Modal {
 			return;
 		}
 
-		const form = contentEl.createEl("form", { cls: "semble-form" });
+		const form = contentEl.createEl("form", { cls: "atmark-form" });
 
-		// Name field
-		const nameGroup = form.createEl("div", { cls: "semble-form-group" });
+		const nameGroup = form.createEl("div", { cls: "atmark-form-group" });
 		nameGroup.createEl("label", { text: "Name", attr: { for: "collection-name" } });
 		const nameInput = nameGroup.createEl("input", {
 			type: "text",
-			cls: "semble-input",
+			cls: "atmark-input",
 			attr: { id: "collection-name", placeholder: "Collection name", required: "true" },
 		});
 
-		// Description field
-		const descGroup = form.createEl("div", { cls: "semble-form-group" });
+		const descGroup = form.createEl("div", { cls: "atmark-form-group" });
 		descGroup.createEl("label", { text: "Description", attr: { for: "collection-desc" } });
 		const descInput = descGroup.createEl("textarea", {
-			cls: "semble-textarea",
+			cls: "atmark-textarea",
 			attr: { id: "collection-desc", placeholder: "Optional description", rows: "3" },
 		});
 
-		// Action buttons
-		const actions = form.createEl("div", { cls: "semble-modal-actions" });
+		const actions = form.createEl("div", { cls: "atmark-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "semble-btn semble-btn-secondary",
+			cls: "atmark-btn atmark-btn-secondary",
 			type: "button",
 		});
 		cancelBtn.addEventListener("click", () => this.close());
 
 		const createBtn = actions.createEl("button", {
 			text: "Create",
-			cls: "semble-btn semble-btn-primary",
+			cls: "atmark-btn atmark-btn-primary",
 			type: "submit",
 		});
 
@@ -64,7 +61,6 @@ export class CreateCollectionModal extends Modal {
 			void this.handleSubmit(nameInput, descInput, createBtn);
 		});
 
-		// Focus name input
 		nameInput.focus();
 	}
 

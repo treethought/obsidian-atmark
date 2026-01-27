@@ -76,3 +76,25 @@ export async function createMarginCollection(
 		},
 	});
 }
+
+export async function createMarginCollectionItem(
+	client: Client,
+	repo: string,
+	annotationUri: string,
+	collectionUri: string,
+	position?: number
+) {
+	return await client.post("com.atproto.repo.createRecord", {
+		input: {
+			repo: repo as ActorIdentifier,
+			collection: "at.margin.collectionItem" as Nsid,
+			record: {
+				$type: "at.margin.collectionItem",
+				annotation: annotationUri,
+				collection: collectionUri,
+				position,
+				createdAt: new Date().toISOString(),
+			},
+		},
+	});
+}

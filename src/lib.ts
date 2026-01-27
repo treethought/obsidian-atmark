@@ -18,4 +18,5 @@ export {
 	getMarginCollections,
 	getMarginCollectionItems,
 	createMarginCollection,
+	createMarginCollectionItem,
 } from "./lib/margin";

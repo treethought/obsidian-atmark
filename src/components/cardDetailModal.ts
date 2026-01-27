@@ -21,7 +21,6 @@ export class CardDetailModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("semble-detail-modal");
 
-		// Header with source badge
 		const header = contentEl.createEl("div", { cls: "semble-detail-header" });
 		const source = this.item.getSource();
 		header.createEl("span", {
@@ -29,7 +28,6 @@ export class CardDetailModal extends Modal {
 			cls: `semble-badge semble-badge-source semble-badge-${source}`,
 		});
 
-		// Render item detail content
 		this.item.renderDetail(contentEl);
 
 		// Render notes with delete buttons (semble-specific)
@@ -42,7 +40,6 @@ export class CardDetailModal extends Modal {
 			this.renderAddNoteForm(contentEl);
 		}
 
-		// Footer with date
 		const footer = contentEl.createEl("div", { cls: "semble-detail-footer" });
 		footer.createEl("span", {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
@@ -65,7 +62,6 @@ export class CardDetailModal extends Modal {
 			setIcon(noteIcon, "message-square");
 			noteContent.createEl("p", { text: note.text, cls: "semble-detail-note-text" });
 
-			// Delete button
 			const deleteBtn = noteEl.createEl("button", { cls: "semble-note-delete-btn" });
 			setIcon(deleteBtn, "trash-2");
 			deleteBtn.addEventListener("click", () => {

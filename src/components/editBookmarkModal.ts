@@ -2,15 +2,21 @@ import { Modal, Notice } from "obsidian";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import type { Main as Bookmark } from "../lexicons/types/community/lexicon/bookmarks/bookmark";
 import type ATmarkPlugin from "../main";
-import { putRecord, deleteRecord } from "../lib";
+import { putRecord, deleteRecord, getBookmarks } from "../lib";
 
 type BookmarkRecord = Record & { value: Bookmark };
+
+interface TagState {
+	tag: string;
+	isSelected: boolean;
+}
 
 export class EditBookmarkModal extends Modal {
 	plugin: ATmarkPlugin;
 	record: BookmarkRecord;
 	onSuccess?: () => void;
-	tagInputs: HTMLInputElement[] = [];
+	tagStates: TagState[] = [];
+	newTagInput: HTMLInputElement | null = null;
 
 	constructor(plugin: ATmarkPlugin, record: BookmarkRecord, onSuccess?: () => void) {
 		super(plugin.app);
@@ -19,47 +25,81 @@ export class EditBookmarkModal extends Modal {
 		this.onSuccess = onSuccess;
 	}
 
-	onOpen() {
+	async onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
 		contentEl.addClass("atmark-modal");
 
-		contentEl.createEl("h2", { text: "Edit bookmark tags" });
+		contentEl.createEl("h2", { text: "Edit bookmark" });
 
 		if (!this.plugin.client) {
 			contentEl.createEl("p", { text: "Not connected." });
 			return;
 		}
 
-		const existingTags = this.record.value.tags || [];
+		const loading = contentEl.createEl("p", { text: "Loading..." });
 
+		try {
+			const bookmarksResp = await getBookmarks(this.plugin.client, this.plugin.settings.identifier);
+			loading.remove();
+
+			const bookmarks = (bookmarksResp.ok ? bookmarksResp.data.records : []) as unknown as BookmarkRecord[];
+
+			const allTags = new Set<string>();
+			for (const bookmark of bookmarks) {
+				if (bookmark.value.tags) {
+					for (const tag of bookmark.value.tags) {
+						allTags.add(tag);
+					}
+				}
+			}
+
+			const currentTags = new Set(this.record.value.tags || []);
+			this.tagStates = Array.from(allTags).sort().map(tag => ({
+				tag,
+				isSelected: currentTags.has(tag),
+			}));
+
+			this.renderForm(contentEl);
+		} catch (err) {
+			loading.remove();
+			const message = err instanceof Error ? err.message : String(err);
+			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmark-error" });
+		}
+	}
+
+	private renderForm(contentEl: HTMLElement) {
 		const form = contentEl.createEl("div", { cls: "atmark-form" });
 
-		// Tags section
 		const tagsGroup = form.createEl("div", { cls: "atmark-form-group" });
 		tagsGroup.createEl("label", { text: "Tags" });
 
-		const tagsContainer = tagsGroup.createEl("div", { cls: "atmark-tags-container" });
-
-		// Render existing tags
-		for (const tag of existingTags) {
-			this.addTagInput(tagsContainer, tag);
+		const tagsList = tagsGroup.createEl("div", { cls: "atmark-tag-list" });
+		for (const state of this.tagStates) {
+			this.addTagChip(tagsList, state);
 		}
 
-		// Add empty input for new tag
-		this.addTagInput(tagsContainer, "");
-
-		// Add tag button
-		const addTagBtn = tagsGroup.createEl("button", {
-			text: "Add tag",
-			cls: "atmark-btn atmark-btn-secondary"
+		const newTagRow = tagsGroup.createEl("div", { cls: "atmark-tag-row" });
+		this.newTagInput = newTagRow.createEl("input", {
+			type: "text",
+			cls: "atmark-input",
+			attr: { placeholder: "Add new tag..." }
 		});
-		addTagBtn.addEventListener("click", (e) => {
-			e.preventDefault();
-			this.addTagInput(tagsContainer, "");
+		const addBtn = newTagRow.createEl("button", {
+			text: "Add",
+			cls: "atmark-btn atmark-btn-secondary",
+			attr: { type: "button" }
+		});
+		addBtn.addEventListener("click", () => {
+			const value = this.newTagInput?.value.trim();
+			if (value && !this.tagStates.some(s => s.tag === value)) {
+				const newState = { tag: value, isSelected: true };
+				this.tagStates.push(newState);
+				this.addTagChip(tagsList, newState);
+				if (this.newTagInput) this.newTagInput.value = "";
+			}
 		});
 
-		// Action buttons
 		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
 
 		const deleteBtn = actions.createEl("button", {
@@ -83,26 +123,14 @@ export class EditBookmarkModal extends Modal {
 		saveBtn.addEventListener("click", () => { void this.saveChanges(); });
 	}
 
-	private addTagInput(container: HTMLElement, value: string) {
-		const tagRow = container.createEl("div", { cls: "atmark-tag-row" });
-
-		const input = tagRow.createEl("input", {
-			type: "text",
-			cls: "atmark-input",
-			value,
-			attr: { placeholder: "Enter tag..." }
+	private addTagChip(container: HTMLElement, state: TagState) {
+		const item = container.createEl("label", { cls: "atmark-tag-item" });
+		const checkbox = item.createEl("input", { type: "checkbox" });
+		checkbox.checked = state.isSelected;
+		checkbox.addEventListener("change", () => {
+			state.isSelected = checkbox.checked;
 		});
-		this.tagInputs.push(input);
-
-		const removeBtn = tagRow.createEl("button", {
-			text: "×",
-			cls: "atmark-btn atmark-btn-secondary atmark-tag-remove-btn"
-		});
-		removeBtn.addEventListener("click", (e) => {
-			e.preventDefault();
-			tagRow.remove();
-			this.tagInputs = this.tagInputs.filter(i => i !== input);
-		});
+		item.createEl("span", { text: state.tag });
 	}
 
 	private confirmDelete(contentEl: HTMLElement) {
@@ -167,12 +195,12 @@ export class EditBookmarkModal extends Modal {
 		contentEl.createEl("p", { text: "Saving changes..." });
 
 		try {
-			// Get non-empty unique tags
-			const tags = [...new Set(
-				this.tagInputs
-					.map(input => input.value.trim())
-					.filter(tag => tag.length > 0)
-			)];
+			const selectedTags = this.tagStates.filter(s => s.isSelected).map(s => s.tag);
+			const newTag = this.newTagInput?.value.trim();
+			if (newTag && !selectedTags.includes(newTag)) {
+				selectedTags.push(newTag);
+			}
+			const tags = [...new Set(selectedTags)];
 
 			const rkey = this.record.uri.split("/").pop();
 			if (!rkey) {
@@ -181,7 +209,6 @@ export class EditBookmarkModal extends Modal {
 				return;
 			}
 
-			// Update the record with new tags
 			const updatedRecord: Bookmark = {
 				...this.record.value,
 				tags,

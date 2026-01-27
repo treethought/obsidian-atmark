@@ -26,7 +26,6 @@ export class CreateTagModal extends Modal {
 
 		const form = contentEl.createEl("form", { cls: "atmark-form" });
 
-		// Tag value field
 		const tagGroup = form.createEl("div", { cls: "atmark-form-group" });
 		tagGroup.createEl("label", { text: "Tag", attr: { for: "tag-value" } });
 		const tagInput = tagGroup.createEl("input", {
@@ -35,7 +34,6 @@ export class CreateTagModal extends Modal {
 			attr: { id: "tag-value", placeholder: "Tag name", required: "true" },
 		});
 
-		// Action buttons
 		const actions = form.createEl("div", { cls: "atmark-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
@@ -56,7 +54,6 @@ export class CreateTagModal extends Modal {
 			void this.handleSubmit(tagInput, createBtn);
 		});
 
-		// Focus tag input
 		tagInput.focus();
 	}
 

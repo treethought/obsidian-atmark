@@ -628,6 +628,90 @@
 	flex-shrink: 0;
 }
 
+
+.atmark-collection-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	max-height: 200px;
+	overflow-y: auto;
+}
+
+.atmark-collection-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+
+.atmark-collection-item:hover {
+	background: var(--background-modifier-hover);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.atmark-collection-checkbox {
+	width: 18px;
+	height: 18px;
+	margin: 0;
+	cursor: pointer;
+	accent-color: var(--interactive-accent);
+}
+
+.atmark-collection-item-info {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	flex: 1;
+}
+
+.atmark-collection-item-name {
+	font-weight: var(--font-medium);
+	color: var(--text-normal);
+}
+
+.atmark-collection-item-desc {
+	font-size: var(--font-small);
+	color: var(--text-muted);
+}
+
+.atmark-tag-list {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-bottom: 8px;
+}
+
+.atmark-tag-item {
+	display: flex;
+	align-items: center;
+	padding: 4px 12px;
+	background: var(--background-modifier-border);
+	border-radius: var(--radius-m);
+	cursor: pointer;
+	transition: all 0.15s ease;
+	font-size: var(--font-small);
+	color: var(--text-muted);
+}
+
+.atmark-tag-item:hover {
+	background: var(--background-modifier-border-hover);
+	color: var(--text-normal);
+}
+
+.atmark-tag-item:has(input:checked) {
+	background: var(--interactive-accent);
+	color: var(--text-on-accent);
+}
+
+.atmark-tag-item input {
+	display: none;
+}
+
 /* Semble-specific styles (for NOTE cards and attached notes) */
 .semble-card-note {
 	margin: 0;
@@ -895,70 +979,7 @@
 	line-height: 1.2;
 }
 
-/* Semble-specific Collection UI */
-.semble-collection-modal {
-	padding: 16px;
-}
-
-.semble-collection-modal h2 {
-	margin: 0 0 16px 0;
-	font-size: var(--h2-size);
-	font-weight: var(--font-semibold);
-	color: var(--text-normal);
-}
-
-.semble-collection-list {
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	max-height: 300px;
-	overflow-y: auto;
-	margin-bottom: 16px;
-}
-
-.semble-collection-item {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	padding: 12px 16px;
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-m);
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.semble-collection-item:hover {
-	background: var(--background-modifier-hover);
-	border-color: var(--background-modifier-border-hover);
-}
-
-.semble-collection-checkbox {
-	width: 18px;
-	height: 18px;
-	margin: 0;
-	cursor: pointer;
-	accent-color: var(--interactive-accent);
-}
-
-.semble-collection-item-info {
-	display: flex;
-	flex-direction: column;
-	gap: 2px;
-	flex: 1;
-}
-
-.semble-collection-item-name {
-	font-weight: var(--font-semibold);
-	color: var(--text-normal);
-}
-
-.semble-collection-item-desc {
-	font-size: var(--font-small);
-	color: var(--text-muted);
-}
-
-/* Semble-specific Toolbar */
+/* Semble Toolbar */
 .semble-toolbar {
 	display: flex;
 	align-items: center;
@@ -1091,120 +1112,7 @@
 	height: 14px;
 }
 
-/* Semble-specific legacy classes that need to be migrated to atmark-* */
-.semble-modal-actions {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	padding-top: 16px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-spacer {
-	flex: 1;
-}
-
-.semble-btn {
-	padding: 8px 16px;
-	border-radius: var(--radius-s);
-	font-size: var(--font-small);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.semble-btn:disabled {
-	opacity: 0.5;
-	cursor: not-allowed;
-}
-
-.semble-btn-secondary {
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	color: var(--text-normal);
-}
-
-.semble-btn-secondary:hover:not(:disabled) {
-	background: var(--background-modifier-hover);
-}
-
-.semble-btn-primary {
-	background: var(--interactive-accent);
-	border: 1px solid var(--interactive-accent);
-	color: var(--text-on-accent);
-}
-
-.semble-btn-primary:hover:not(:disabled) {
-	background: var(--interactive-accent-hover);
-}
-
-.semble-btn-danger {
-	background: color-mix(in srgb, var(--color-red) 15%, transparent);
-	border: none;
-	color: var(--color-red);
-}
-
-.semble-btn-danger:hover:not(:disabled) {
-	background: color-mix(in srgb, var(--color-red) 25%, transparent);
-}
-
-.semble-warning-text {
-	color: var(--text-muted);
-	margin-bottom: 16px;
-}
-
-.semble-form {
-	display: flex;
-	flex-direction: column;
-	gap: 16px;
-}
-
-.semble-form-group {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-}
-
-.semble-form-group label {
-	font-size: var(--font-small);
-	font-weight: var(--font-medium);
-	color: var(--text-normal);
-}
-
-.semble-input,
-.semble-textarea {
-	padding: 8px 12px;
-	background: var(--background-primary);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-s);
-	color: var(--text-normal);
-	font-size: var(--font-ui-medium);
-	font-family: inherit;
-	transition: border-color 0.15s ease;
-}
-
-.semble-input:focus,
-.semble-textarea:focus {
-	outline: none;
-	border-color: var(--interactive-accent);
-	box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
-}
-
-.semble-input::placeholder,
-.semble-textarea::placeholder {
-	color: var(--text-faint);
-}
-
-.semble-textarea {
-	resize: vertical;
-	min-height: 60px;
-}
-
-.semble-error {
-	color: var(--text-error);
-}
-
-/* Responsive styles for mobile and narrow views */
+/* Responsive styles */
 @media (max-width: 600px) {
 	.atmark-view {
 		padding: 12px;

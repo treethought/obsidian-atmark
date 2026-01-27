@@ -3,7 +3,7 @@
 	"name": "ATmark",
 	"version": "0.1.6",
 	"minAppVersion": "0.15.0",
-	"description": "AT Protocol bookmarking platforms in Obsidian",
+	"description": "View and manage AT Protocol bookmarks.",
 	"author": "treethought",
 	"authorUrl": "https://github.com/treethought",
 	"isDesktopOnly": false

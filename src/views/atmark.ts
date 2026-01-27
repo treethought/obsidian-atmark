@@ -117,7 +117,7 @@ export class ATmarkView extends ItemView {
 		renderProfileIcon(nav, this.plugin.profile);
 
 		const sourceSelector = header.createEl("div", { cls: "atmark-source-selector" });
-		const sources: SourceType[] = ["semble", "bookmark", "margin"];
+		const sources: SourceType[] = ["semble", "margin", "bookmark"];
 
 		for (const source of sources) {
 			const label = sourceSelector.createEl("label", { cls: "atmark-source-option" });

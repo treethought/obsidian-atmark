@@ -30,9 +30,9 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	gap: 6px;
+	gap: 0;
 	margin-bottom: 12px;
-	flex-wrap: wrap;
+	border-bottom: 1px solid var(--background-modifier-border);
 }
 
 .atmark-source-option {
@@ -40,28 +40,38 @@
 	align-items: center;
 	justify-content: center;
 	gap: 4px;
-	padding: 4px 12px;
+	padding: 10px 20px;
 	cursor: pointer;
 	user-select: none;
-	border-radius: var(--radius-s);
-	border: 1px solid var(--background-modifier-border);
-	background: var(--background-secondary);
+	border: none;
+	background: transparent;
 	transition: all 0.15s ease;
-	font-size: var(--font-smaller);
+	position: relative;
+	margin-bottom: -1px;
+}
+
+.atmark-source-option::after {
+	content: "";
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 2px;
+	background: transparent;
+	transition: background 0.15s ease;
 }
 
 .atmark-source-option:hover {
 	background: var(--background-modifier-hover);
-	border-color: var(--background-modifier-border-hover);
 }
 
-.atmark-source-option:has(input:checked) {
+.atmark-source-option:has(input:checked)::after {
 	background: var(--interactive-accent);
-	border-color: var(--interactive-accent);
 }
 
 .atmark-source-option:has(input:checked) .atmark-source-text {
-	color: var(--text-on-accent);
+	color: var(--interactive-accent);
+	font-weight: var(--font-semibold);
 }
 
 .atmark-source-radio {
@@ -69,9 +79,9 @@
 }
 
 .atmark-source-text {
-	font-size: var(--font-smaller);
+	font-size: var(--font-ui-small);
 	font-weight: var(--font-medium);
-	color: var(--text-normal);
+	color: var(--text-muted);
 }
 
 .atmark-filters {
@@ -1123,17 +1133,22 @@
 		padding-bottom: 12px;
 	}
 
-	.atmark-title {
-		font-size: var(--font-ui-medium);
+	.atmark-title,
+	.semble-profile-icon {
+		display: none;
 	}
 
 	.atmark-source-option {
-		padding: 3px 10px;
-		font-size: var(--font-smallest);
+		padding: 8px 16px;
+		font-size: var(--font-ui-small);
 	}
 
 	.atmark-source-text {
-		font-size: var(--font-smallest);
+		font-size: var(--font-ui-small);
+	}
+
+	.atmark-source-selector {
+		justify-content: center;
 	}
 
 	.atmark-grid {
@@ -1144,4 +1159,22 @@
 	.atmark-filter-section {
 		margin-bottom: 12px;
 	}
+}
+
+.is-mobile .atmark-title,
+.is-mobile .semble-profile-icon {
+	display: none;
+}
+
+.is-mobile .atmark-source-option {
+	padding: 8px 16px;
+	font-size: var(--font-ui-small);
+}
+
+.is-mobile .atmark-source-text {
+	font-size: var(--font-ui-small);
+}
+
+.is-mobile .atmark-source-selector {
+	justify-content: center;
 }

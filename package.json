@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-atmark",
-	"version": "0.1.4",
+	"version": "0.1.6",
 	"description": "Obsidian plugin for AT Protocol bookmark platforms",
 	"main": "main.js",
 	"type": "module",

@@ -35,20 +35,19 @@ export default class ATmarkPlugin extends Plugin {
 
 
 	private async initClient() {
-		const { identifier, appPassword } = this.settings;
+		const { identifier, appPassword, serviceUrl } = this.settings;
 		if (identifier && appPassword) {
 			try {
-				this.client = await createAuthenticatedClient({ identifier, password: appPassword });
-				await this.fetchProfile();
+				this.client = await createAuthenticatedClient({ identifier, password: appPassword, serviceUrl });
 				new Notice("Connected");
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);
-				new Notice(`Auth failed: ${message}`);
-				this.client = createPublicClient();
+				new Notice(`Failed to login as ${identifier}: ${message}`);
+				this.client = createPublicClient(serviceUrl);
 				this.profile = null;
 			}
 		} else {
-			this.client = createPublicClient();
+			this.client = createPublicClient(serviceUrl);
 			this.profile = null;
 		}
 	}
@@ -70,8 +69,7 @@ export default class ATmarkPlugin extends Plugin {
 			} else {
 				this.profile = null;
 			}
-		} catch (e) {
-			console.error("Failed to fetch profile:", e);
+		} catch {
 			this.profile = null;
 		}
 	}
@@ -82,6 +80,10 @@ export default class ATmarkPlugin extends Plugin {
 
 
 	async activateView(v: string) {
+		if (!this.profile && this.client && this.settings.identifier) {
+			await this.fetchProfile();
+		}
+
 		const { workspace } = this.app;
 
 		let leaf: WorkspaceLeaf | null = null;

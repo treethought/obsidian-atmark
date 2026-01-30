@@ -60,7 +60,7 @@ class SembleItem implements ATmarkItem {
 
 		if (card.type === "NOTE") {
 			const content = card.content as NoteContent;
-			el.createEl("p", { text: content.text, cls: "semble-card-text" });
+			el.createEl("p", { text: content.text, cls: "atmark-semble-card-text" });
 		} else if (card.type === "URL") {
 			const content = card.content as UrlContent;
 			const meta = content.metadata;
@@ -101,7 +101,7 @@ class SembleItem implements ATmarkItem {
 
 		if (card.type === "NOTE") {
 			const content = card.content as NoteContent;
-			body.createEl("p", { text: content.text, cls: "semble-detail-text" });
+			body.createEl("p", { text: content.text, cls: "atmark-semble-detail-text" });
 		} else if (card.type === "URL") {
 			const content = card.content as UrlContent;
 			const meta = content.metadata;

@@ -19,13 +19,13 @@ export class CardDetailModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("semble-detail-modal");
+		contentEl.addClass("atmark-detail-modal");
 
-		const header = contentEl.createEl("div", { cls: "semble-detail-header" });
+		const header = contentEl.createEl("div", { cls: "atmark-detail-header" });
 		const source = this.item.getSource();
 		header.createEl("span", {
 			text: source,
-			cls: `semble-badge semble-badge-source semble-badge-${source}`,
+			cls: `atmark-badge atmark-badge-source atmark-badge-${source}`,
 		});
 
 		this.item.renderDetail(contentEl);
@@ -40,10 +40,10 @@ export class CardDetailModal extends Modal {
 			this.renderAddNoteForm(contentEl);
 		}
 
-		const footer = contentEl.createEl("div", { cls: "semble-detail-footer" });
+		const footer = contentEl.createEl("div", { cls: "atmark-detail-footer" });
 		footer.createEl("span", {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
-			cls: "semble-detail-date",
+			cls: "atmark-detail-date",
 		});
 	}
 
@@ -51,18 +51,18 @@ export class CardDetailModal extends Modal {
 		const notes = this.item.getAttachedNotes?.();
 		if (!notes || notes.length === 0) return;
 
-		const notesSection = contentEl.createEl("div", { cls: "semble-detail-notes-section" });
+		const notesSection = contentEl.createEl("div", { cls: "atmark-semble-detail-notes-section" });
 		notesSection.createEl("h3", { text: "Notes", cls: "atmark-detail-section-title" });
 
 		for (const note of notes) {
-			const noteEl = notesSection.createEl("div", { cls: "semble-detail-note" });
+			const noteEl = notesSection.createEl("div", { cls: "atmark-semble-detail-note" });
 
-			const noteContent = noteEl.createEl("div", { cls: "semble-detail-note-content" });
-			const noteIcon = noteContent.createEl("span", { cls: "semble-detail-note-icon" });
+			const noteContent = noteEl.createEl("div", { cls: "atmark-semble-detail-note-content" });
+			const noteIcon = noteContent.createEl("span", { cls: "atmark-semble-detail-note-icon" });
 			setIcon(noteIcon, "message-square");
-			noteContent.createEl("p", { text: note.text, cls: "semble-detail-note-text" });
+			noteContent.createEl("p", { text: note.text, cls: "atmark-semble-detail-note-text" });
 
-			const deleteBtn = noteEl.createEl("button", { cls: "semble-note-delete-btn" });
+			const deleteBtn = noteEl.createEl("button", { cls: "atmark-semble-note-delete-btn" });
 			setIcon(deleteBtn, "trash-2");
 			deleteBtn.addEventListener("click", () => {
 				void this.handleDeleteNote(note.uri);
@@ -71,13 +71,13 @@ export class CardDetailModal extends Modal {
 	}
 
 	private renderAddNoteForm(contentEl: HTMLElement) {
-		const formSection = contentEl.createEl("div", { cls: "semble-detail-add-note" });
+		const formSection = contentEl.createEl("div", { cls: "atmark-semble-detail-add-note" });
 		formSection.createEl("h3", { text: "Add a note", cls: "atmark-detail-section-title" });
 
-		const form = formSection.createEl("div", { cls: "semble-add-note-form" });
+		const form = formSection.createEl("div", { cls: "atmark-semble-add-note-form" });
 
 		this.noteInput = form.createEl("textarea", {
-			cls: "atmark-textarea semble-note-input",
+			cls: "atmark-textarea atmark-semble-note-input",
 			attr: { placeholder: "Write a note about this item..." },
 		});
 

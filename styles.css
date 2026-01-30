@@ -234,21 +234,21 @@
 }
 
 .atmark-badge-semble {
-	background: rgba(255, 87, 34, 0.15);
-	color: rgb(255, 120, 70);
-	border: 1px solid rgba(255, 87, 34, 0.3);
+	background: color-mix(in srgb, var(--color-orange) 15%, transparent);
+	color: var(--color-orange);
+	border: 1px solid color-mix(in srgb, var(--color-orange) 30%, transparent);
 }
 
 .atmark-badge-bookmark {
-	background: rgba(3, 169, 244, 0.15);
-	color: rgb(3, 169, 244);
-	border: 1px solid rgba(3, 169, 244, 0.3);
+	background: color-mix(in srgb, var(--color-cyan) 15%, transparent);
+	color: var(--color-cyan);
+	border: 1px solid color-mix(in srgb, var(--color-cyan) 30%, transparent);
 }
 
 .atmark-badge-margin {
-	background: rgba(156, 39, 176, 0.15);
-	color: rgb(186, 104, 200);
-	border: 1px solid rgba(156, 39, 176, 0.3);
+	background: color-mix(in srgb, var(--color-purple) 15%, transparent);
+	color: var(--color-purple);
+	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
 }
 
 .atmark-item-footer {
@@ -356,9 +356,9 @@
 	font-size: var(--font-smallest);
 	padding: 2px 8px;
 	border-radius: var(--radius-s);
-	background: rgba(156, 39, 176, 0.1);
-	color: rgb(186, 104, 200);
-	border: 1px solid rgba(156, 39, 176, 0.3);
+	background: color-mix(in srgb, var(--color-purple) 10%, transparent);
+	color: var(--color-purple);
+	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
 }
 
 .atmark-item-collections-section {
@@ -707,11 +707,11 @@
 }
 
 /* Semble-specific styles (for NOTE cards and attached notes) */
-.semble-card-note {
+.atmark-semble-card-note {
 	margin: 0;
 	padding: 8px 12px;
 	background: var(--background-primary);
-	border-left: 3px solid var(--color-blue);
+	border-left: 3px solid var(--color-accent);
 	border-radius: var(--radius-s);
 	font-size: var(--font-small);
 	font-style: italic;
@@ -720,7 +720,7 @@
 	line-height: var(--line-height-normal);
 }
 
-.semble-card-text {
+.atmark-semble-card-text {
 	margin: 0;
 	line-height: 1.5;
 	color: var(--text-normal);
@@ -730,7 +730,7 @@
 	overflow: hidden;
 }
 
-.semble-detail-text {
+.atmark-semble-detail-text {
 	margin: 0;
 	white-space: pre-wrap;
 	line-height: var(--line-height-normal);
@@ -738,166 +738,67 @@
 	font-size: 1.1em;
 }
 
-.semble-detail-notes-section {
+.atmark-semble-detail-notes-section {
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.semble-detail-note {
+.atmark-semble-detail-note {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
 	gap: 12px;
 	padding: 12px 16px;
 	background: var(--background-secondary);
-	border-left: 3px solid var(--color-blue);
+	border-left: 3px solid var(--color-accent);
 	border-radius: var(--radius-s);
 	margin-bottom: 8px;
 }
 
-.semble-detail-note-content {
+.atmark-semble-detail-note-content {
 	display: flex;
 	gap: 12px;
 	flex: 1;
 	min-width: 0;
 }
 
-.semble-detail-note-icon {
+.atmark-semble-detail-note-icon {
 	flex-shrink: 0;
-	color: var(--color-blue);
+	color: var(--color-accent);
 }
 
-.semble-detail-note-icon svg {
+.atmark-semble-detail-note-icon svg {
 	width: 16px;
 	height: 16px;
 }
 
-.semble-detail-note-text {
+.atmark-semble-detail-note-text {
 	margin: 0;
 	color: var(--text-normal);
 	line-height: var(--line-height-normal);
 	white-space: pre-wrap;
 }
 
-/* Legacy Semble classes (backwards compatibility - will be removed in future) */
-.semble-card-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-	gap: 16px;
-	padding: 8px 0;
-}
-
-.semble-card {
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-m);
-	padding: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	transition: box-shadow 0.15s ease, border-color 0.15s ease;
-	cursor: pointer;
-}
-
-.semble-card:hover {
-	box-shadow: var(--shadow-s);
-	border-color: var(--background-modifier-border-hover);
-}
-
-.semble-card-header {
-	display: flex;
-	justify-content: space-between;
-	align-items: flex-start;
-	gap: 8px;
-}
-
-.semble-badge {
-	font-size: var(--font-smallest);
-	padding: 2px 8px;
-	border-radius: var(--radius-s);
-	text-transform: uppercase;
-	font-weight: var(--font-medium);
-	flex-shrink: 0;
-}
-
-.semble-badge-open {
-	background: var(--color-green);
-	color: var(--text-on-accent);
-}
-
-.semble-badge-closed {
-	background: var(--color-orange);
-	color: var(--text-on-accent);
-}
-
 /* Card type badges */
-.semble-badge-note {
-	background: var(--color-blue);
+.atmark-semble-badge-note {
+	background: var(--color-accent);
 	color: var(--text-on-accent);
 }
 
-.semble-badge-url {
-	background: var(--color-purple);
+.atmark-semble-badge-url {
+	background: color-mix(in srgb, var(--color-purple) 80%, var(--background-primary));
 	color: var(--text-on-accent);
 }
 
-.semble-badge-source {
+.atmark-badge-source {
 	font-size: var(--font-smallest);
 	opacity: 0.8;
 }
 
-.semble-badge-semble {
-	background: var(--color-green);
+.atmark-semble-badge-semble {
+	background: color-mix(in srgb, var(--color-green) 80%, var(--background-primary));
 	color: var(--text-on-accent);
-}
-
-/* Semble-specific page components */
-.semble-page-header {
-	margin-bottom: 16px;
-	padding-bottom: 16px;
-	border-top: 1px solid var(--background-modifier-border);
-}
-
-.semble-nav-row {
-	display: flex;
-	align-items: center;
-	gap: 12px;
-	margin-bottom: 8px;
-}
-
-.semble-brand {
-	font-size: var(--font-small);
-	font-weight: var(--font-semibold);
-	color: var(--text-accent);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
-.semble-page-title {
-	margin: 0;
-	font-size: var(--h1-size);
-	font-weight: var(--font-bold);
-	color: var(--text-normal);
-}
-
-.semble-back-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	padding: 0;
-	background: transparent;
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-s);
-	cursor: pointer;
-	color: var(--text-muted);
-}
-
-.semble-back-btn:hover {
-	background: var(--background-modifier-hover);
-	color: var(--text-normal);
 }
 
 /* Profile Icon */
@@ -983,112 +884,46 @@
 	line-height: 1.2;
 }
 
-/* Semble Toolbar */
-.semble-toolbar {
-	display: flex;
-	align-items: center;
-	gap: 8px;
-	margin-bottom: 16px;
-}
-
-.semble-create-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 6px 12px;
-	background: var(--interactive-accent);
-	border: none;
-	border-radius: var(--radius-s);
-	color: var(--text-on-accent);
-	font-size: var(--font-small);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.semble-create-btn:hover {
-	background: var(--interactive-accent-hover);
-}
-
-.semble-create-btn svg {
-	width: 14px;
-	height: 14px;
-}
-
-.semble-toolbar-btn {
-	display: inline-flex;
-	align-items: center;
-	gap: 6px;
-	padding: 6px 12px;
-	background: var(--background-secondary);
-	border: 1px solid var(--background-modifier-border);
-	border-radius: var(--radius-s);
-	color: var(--text-normal);
-	font-size: var(--font-small);
-	font-weight: var(--font-medium);
-	cursor: pointer;
-	transition: all 0.15s ease;
-}
-
-.semble-toolbar-btn:hover {
-	background: var(--background-modifier-hover);
-	border-color: var(--background-modifier-border-hover);
-}
-
-.semble-toolbar-btn svg {
-	width: 14px;
-	height: 14px;
-}
-
-/* Semble-specific Card Detail Modal */
-.semble-detail-modal {
+/* Generic Card Detail Modal (used for all sources) */
+.atmark-detail-modal {
 	padding: 20px;
 	max-width: 600px;
 }
 
-.semble-detail-header {
+.atmark-detail-header {
 	margin-bottom: 16px;
 }
 
-.semble-detail-footer {
+.atmark-detail-footer {
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.semble-detail-date {
+.atmark-detail-date {
 	font-size: var(--font-small);
 	color: var(--text-faint);
 }
 
-.semble-detail-section-title {
-	margin: 0 0 12px 0;
-	font-size: var(--font-small);
-	font-weight: var(--font-semibold);
-	color: var(--text-muted);
-	text-transform: uppercase;
-	letter-spacing: 0.5px;
-}
-
 /* Semble-specific Add Note Form */
-.semble-detail-add-note {
+.atmark-semble-detail-add-note {
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.semble-add-note-form {
+.atmark-semble-add-note-form {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.semble-note-input {
+.atmark-semble-note-input {
 	min-height: 80px;
 	resize: vertical;
 }
 
-.semble-note-delete-btn {
+.atmark-semble-note-delete-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1105,13 +940,13 @@
 	transition: all 0.15s ease;
 }
 
-.semble-note-delete-btn:hover {
+.atmark-semble-note-delete-btn:hover {
 	background: color-mix(in srgb, var(--color-red) 15%, transparent);
 	color: var(--color-red);
 	opacity: 1;
 }
 
-.semble-note-delete-btn svg {
+.atmark-semble-note-delete-btn svg {
 	width: 14px;
 	height: 14px;
 }

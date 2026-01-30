@@ -17,7 +17,6 @@
 		"strictBindCallApply": true,
 		"allowSyntheticDefaultImports": true,
 		"useUnknownInCatchVariables": true,
-		"types": ["@atcute/bluesky", "@atcute/atproto", "node"],
 		"lib": [
 			"DOM",
 			"ES5",

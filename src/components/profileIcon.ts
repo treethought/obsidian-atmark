@@ -30,19 +30,19 @@ export function renderProfileIcon(
 	profile: ProfileData | null,
 	onClick?: () => void
 ): HTMLElement {
-	const wrapper = container.createEl("div", { cls: "semble-profile-icon" });
+	const wrapper = container.createEl("div", { cls: "atmark-profile-icon" });
 
 	if (!profile) {
 		// Fallback when no profile data
-		const placeholder = wrapper.createEl("div", { cls: "semble-avatar-placeholder" });
+		const placeholder = wrapper.createEl("div", { cls: "atmark-avatar-placeholder" });
 		placeholder.createEl("span", { text: "?" });
 		return wrapper;
 	}
 
-	const avatarBtn = wrapper.createEl("button", { cls: "semble-avatar-btn" });
+	const avatarBtn = wrapper.createEl("button", { cls: "atmark-avatar-btn" });
 
 	if (profile.avatar) {
-		const img = avatarBtn.createEl("img", { cls: "semble-avatar-img" });
+		const img = avatarBtn.createEl("img", { cls: "atmark-avatar-img" });
 		img.src = profile.avatar;
 		img.alt = profile.displayName || profile.handle;
 	} else {
@@ -53,16 +53,16 @@ export function renderProfileIcon(
 			.slice(0, 2)
 			.join("")
 			.toUpperCase();
-		avatarBtn.createEl("span", { text: initials, cls: "semble-avatar-initials" });
+		avatarBtn.createEl("span", { text: initials, cls: "atmark-avatar-initials" });
 	}
 
-	const info = wrapper.createEl("div", { cls: "semble-profile-info" });
+	const info = wrapper.createEl("div", { cls: "atmark-profile-info" });
 
 	if (profile.displayName) {
-		info.createEl("span", { text: profile.displayName, cls: "semble-profile-name" });
+		info.createEl("span", { text: profile.displayName, cls: "atmark-profile-name" });
 	}
 
-	info.createEl("span", { text: `@${profile.handle}`, cls: "semble-profile-handle" });
+	info.createEl("span", { text: `@${profile.handle}`, cls: "atmark-profile-handle" });
 
 	if (onClick) {
 		avatarBtn.addEventListener("click", onClick);

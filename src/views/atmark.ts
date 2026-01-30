@@ -1,12 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { renderProfileIcon } from "../components/profileIcon";
 import { CardDetailModal } from "../components/cardDetailModal";
-import type { ATmarkItem } from "../sources/types";
+import type { ATmarkItem, DataSource, SourceFilter } from "../sources/types";
 import { SembleSource } from "../sources/semble";
 import { BookmarkSource } from "../sources/bookmark";
 import { MarginSource } from "../sources/margin";
@@ -18,7 +14,7 @@ type SourceType = "semble" | "bookmark" | "margin";
 export class ATmarkView extends ItemView {
 	plugin: ATmarkPlugin;
 	activeSource: SourceType = "semble";
-	sources: Map<SourceType, { source: any; filters: Map<string, any> }> = new Map();
+	sources: Map<SourceType, { source: DataSource; filters: Map<string, SourceFilter> }> = new Map();
 
 	constructor(leaf: WorkspaceLeaf, plugin: ATmarkPlugin) {
 		super(leaf);
@@ -110,9 +106,6 @@ export class ATmarkView extends ItemView {
 	private renderHeader(container: HTMLElement) {
 		const header = container.createEl("div", { cls: "atmark-header" });
 		const nav = header.createEl("div", { cls: "atmark-nav" });
-
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		nav.createEl("h1", { text: "ATmark", cls: "atmark-title" });
 
 		renderProfileIcon(nav, this.plugin.profile);
 

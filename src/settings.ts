@@ -26,13 +26,11 @@ export class SettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setName("Handle or DID")
-			.setDesc("Your handle or did (e.g., user.bsky.social)")
+			.setName("Handle")
+			.setDesc("Your bluesky handle or identifier (e.g., user.bsky.social)")
+			// .setDesc("user.bsky.social")
 			.addText((text) =>
 				text
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
-					.setPlaceholder("user.bsky.social")
 					.setValue(this.plugin.settings.identifier)
 					.onChange(async (value) => {
 						this.plugin.settings.identifier = value;
@@ -42,13 +40,10 @@ export class SettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("App password")
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setDesc("Create one at Settings → Privacy and security → App passwords")
+			.setDesc("Create one at https://bsky.app/settings/app-passwords")
 			.addText((text) => {
 				text.inputEl.type = "password";
 				text
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
-					.setPlaceholder("xxxx-xxxx-xxxx-xxxx")
 					.setValue(this.plugin.settings.appPassword)
 					.onChange(async (value) => {
 						this.plugin.settings.appPassword = value;

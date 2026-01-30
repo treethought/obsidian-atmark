@@ -3,8 +3,8 @@ import type { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { createAuthenticatedClient, createPublicClient } from "./auth";
 import { getProfile } from "./lib";
-import { ATmarkView, VIEW_TYPE_ATMARK } from "views/atmark";
-import type { ProfileData } from "components/profileIcon";
+import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
+import type { ProfileData } from "./components/profileIcon";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
@@ -19,8 +19,7 @@ export default class ATmarkPlugin extends Plugin {
 			return new ATmarkView(leaf, this);
 		});
 
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		this.addRibbonIcon("layers", "Open ATmark", () => {
+		this.addRibbonIcon("layers", "Atmark", () => {
 			void this.activateView(VIEW_TYPE_ATMARK);
 		});
 

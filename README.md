@@ -2,11 +2,15 @@
 
 Obsidian plugin for AT Protocol bookmarking platforms. 
 
+
 ## Supported platforms
 
 - **Semble** (`network.cosmik.*`) - Collections and cards
 - **Bookmarks** (`community.lexicon.bookmarks.*`) - Community bookmarks lexicon with tag filtering (supports kipclip tags)
 - **margin.at** (`at.margin.*`) - Bookmarks with collections and tags support
+
+![](/preview.png)
+![](/preview-sidebar.png)
 
 ## Installation
 

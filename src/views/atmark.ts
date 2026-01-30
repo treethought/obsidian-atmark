@@ -47,6 +47,7 @@ export class ATmarkView extends ItemView {
 	}
 
 	getDisplayText() {
+		// This is the name of the plugin, which contains the acronym "AT"
 		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		return "ATmark";
 	}

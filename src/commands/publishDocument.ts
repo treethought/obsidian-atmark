@@ -3,6 +3,8 @@ import type ATmarkPlugin from "../main";
 import { createDocument, markdownToLeafletContent, stripMarkdown } from "../lib";
 import { SelectPublicationModal } from "../components/selectPublicationModal";
 import { type ResourceUri } from "@atcute/lexicons";
+import { SiteStandardDocument } from "lexicons";
+import { updateDocument } from "lib/standardsite";
 
 export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 	const file = plugin.app.workspace.getActiveFile();
@@ -17,6 +19,40 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 		return;
 	}
 
+	let { record, docUri } = await buildDocumentRecord(plugin, file);
+
+	try {
+		let newUri = await createOrUpdateDocument(plugin, record, docUri);
+		console.log("Document published with URI:", newUri);
+
+		updateFrontMatter(plugin, file, newUri as ResourceUri, record);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		new Notice(`Error publishing document: ${message}`);
+		console.error("Publish document error:", error);
+	}
+}
+
+async function updateFrontMatter(plugin: ATmarkPlugin, file: TFile, docUri: ResourceUri, record: SiteStandardDocument.Main) {
+	plugin.app.fileManager.processFrontMatter(file, (fm) => {
+		fm["atDocument"] = docUri;
+		fm["atPublication"] = record.site;
+		fm["publishedAt"] = record.publishedAt;
+		fm["updatedAt"] = new Date().toISOString();
+		fm["title"] = record.title;
+		if (record.description) {
+			fm["description"] = record.description;
+		}
+		if (record.path) {
+			fm["path"] = record.path;
+		}
+		if (record.tags) {
+			fm["tags"] = record.tags;
+		}
+	});
+
+}
+async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
 	const full = await plugin.app.vault.read(file);
 
 	let fm: { [key: string]: any } | null = null;
@@ -26,74 +62,104 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 	let content = full.replace(/---\n[\s\S]*?\n---\n/, '').trim();
 
 
-	let pubUri: string | undefined;
-	let documentUri: string | undefined;
-	if (fm && fm["atPublication"]) { // TODO settings for property name
+	let docUri: ResourceUri | undefined;
+	let pubUri: ResourceUri | undefined;
+	let description: string | undefined;
+	let title: string | undefined;
+	let path: string | undefined;
+	let tags: string[] | undefined;
+	let publishedAt: string | undefined;
+	if (fm) { // TODO settings for property name
 		pubUri = fm["atPublication"]
-		documentUri = fm["atDocument"]
+		docUri = fm["atDocument"] as ResourceUri
+		description = fm["description"]
+		if (fm["title"]) {
+			title = fm["title"]
+		}
+		if (fm["path"]) {
+			path = fm["path"]
+		}
+		// TODO: enable this in setting
+		if (fm["tags"] && Array.isArray(fm["tags"])) {
+			tags = fm["tags"]
+		}
+		if (fm["publishedAt"]) {
+			publishedAt = fm["publishedAt"]
+		} else {
+			publishedAt = new Date().toISOString();
+		}
 	}
 
-	if (pubUri) {
-		await doPublish(plugin, file, fm, content, pubUri as ResourceUri);
-	} else {
+	if (!title) {
+		title = file.basename;
+	}
+
+	if (!pubUri) {
 		new SelectPublicationModal(plugin, async (selectedUri) => {
-			await doPublish(plugin, file, fm, content, selectedUri as ResourceUri);
+			pubUri = selectedUri as ResourceUri;
 		}).open();
 	}
-}
+	if (!pubUri) {
+		new Notice("Publication not selected.");
+		throw new Error("Publication not selected.");
+	}
 
-async function doPublish(
-	plugin: ATmarkPlugin,
-	file: TFile,
-	fm: any,
-	content: string,
-	publicationUri: ResourceUri
-) {
-	if (!plugin.client) return;
 
+	// TODO: determine which lexicon to use for rich content
 	let textContent = stripMarkdown(content);
 	let richContent = markdownToLeafletContent(content)
-	console.log(JSON.stringify(richContent, null, 2));
+
+
+	let record: SiteStandardDocument.Main = {
+		$type: "site.standard.document",
+		title: title,
+		site: pubUri,
+		publishedAt: publishedAt ?? new Date().toISOString(),
+		description: description,
+		path: path,
+		tags: tags,
+		textContent,
+		content: richContent as any,
+	};
+	return { record, docUri }
+};
+
+async function createOrUpdateDocument(
+	plugin: ATmarkPlugin,
+	doc: SiteStandardDocument.Main,
+	existingUri?: ResourceUri,
+) {
 
 	try {
-		let title = fm?.["title"] as string || file.basename
-
-		const description = fm?.description as string | undefined;
-		const path = fm?.path as string | undefined;
-		const tags = fm?.tags as string[] | undefined;
-
-		const response = await createDocument(
-			plugin.client,
-			plugin.settings.identifier,
-			{
-				$type: "site.standard.document",
-				title,
-				site: publicationUri,
-				publishedAt: new Date().toISOString(),
-				description,
-				path,
-				tags,
-				textContent,
-				content: richContent as any,
-			}
-		);
+		if (!plugin.client) {
+			throw new Error("Client not initialized");
+		}
+		let response;
+		if (existingUri) {
+			console.log("Updating existing document:", existingUri);
+			response = await updateDocument(
+				plugin.client,
+				plugin.settings.identifier,
+				existingUri,
+				doc
+			);
+		} else {
+			console.log("Creating new document");
+			response = await createDocument(
+				plugin.client,
+				plugin.settings.identifier,
+				doc,
+			);
+		}
 
 		if (!response.ok) {
 			new Notice(`Failed to publish: ${response.status}`);
-			return;
+			throw new Error(`Failed to publish: ${response.status}`);
 		}
 
 		const documentUri = response.data.uri;
-		new Notice(`Published successfully!`);
-
-		await plugin.app.fileManager.processFrontMatter(file, (fm) => {
-			fm["atDocument"] = documentUri;
-			fm["atPublication"] = publicationUri;
-			fm["atTitle"] = title;
-		})
-
-		console.log("Document URI:", documentUri);
-
+		new Notice(`Published ${doc.title}!`);
+		return documentUri;
 
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
@@ -101,4 +167,3 @@ async function doPublish(
 		console.error("Publish error:", error);
 	}
 }
-

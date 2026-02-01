@@ -1,6 +1,7 @@
 import { ok, type Client } from "@atcute/client";
 import type { ActorIdentifier, GenericUri, Nsid, ResourceUri } from "@atcute/lexicons";
-import { ComAtprotoRepoCreateRecord, ComAtprotoRepoListRecords } from "@atcute/atproto";
+import { parseResourceUri } from "@atcute/lexicons";
+import { ComAtprotoRepoCreateRecord, ComAtprotoRepoListRecords, ComAtprotoRepoPutRecord } from "@atcute/atproto";
 import { SiteStandardDocument, SiteStandardPublication } from "lexicons";
 
 export async function getDocuments(client: Client, repo: string) {
@@ -37,12 +38,38 @@ export async function createDocument(
 		input: {
 			repo: repo as ActorIdentifier,
 			collection: "site.standard.document" as Nsid,
-			validate: false, // PDS doesn't have this lexicon
+			validate: false,
 			record,
 		},
 	});
 }
 
+export async function updateDocument(
+	client: Client,
+	repo: string,
+	uri: ResourceUri,
+	record: SiteStandardDocument.Main
+) {
+	record.updatedAt = new Date().toISOString();
+
+	const parsed = parseResourceUri(uri);
+	if (!parsed.ok) {
+		throw new Error(`Invalid URI: ${uri}`);
+	}
+	if (!parsed.value.rkey) {
+		throw new Error(`URI does not contain rkey: ${uri}`);
+	}
+
+	return await client.call(ComAtprotoRepoPutRecord, {
+		input: {
+			repo: repo as ActorIdentifier,
+			collection: "site.standard.document" as Nsid,
+			validate: false,
+			record,
+			rkey: parsed.value.rkey,
+		},
+	});
+}
 export async function getPublications(client: Client, repo: string) {
 	return await ok(client.call(ComAtprotoRepoListRecords, {
 		params: {

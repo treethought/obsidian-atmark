@@ -6,7 +6,7 @@ export default defineLexiconConfig({
 	outdir: 'src/lexicons/',
 	pull: {
 		outdir: 'lexicons/',
-		clean: true,
+		clean: false,
 		sources: [
 			{
 				type: 'git',
@@ -20,6 +20,25 @@ export default defineLexiconConfig({
 				ref: 'main',
 				pattern: ['lexicons/**/*.json'],
 			},
+			// {
+			// 	type: 'git',
+			// 	remote: 'https://tangled.org/leaflet.pub/leaflet.git',
+			// 	ref: 'main',
+			// 	pattern: ['lexicons/**/*.json'],
+			// },
+			// {
+			// 	type: 'atproto',
+			// 	mode: 'nsids',
+			// 	nsids: [
+			// 		'site.standard.publication',
+			// 		'site.standard.document',
+			// 		'site.standard.theme.basic',
+			// 		'site.standard.theme.color',
+			// 		'pub.leaflet.document',
+			// 		'pub.leaflet.canvas',
+			//
+			// 	],
+			// },
 		],
 	},
 });

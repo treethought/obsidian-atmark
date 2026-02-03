@@ -10,6 +10,17 @@
         "type": "object",
         "required": ["createdAt"],
         "properties": {
+          "displayName": {
+            "type": "string",
+            "maxLength": 640,
+            "description": "Display name for the user."
+          },
+          "avatar": {
+            "type": "blob",
+            "accept": ["image/png", "image/jpeg"],
+            "maxSize": 1000000,
+            "description": "User avatar image."
+          },
           "bio": {
             "type": "string",
             "maxLength": 5000,

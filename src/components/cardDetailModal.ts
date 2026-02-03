@@ -30,12 +30,11 @@ export class CardDetailModal extends Modal {
 
 		this.item.renderDetail(contentEl);
 
-		// Render notes with delete buttons (semble-specific)
+		// semble
 		if (this.item.canAddNotes() && this.item.getAttachedNotes) {
 			this.renderNotesSection(contentEl);
 		}
 
-		// Add note form (only for items that support it)
 		if (this.item.canAddNotes()) {
 			this.renderAddNoteForm(contentEl);
 		}

@@ -4,13 +4,11 @@ import type ATmarkPlugin from "./main";
 export interface AtProtoSettings {
 	identifier: string;
 	appPassword: string;
-	serviceUrl: string;
 }
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
 	identifier: "",
 	appPassword: "",
-	serviceUrl: "",
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -50,23 +48,5 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
-
-		new Setting(containerEl)
-			.setName("Auth service")
-			// This contains the acronym "PDS", a term used for AT Protocol
-			// as well as URL, an acronym
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			.setDesc("PDS or PDS entryway URL (leave empty to use bsky.social service) ")
-			.addText((text) =>
-				text
-				// This is a URL and should not be sentence-cased
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
-					.setPlaceholder("https://bsky.social")
-					.setValue(this.plugin.settings.serviceUrl)
-					.onChange(async (value) => {
-						this.plugin.settings.serviceUrl = value;
-						await this.plugin.saveSettings();
-					})
-			);
 	}
 }

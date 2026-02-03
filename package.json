@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-atmark",
-	"version": "0.1.8",
+	"version": "0.1.9",
 	"description": "View and manage AT Protocol bookmarks.",
 	"main": "main.js",
 	"type": "module",
@@ -21,14 +21,20 @@
 		"jiti": "2.6.1",
 		"tslib": "2.4.0",
 		"typescript": "^5.8.3",
-		"typescript-eslint": "8.35.1"
+		"typescript-eslint": "8.35.1",
+		"@atcute/lex-cli": "^2.5.3"
 	},
 	"dependencies": {
 		"@atcute/atproto": "^3.1.10",
 		"@atcute/bluesky": "^3.2.15",
 		"@atcute/client": "^4.2.1",
-		"@atcute/lex-cli": "^2.5.2",
+		"@atcute/identity-resolver": "^1.2.2",
+		"@atcute/leaflet": "^1.0.17",
 		"@atcute/oauth-browser-client": "^2.0.3",
-		"obsidian": "latest"
+		"@atcute/pckt": "^0.1.5",
+		"@atcute/standard-site": "^1.0.0",
+		"obsidian": "latest",
+		"remark-parse": "^11.0.0",
+		"unified": "^11.0.5"
 	}
 }

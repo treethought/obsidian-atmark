@@ -30,13 +30,13 @@ export default class ATmarkPlugin extends Plugin {
 
 		this.addCommand({
 			id: "standard-site-publich-document",
-			name: "Publish Document to Standard Site",
+			name: "Publish document",
 			editorCheckCallback: (checking: boolean,) => {
 				const file = this.app.workspace.getActiveFile();
 
 				if (file) {
 					if (!checking) {
-						publishFileAsDocument(this)
+						void publishFileAsDocument(this)
 					}
 
 					return true

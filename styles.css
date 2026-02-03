@@ -639,7 +639,7 @@
 	background: var(--background-secondary);
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-m);
-	cursor: pointer;
+	cursor: var(--cursor);
 	transition: all 0.15s ease;
 }
 

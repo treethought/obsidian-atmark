@@ -24,7 +24,7 @@ export class SelectPublicationModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("atmark-modal");
 
-		contentEl.createEl("h2", { text: "Select Publication" });
+		contentEl.createEl("h2", { text: "Select publication" });
 
 		if (!this.plugin.client) {
 			contentEl.createEl("p", { text: "Not logged in", cls: "atmark-error" });
@@ -49,7 +49,6 @@ export class SelectPublicationModal extends Modal {
 
 			for (const pub of pubs) {
 				const item = listContainer.createEl("div", { cls: "atmark-collection-item" });
-				item.style.cursor = "pointer";
 
 				const publication = pub.value;
 
@@ -70,7 +69,7 @@ export class SelectPublicationModal extends Modal {
 
 				item.addEventListener("click", () => {
 					this.onSelect({
-						uri: pub.uri as ResourceUri,
+						uri: pub.uri,
 						publication,
 					});
 					this.close();

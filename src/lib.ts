@@ -1,3 +1,5 @@
+import { Record } from "@atcute/atproto/types/repo/listRecords";
+
 export { getRecord, deleteRecord, putRecord, getProfile } from "./lib/atproto";
 
 export {
@@ -25,11 +27,14 @@ export {
 	getDocuments,
 	createDocument,
 	putDocument,
-	getPublications,
 	getPublication,
+	getPublications,
+	getSubscribedPublications,
 	createPublication,
 } from "./lib/standardsite";
 
 export { markdownToLeafletContent } from "./lib/standardsite/leaflet";
 export { markdownToPcktContent } from "./lib/standardsite/pckt";
 export { stripMarkdown } from "./lib/markdown";
+
+export type ATRecord<T> = Record & { value: T };

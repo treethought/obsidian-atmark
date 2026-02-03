@@ -3,10 +3,10 @@ import remarkParse from "remark-parse";
 import type { Root, RootContent } from "mdast";
 
 export function parseMarkdown(markdown: string): Root {
-	return unified().use(remarkParse).parse(markdown) as Root;
+	return unified().use(remarkParse).parse(markdown);
 }
 
-export function extractText(node: any): string {
+export function extractText(node: RootContent | Root): string {
 	if (node.type === "text") {
 		return node.value;
 	}
@@ -15,11 +15,11 @@ export function extractText(node: any): string {
 		return node.value;
 	}
 
-	if (node.children && Array.isArray(node.children)) {
+	if ("children" in node && Array.isArray(node.children)) {
 		return node.children.map(extractText).join("");
 	}
 
-	if (node.value) {
+	if ("value" in node && typeof node.value === "string") {
 		return node.value;
 	}
 
@@ -32,21 +32,7 @@ export function extractText(node: any): string {
  */
 export function stripMarkdown(markdown: string): string {
 	const tree = parseMarkdown(markdown);
-
-	function extractAllText(node: any): string {
-		if (node.type === "text") {
-			return node.value;
-		}
-		if (node.type === "inlineCode") {
-			return node.value;
-		}
-		if (node.children && Array.isArray(node.children)) {
-			return node.children.map(extractAllText).join(" ");
-		}
-		return "";
-	}
-
-	return tree.children.map(extractAllText).join("\n\n").trim();
+	return tree.children.map(extractText).join("\n\n").trim();
 }
 
 export type { Root, RootContent };

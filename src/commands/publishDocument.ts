@@ -66,7 +66,7 @@ async function updateFrontMatter(
 	record: SiteStandardDocument.Main,
 	documentUrl?: string
 ) {
-	await plugin.app.fileManager.processFrontMatter(file, (fm) => {
+	await plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 		fm["atDocument"] = docUri;
 		fm["atPublication"] = record.site;
 		fm["publishedAt"] = record.publishedAt;
@@ -94,8 +94,8 @@ async function updateFrontMatter(
 async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
 	const full = await plugin.app.vault.read(file);
 
-	let fm: { [key: string]: any } | null = null;
-	await plugin.app.fileManager.processFrontMatter(file, (fmm) => {
+	let fm: Record<string, unknown> | null = null;
+	await plugin.app.fileManager.processFrontMatter(file, (fmm: Record<string, unknown>) => {
 		fm = fmm;
 	});
 	let content = full.replace(/---\n[\s\S]*?\n---\n/, '').trim();
@@ -155,7 +155,7 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 		path: path,
 		tags: tags,
 		textContent,
-		content: richContent as any,
+		content: richContent as unknown,
 	};
 	return { record, docUri };
 };

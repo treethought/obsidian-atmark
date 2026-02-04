@@ -2,7 +2,7 @@ import { Notice, TFile } from "obsidian";
 import type ATmarkPlugin from "../main";
 import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent, buildDocumentUrl } from "../lib";
 import { PublicationSelection, SelectPublicationModal } from "../components/selectPublicationModal";
-import { parseResourceUri, type ResourceUri, } from "@atcute/lexicons";
+import { type ResourceUri, } from "@atcute/lexicons";
 import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
 import { PubLeafletContent } from "@atcute/leaflet";
 import { BlogPcktContent } from "@atcute/pckt";

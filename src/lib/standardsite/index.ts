@@ -9,6 +9,22 @@ import { Main as Subscription } from "@atcute/standard-site/types/graph/subscrip
 import { ATRecord } from "lib";
 import { SiteStandardDocument, SiteStandardGraphSubscription, SiteStandardPublication } from "@atcute/standard-site";
 
+export function buildDocumentUrl(pubUrl: string, docUri: string, record: SiteStandardDocument.Main): string {
+	const baseUrl = pubUrl.replace(/\/$/, '');
+
+	// leaflet does not use path, url just uses rkey
+	if (record.path === undefined || record.path === '') {
+		const parsed = parseResourceUri(docUri)
+		if (parsed.ok) {
+			return `${baseUrl}/${parsed.value.rkey}`;
+		}
+		return ""
+	}
+
+	return `${baseUrl}/${record.path}`
+}
+
+
 export async function getPublicationDocuments(client: Client, repo: string, pubUri: ResourceUri) {
 	const response = await ok(client.call(ComAtprotoRepoListRecords, {
 		params: {
@@ -18,7 +34,6 @@ export async function getPublicationDocuments(client: Client, repo: string, pubU
 		},
 	}));
 
-	// filter records by publication uri
 	const pubDocs = response.records.filter(record => {
 		const parsed = parse(SiteStandardDocument.mainSchema, record.value);
 		return parsed.site === pubUri;

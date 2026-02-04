@@ -136,7 +136,7 @@ export function pcktContentToMarkdown(content: BlogPcktContent.Main): string {
 	return unified().use(remarkStringify).stringify(root);
 }
 
-function pcktBlockToMdast(block: any): RootContent | null {
+function pcktBlockToMdast(block: PcktBlock): RootContent | null {
 	switch (block.$type) {
 		case "blog.pckt.block.heading":
 			return {
@@ -156,8 +156,10 @@ function pcktBlockToMdast(block: any): RootContent | null {
 				type: "list",
 				ordered: false,
 				spread: false,
-				children: block.content.map((item: any) => {
-					const text = item.content.map((c: any) => c.plaintext).join(" ");
+				children: block.content.map((item: BlogPcktBlockListItem.Main) => {
+					const text = item.content
+						.map((c) => ('plaintext' in c ? c.plaintext : ''))
+						.join(" ");
 					return {
 						type: "listItem",
 						spread: false,
@@ -174,8 +176,10 @@ function pcktBlockToMdast(block: any): RootContent | null {
 				type: "list",
 				ordered: true,
 				spread: false,
-				children: block.content.map((item: any) => {
-					const text = item.content.map((c: any) => c.plaintext).join(" ");
+				children: block.content.map((item: BlogPcktBlockListItem.Main) => {
+					const text = item.content
+						.map((c) => ('plaintext' in c ? c.plaintext : ''))
+						.join(" ");
 					return {
 						type: "listItem",
 						spread: false,
@@ -200,8 +204,10 @@ function pcktBlockToMdast(block: any): RootContent | null {
 				type: "thematicBreak",
 			};
 
-		case "blog.pckt.block.blockquote":
-			const text = block.content.map((c: any) => c.plaintext).join("\n");
+		case "blog.pckt.block.blockquote": {
+			const text = block.content
+				.map((c: BlogPcktBlockText.Main) => c.plaintext)
+				.join("\n");
 			return {
 				type: "blockquote",
 				children: [{
@@ -209,6 +215,7 @@ function pcktBlockToMdast(block: any): RootContent | null {
 					children: [{ type: "text", value: text }],
 				}],
 			};
+		}
 
 		default:
 			return null;

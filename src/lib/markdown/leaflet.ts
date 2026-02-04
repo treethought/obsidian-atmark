@@ -126,12 +126,15 @@ export function leafletContentToMarkdown(content: PubLeafletContent.Main): strin
 	return unified().use(remarkStringify).stringify(root);
 }
 
-function leafletBlockToMdast(block: any): RootContent | null {
+// Extract the union type of all possible leaflet blocks from the Block interface
+type LeafletBlockType = PubLeafletPagesLinearDocument.Block['block'];
+
+function leafletBlockToMdast(block: LeafletBlockType): RootContent | null {
 	switch (block.$type) {
 		case "pub.leaflet.blocks.header":
 			return {
 				type: "heading",
-				depth: block.level,
+				depth: block.level as 1 | 2 | 3 | 4 | 5 | 6,
 				children: [{ type: "text", value: block.plaintext }],
 			};
 
@@ -146,14 +149,18 @@ function leafletBlockToMdast(block: any): RootContent | null {
 				type: "list",
 				ordered: false,
 				spread: false,
-				children: block.children.map((item: any) => ({
-					type: "listItem",
-					spread: false,
-					children: [{
-						type: "paragraph",
-						children: [{ type: "text", value: item.content.plaintext }],
-					}],
-				})),
+				children: block.children.map((item: PubLeafletBlocksUnorderedList.ListItem) => {
+					// Extract plaintext from the content, which can be Header, Image, or Text
+					const plaintext = 'plaintext' in item.content ? item.content.plaintext : '';
+					return {
+						type: "listItem",
+						spread: false,
+						children: [{
+							type: "paragraph",
+							children: [{ type: "text", value: plaintext }],
+						}],
+					};
+				}),
 			};
 
 		case "pub.leaflet.blocks.code":

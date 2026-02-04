@@ -1,17 +1,20 @@
-import { ATRecord } from "lib";
+import { ATRecord, buildDocumentUrl } from "lib";
 import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
-import { parseResourceUri } from "@atcute/lexicons";
-import { Notice } from "obsidian";
+import { is, parseResourceUri } from "@atcute/lexicons";
+import { Notice, TFile } from "obsidian";
 import ATmarkPlugin from "main";
 import { leafletContentToMarkdown } from "./markdown/leaflet";
 import { pcktContentToMarkdown } from "./markdown/pckt";
+import { ResolvedActor } from "@atcute/identity-resolver";
+import { PubLeafletContent } from "@atcute/leaflet";
+import { BlogPcktContent } from "@atcute/pckt";
 
 
 export class Clipper {
 	plugin: ATmarkPlugin;
 
-	constructor(plugin: any) {
+	constructor(plugin: ATmarkPlugin) {
 		this.plugin = plugin;
 	}
 
@@ -30,6 +33,37 @@ export class Clipper {
 		return file !== null;
 	}
 
+	async writeFrontmatter(file: TFile, doc: ATRecord<Document>, pub: ATRecord<Publication>) {
+		let actor: ResolvedActor | null = null;
+		const repoParsed = parseResourceUri(doc.uri);
+		if (repoParsed.ok) {
+			actor = await this.plugin.client.getActor(repoParsed.value.repo);
+		}
+		// Add frontmatter using Obsidian's processFrontMatter
+		await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
+			fm["title"] = doc.value.title;
+			if (actor && actor.handle) {
+				fm["author"] = actor.handle;
+			}
+			fm["aturi"] = doc.uri;
+
+			let docUrl = "";
+
+			// pubUrl is at:// record uri or https:// for loose document
+			// fetch pub if at:// so we can get the url
+			// otherwise just use the url as is
+			if (doc.value.site.startsWith("https://")) {
+				docUrl = buildDocumentUrl(doc.value.site, doc.uri, doc.value);
+			} else {
+				docUrl = buildDocumentUrl(pub.value.url, doc.uri, doc.value);
+
+			}
+			if (docUrl) {
+				fm["url"] = docUrl;
+			}
+		});
+	}
+
 	async clipDocument(doc: ATRecord<Document>, pub: ATRecord<Publication>) {
 		const vault = this.plugin.app.vault;
 		const clipDir = this.plugin.settings.clipDir
@@ -43,7 +77,6 @@ export class Clipper {
 		}
 		const filePath = this.safeFilePath(doc.value.title, clipDir);
 
-		// Build markdown content
 		let content = `# ${doc.value.title}\n\n`;
 
 		if (doc.value.description) {
@@ -54,11 +87,10 @@ export class Clipper {
 
 		let bodyContent = "";
 		if (doc.value.content) {
-			const contentType = (doc.value.content as any).$type;
-			if (contentType === "pub.leaflet.content") {
-				bodyContent = leafletContentToMarkdown(doc.value.content as any);
-			} else if (contentType === "blog.pckt.content") {
-				bodyContent = pcktContentToMarkdown(doc.value.content as any);
+			if (is(PubLeafletContent.mainSchema, doc.value.content)) {
+				bodyContent = leafletContentToMarkdown(doc.value.content);
+			} else if (is(BlogPcktContent.mainSchema, doc.value.content)) {
+				bodyContent = pcktContentToMarkdown(doc.value.content);
 			}
 		}
 
@@ -68,22 +100,10 @@ export class Clipper {
 
 		content += bodyContent;
 
-		// Add metadata footer
-		content += `\n\n---\n\n`;
-		const baseUrl = pub.value.url.replace(/\/+$/, "");
-		if (doc.value.path) {
-			const path = doc.value.path.startsWith("/") ? doc.value.path : `/${doc.value.path}`;
-			const fullUrl = `${baseUrl}${path}`;
-			content += `**Source:** [${fullUrl}](${fullUrl})\n`;
-		}
-		content += `**Publication:** ${pub.value.title}\n`;
-		if (doc.value.publishedAt) {
-			content += `**Published:** ${new Date(doc.value.publishedAt).toLocaleDateString()}\n`;
-		}
-
 		const file = await vault.create(filePath, content);
+		await this.writeFrontmatter(file, doc, pub);
 
-		// Open the file
+
 		const leaf = this.plugin.app.workspace.getLeaf(false);
 		await leaf.openFile(file);
 

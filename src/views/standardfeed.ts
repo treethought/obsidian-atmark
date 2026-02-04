@@ -4,9 +4,8 @@ import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { ATRecord } from "lib";
-import { parseResourceUri, ResourceUri } from "@atcute/lexicons";
+import { parseResourceUri } from "@atcute/lexicons";
 import { getPublicationDocuments } from "lib/standardsite";
-import { Clipper } from "lib/clipper";
 
 export const VIEW_STANDARD_FEED = "standard-site-feed";
 
@@ -54,7 +53,7 @@ export class StandardFeedView extends ItemView {
 			const list = container.createEl("div", { cls: "standard-site-list" });
 
 			for (const pub of pubs) {
-				this.renderPublicationCard(list, pub);
+				void this.renderPublicationCard(list, pub);
 			}
 		} catch (error) {
 			const message = error instanceof Error ? error.message : String(error);
@@ -82,13 +81,18 @@ export class StandardFeedView extends ItemView {
 
 		const body = card.createEl("div", { cls: "standard-site-publication-body" });
 
-		const handleEl = body.createEl("span", { cls: "standard-site-author-handle" });
+		const handleEl = body.createEl("span", { cls: "standard-site-author-handle", text: "..." });
 		const parsed = parseResourceUri(pub.uri);
 		if (parsed.ok) {
-			const actor = await this.plugin.client.getActor(parsed.value.repo)
-			if (actor?.handle) {
-				handleEl.setText(`@${actor.handle}`);
-			}
+			this.plugin.client.getActor(parsed.value.repo).then(actor => {
+				if (actor?.handle) {
+					handleEl.setText(`@${actor.handle}`);
+				} else {
+					handleEl.setText("");
+				}
+			}).catch(() => {
+				handleEl.setText("");
+			});
 		}
 
 		const urlLine = body.createEl("div", { cls: "standard-site-publication-url" });
@@ -103,9 +107,9 @@ export class StandardFeedView extends ItemView {
 		}
 
 		card.addClass("clickable");
-		card.addEventListener("click", async (e) => {
+		card.addEventListener("click", (e) => {
 			if ((e.target as HTMLElement).tagName !== "A") {
-				await this.renderPublicationDocuments(pub);
+				void this.renderPublicationDocuments(pub);
 			}
 		});
 	}
@@ -118,11 +122,13 @@ export class StandardFeedView extends ItemView {
 		const header = container.createEl("div", { cls: "standard-site-header" });
 		const backBtn = header.createEl("span", { text: "Back", cls: "clickable standard-site-back" });
 		setIcon(backBtn, "arrow-left");
-		backBtn.addEventListener("click", async () => await this.render());
+		backBtn.addEventListener("click", () => {
+			void this.render();
+		});
 
 		const titleGroup = header.createEl("div", { cls: "standard-site-title-group" });
 		titleGroup.createEl("h2", { text: pub.value.name });
-		const handleEl = titleGroup.createEl("span", { cls: "standard-site-author-handle" });
+		const handleEl = titleGroup.createEl("span", { cls: "standard-site-author-handle", text: "..." });
 
 		const parsed = parseResourceUri(pub.uri);
 		if (!parsed.ok) {
@@ -134,15 +140,21 @@ export class StandardFeedView extends ItemView {
 			return;
 		}
 
-		const actor = await this.plugin.client.getActor(parsed.value.repo)
-		if (actor?.handle) {
-			handleEl.setText(`@${actor.handle}`);
-		}
+		// Fetch actor handle asynchronously without blocking document load
+		this.plugin.client.getActor(parsed.value.repo).then(actor => {
+			if (actor?.handle) {
+				handleEl.setText(`@${actor.handle}`);
+			} else {
+				handleEl.setText("");
+			}
+		}).catch(() => {
+			handleEl.setText("");
+		});
 
 		const loading = container.createEl("p", { text: "Loading documents..." });
 
 		try {
-			const docsResp = await getPublicationDocuments(this.plugin.client, parsed.value.repo, pub.uri as ResourceUri);
+			const docsResp = await getPublicationDocuments(this.plugin.client, parsed.value.repo, pub.uri);
 			loading.remove();
 
 			if (docsResp.records.length === 0) {
@@ -174,10 +186,10 @@ export class StandardFeedView extends ItemView {
 		}
 		const clipBtn = header.createEl("span", { cls: "clickable standard-site-document-clip" });
 		setIcon(clipBtn, clipIcon);
-		clipBtn.addEventListener("click", async (e) => {
+		clipBtn.addEventListener("click", (e) => {
 			e.stopPropagation();
 			try {
-				await this.plugin.clipper.clipDocument(doc, pub);
+				void this.plugin.clipper.clipDocument(doc, pub);
 			} catch (error) {
 				const message = error instanceof Error ? error.message : String(error);
 				new Notice(`Failed to clip document: ${message}`);

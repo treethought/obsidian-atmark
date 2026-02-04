@@ -31,6 +31,7 @@ export {
 	getPublications,
 	getSubscribedPublications,
 	createPublication,
+	buildDocumentUrl
 } from "./lib/standardsite";
 
 export {

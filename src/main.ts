@@ -4,10 +4,12 @@ import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
 import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
+import { Clipper } from "lib/clipper";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
-	client: ATClient
+	client: ATClient;
+	clipper: Clipper;
 
 	async onload() {
 		await this.loadSettings();
@@ -17,6 +19,7 @@ export default class ATmarkPlugin extends Plugin {
 			password: this.settings.appPassword,
 		};
 		this.client = new ATClient(creds);
+		this.clipper = new Clipper(this);
 
 		this.registerView(VIEW_TYPE_ATMARK, (leaf) => {
 			return new ATmarkView(leaf, this);

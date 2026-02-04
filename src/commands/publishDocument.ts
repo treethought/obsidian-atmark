@@ -1,6 +1,6 @@
 import { Notice, TFile } from "obsidian";
 import type ATmarkPlugin from "../main";
-import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent } from "../lib";
+import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent, buildDocumentUrl } from "../lib";
 import { PublicationSelection, SelectPublicationModal } from "../components/selectPublicationModal";
 import { parseResourceUri, type ResourceUri, } from "@atcute/lexicons";
 import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
@@ -41,21 +41,6 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 		new Notice(`Error publishing document: ${message}`);
 		console.error("Publish document error:", error);
 	}
-}
-
-function buildDocumentUrl(pubUrl: string, docUri: string, record: SiteStandardDocument.Main): string {
-	const baseUrl = pubUrl.replace(/\/$/, '');
-
-	// leaflet does not use path, url just uses rkey
-	if (record.path === undefined || record.path === '') {
-		const parsed = parseResourceUri(docUri)
-		if (parsed.ok) {
-			return `${baseUrl}/${parsed.value.rkey}`;
-		}
-		return ""
-	}
-
-	return `${baseUrl}/${record.path}`
 }
 
 async function updateFrontMatter(

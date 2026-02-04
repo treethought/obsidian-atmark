@@ -1,9 +1,6 @@
-/**
- * Markdown to Pckt blocks parser
- * Converts markdown content to blog.pckt.content format
- */
-
-import type { RootContent } from "mdast";
+import type { RootContent, Root } from "mdast";
+import { unified } from "unified";
+import remarkStringify from "remark-stringify";
 import {
 	BlogPcktBlockListItem,
 	BlogPcktBlockText,
@@ -112,6 +109,106 @@ function convertNodeToBlock(node: RootContent): PcktBlock | null {
 			};
 			return block;
 		}
+
+		default:
+			return null;
+	}
+}
+
+/**
+ * Convert pckt content to markdown string
+ */
+export function pcktContentToMarkdown(content: BlogPcktContent.Main): string {
+	const mdastNodes: RootContent[] = [];
+
+	for (const block of content.items) {
+		const node = pcktBlockToMdast(block);
+		if (node) {
+			mdastNodes.push(node);
+		}
+	}
+
+	const root: Root = {
+		type: "root",
+		children: mdastNodes,
+	};
+
+	return unified().use(remarkStringify).stringify(root);
+}
+
+function pcktBlockToMdast(block: any): RootContent | null {
+	switch (block.$type) {
+		case "blog.pckt.block.heading":
+			return {
+				type: "heading",
+				depth: block.level,
+				children: [{ type: "text", value: block.plaintext }],
+			};
+
+		case "blog.pckt.block.text":
+			return {
+				type: "paragraph",
+				children: [{ type: "text", value: block.plaintext }],
+			};
+
+		case "blog.pckt.block.bulletList":
+			return {
+				type: "list",
+				ordered: false,
+				spread: false,
+				children: block.content.map((item: any) => {
+					const text = item.content.map((c: any) => c.plaintext).join(" ");
+					return {
+						type: "listItem",
+						spread: false,
+						children: [{
+							type: "paragraph",
+							children: [{ type: "text", value: text }],
+						}],
+					};
+				}),
+			};
+
+		case "blog.pckt.block.orderedList":
+			return {
+				type: "list",
+				ordered: true,
+				spread: false,
+				children: block.content.map((item: any) => {
+					const text = item.content.map((c: any) => c.plaintext).join(" ");
+					return {
+						type: "listItem",
+						spread: false,
+						children: [{
+							type: "paragraph",
+							children: [{ type: "text", value: text }],
+						}],
+					};
+				}),
+			};
+
+		case "blog.pckt.block.codeBlock":
+			return {
+				type: "code",
+				lang: block.language || null,
+				meta: null,
+				value: block.plaintext,
+			};
+
+		case "blog.pckt.block.horizontalRule":
+			return {
+				type: "thematicBreak",
+			};
+
+		case "blog.pckt.block.blockquote":
+			const text = block.content.map((c: any) => c.plaintext).join("\n");
+			return {
+				type: "blockquote",
+				children: [{
+					type: "paragraph",
+					children: [{ type: "text", value: text }],
+				}],
+			};
 
 		default:
 			return null;

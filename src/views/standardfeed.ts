@@ -1,11 +1,12 @@
 import { getSubscribedPublications } from "lib/standardsite";
 import ATmarkPlugin from "main";
-import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
+import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { ATRecord } from "lib";
 import { parseResourceUri, ResourceUri } from "@atcute/lexicons";
 import { getPublicationDocuments } from "lib/standardsite";
+import { Clipper } from "lib/clipper";
 
 export const VIEW_STANDARD_FEED = "standard-site-feed";
 
@@ -160,11 +161,30 @@ export class StandardFeedView extends ItemView {
 		}
 	}
 
+
 	private renderDocumentCard(container: HTMLElement, doc: ATRecord<Document>, pub: ATRecord<Publication>) {
 		const card = container.createEl("div", { cls: "standard-site-document" });
 
 		const header = card.createEl("div", { cls: "standard-site-document-header" });
 		header.createEl("h3", { text: doc.value.title, cls: "standard-site-document-title" });
+
+		let clipIcon = "book-open";
+		if (this.plugin.clipper.existsInClipDir(doc)) {
+			clipIcon = "book-open-check";
+		}
+		const clipBtn = header.createEl("span", { cls: "clickable standard-site-document-clip" });
+		setIcon(clipBtn, clipIcon);
+		clipBtn.addEventListener("click", async (e) => {
+			e.stopPropagation();
+			try {
+				await this.plugin.clipper.clipDocument(doc, pub);
+			} catch (error) {
+				const message = error instanceof Error ? error.message : String(error);
+				new Notice(`Failed to clip document: ${message}`);
+				console.error("Failed to clip document:", error);
+			}
+		})
+
 
 		if (doc.value.path) {
 			const extLink = header.createEl("span", { cls: "clickable standard-site-document-external" });

@@ -1,14 +1,13 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
-import { Client } from "@atcute/client";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
 import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_STANDARD_FEED } from "views/standardfeed";
-import { Handler } from "lib/client";
+import { ATClient } from "lib/client";
 
 export default class ATmarkPlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
-	client: Client;
+	client: ATClient
 
 	async onload() {
 		await this.loadSettings();
@@ -17,15 +16,12 @@ export default class ATmarkPlugin extends Plugin {
 			identifier: this.settings.identifier,
 			password: this.settings.appPassword,
 		};
-		this.client = new Client({ handler: new Handler(creds) });
+		this.client = new ATClient(creds);
 
 		this.registerView(VIEW_TYPE_ATMARK, (leaf) => {
 			return new ATmarkView(leaf, this);
 		});
 
-		// this.registerView(VIEW_TYPE_STANDARD_SITE, (leaf) => {
-		// 	return new StandardSiteView(leaf, this);
-		// });
 		this.registerView(VIEW_STANDARD_FEED, (leaf) => {
 			return new StandardFeedView(leaf, this);
 		});

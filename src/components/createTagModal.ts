@@ -72,7 +72,7 @@ export class CreateTagModal extends Modal {
 
 		try {
 			await createTag(
-				this.plugin.client!,
+				this.plugin.client,
 				this.plugin.settings.identifier,
 				value
 			);

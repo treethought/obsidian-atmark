@@ -73,7 +73,6 @@ export class ATmarkView extends ItemView {
 		container.empty();
 		container.addClass("atmark-view");
 
-		this.initSources();
 		this.renderHeader(container);
 
 		const loading = container.createEl("p", { text: "Loading..." });

@@ -80,7 +80,7 @@ export class CreateCollectionModal extends Modal {
 
 		try {
 			await createCollection(
-				this.plugin.client!,
+				this.plugin.client,
 				this.plugin.settings.identifier,
 				name,
 				descInput.value.trim()

@@ -1,4 +1,4 @@
-import { CredentialManager, FetchHandlerObject, } from "@atcute/client";
+import { Client, CredentialManager, FetchHandlerObject, simpleFetchHandler } from "@atcute/client";
 import { resolveActor } from "./identity";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { ResolvedActor } from "@atcute/identity-resolver";
@@ -10,6 +10,24 @@ export interface Credentials {
 	password: string;
 }
 
+export class ATClient extends Client {
+	hh: Handler;
+
+	constructor(creds?: Credentials) {
+		const handler = new Handler(creds);
+		super({ handler });
+		this.hh = handler;
+	}
+
+	get loggedIn(): boolean {
+		return !!this.hh.cm.session?.did;
+	}
+	get session() {
+		return this.hh.cm.session;
+	}
+
+}
+
 export class Handler implements FetchHandlerObject {
 	creds?: Credentials;
 	cm: CredentialManager;
@@ -18,7 +36,7 @@ export class Handler implements FetchHandlerObject {
 	constructor(creds?: Credentials) {
 		this.creds = creds;
 		this.cache = new Cache(5 * 60 * 1000); // 5 minutes TTL
-		this.cm = new CredentialManager({ service: DEFAULT_SERVICE, fetch: this.fetch.bind(this) });
+		this.cm = new CredentialManager({ service: DEFAULT_SERVICE });
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -36,21 +54,7 @@ export class Handler implements FetchHandlerObject {
 		}
 	}
 
-	async fetch(pathname: string, init: RequestInit): Promise<Response> {
-		const url = new URL(pathname, DEFAULT_SERVICE);
-		const repo = url.searchParams.get("repo");
-		if (!repo) {
-			return fetch(url.toString(), init);
-		}
-		const actor = await this.getActor(repo);
-		if (!actor) {
-			return fetch(url.toString(), init);
-		}
-		const fetchUrl = new URL(pathname, actor?.pds)
-		return fetch(fetchUrl.toString(), init);
-	}
-
-	async getPdsUrl(pathname: string): Promise<URL | null> {
+	async getPDS(pathname: string): Promise<string | null> {
 		const url = new URL(pathname, "https://placeholder")
 		const repo = url.searchParams.get("repo");
 		if (!repo) {
@@ -58,9 +62,8 @@ export class Handler implements FetchHandlerObject {
 		}
 		const own = (repo === this.cm.session?.handle || repo === this.cm.session?.did);
 		if (!own) {
-			const actor = await this.getActor(repo!);
-			const pds = new URL(pathname, actor.pds);
-			return pds
+			const actor = await this.getActor(repo);
+			return actor.pds
 		}
 		return null
 	}
@@ -68,7 +71,9 @@ export class Handler implements FetchHandlerObject {
 	async handle(pathname: string, init: RequestInit): Promise<Response> {
 		if (this.creds && !this.cm.session?.did) {
 			await this.cm.login(this.creds);
-			this.getActor(this.creds.identifier)
+			if (this.cm.session?.did) {
+				void this.getActor(this.cm.session?.did)
+			}
 		}
 
 		const cacheKey = `${init?.method || "GET"}:${pathname}`;
@@ -77,13 +82,13 @@ export class Handler implements FetchHandlerObject {
 			if (cached) {
 				return cached.clone();
 			}
-		} else {
 		}
 
 		let resp: Response;
-		const pds = await this.getPdsUrl(pathname);
+		const pds = await this.getPDS(pathname);
 		if (pds) {
-			resp = await fetch(new URL(pathname, pds).toString(), init);
+			const sfh = simpleFetchHandler({ service: pds });
+			resp = await sfh(pathname, init);
 		} else {
 			resp = await this.cm.handle(pathname, init);
 		}

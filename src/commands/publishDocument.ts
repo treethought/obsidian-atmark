@@ -14,9 +14,8 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 		return;
 	}
 
-	await plugin.initClient();
-	if (!plugin.client) {
-		new Notice("Not logged in. Check your credentials in settings.");
+	if (!plugin.client.loggedIn) {
+		new Notice("Must login to publish document.");
 		return;
 	}
 
@@ -33,7 +32,7 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 			await updateFrontMatter(plugin, file, newUri, record, documentUrl);
 			return;
 		}
-		const pub = await getPublication(record.site as ResourceUri);
+		const pub = await getPublication(plugin.client, record.site as ResourceUri);
 		const documentUrl = buildDocumentUrl(pub.value.url, newUri, record);
 
 		await updateFrontMatter(plugin, file, newUri, record, documentUrl);
@@ -127,7 +126,7 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 		pubUri = sel.uri;
 		pub = sel.publication;
 	} else {
-		const pubData = await getPublication(pubUri);
+		const pubData = await getPublication(plugin.client, pubUri);
 		pub = pubData.value;
 	}
 

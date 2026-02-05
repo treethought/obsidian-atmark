@@ -45,7 +45,13 @@ export default class AtmospherePlugin extends Plugin {
 
 		this.addCommand({
 			id: "open-feed",
-			name: "Publish document",
+			name: "Open feed",
+			callback: () => { void this.activateView(VIEW_ATMOSPHERE_STANDARD_FEED); },
+		});
+
+		this.addCommand({
+			id: "publish-note",
+			name: "Publish note",
 			editorCheckCallback: (checking: boolean,) => {
 				const file = this.app.workspace.getActiveFile();
 

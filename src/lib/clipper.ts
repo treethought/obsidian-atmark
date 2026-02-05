@@ -11,6 +11,10 @@ import { PubLeafletContent } from "@atcute/leaflet";
 import { BlogPcktContent } from "@atcute/pckt";
 
 
+function bskyLink(handle: string) {
+	return `https://bsky.app/profile/${handle}`;
+}
+
 export class Clipper {
 	plugin: ATmarkPlugin;
 
@@ -33,6 +37,7 @@ export class Clipper {
 		return file !== null;
 	}
 
+
 	async writeFrontmatter(file: TFile, doc: ATRecord<Document>, pub: ATRecord<Publication>) {
 		let actor: ResolvedActor | null = null;
 		const repoParsed = parseResourceUri(doc.uri);
@@ -43,7 +48,7 @@ export class Clipper {
 		await this.plugin.app.fileManager.processFrontMatter(file, (fm: Record<string, unknown>) => {
 			fm["title"] = doc.value.title;
 			if (actor && actor.handle) {
-				fm["author"] = actor.handle;
+				fm["author"] = `[${actor.handle}](${bskyLink(actor.handle)})`;
 			}
 			fm["aturi"] = doc.uri;
 

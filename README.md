@@ -19,7 +19,7 @@ View and manage bookmarks from AT Protocol platforms:
 
 ### Publishing & Reading
 
-- **Publish documents** - Publish Obsidian notes to standard.site publications like [leaflet.pub](https://leaflet.pub) and [pckt.blog](https://pckt.blog)
+- **Publish documents** - Publish Obsidian notes to [standard.site](https://standard.site/) publications like [leaflet.pub](https://leaflet.pub) and [pckt.blog](https://pckt.blog)
 - **Blog feed** - Browse and clip documents from subscribed standard.site publications to your vault
 
 

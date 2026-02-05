@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import type ATmarkPlugin from "./main";
+import type AtmospherePlugin from "./main";
 
 export interface AtProtoSettings {
 	identifier: string;
@@ -14,9 +14,9 @@ export const DEFAULT_SETTINGS: AtProtoSettings = {
 };
 
 export class SettingTab extends PluginSettingTab {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 
-	constructor(app: App, plugin: ATmarkPlugin) {
+	constructor(app: App, plugin: AtmospherePlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

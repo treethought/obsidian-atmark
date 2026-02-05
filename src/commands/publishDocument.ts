@@ -1,5 +1,5 @@
 import { Notice, TFile } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent, buildDocumentUrl } from "../lib";
 import { PublicationSelection, SelectPublicationModal } from "../components/selectPublicationModal";
 import { type ResourceUri, } from "@atcute/lexicons";
@@ -7,7 +7,7 @@ import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-
 import { PubLeafletContent } from "@atcute/leaflet";
 import { BlogPcktContent } from "@atcute/pckt";
 
-export async function publishFileAsDocument(plugin: ATmarkPlugin) {
+export async function publishFileAsDocument(plugin: AtmospherePlugin) {
 	const file = plugin.app.workspace.getActiveFile();
 	if (!file) {
 		new Notice("No active file to publish.");
@@ -44,7 +44,7 @@ export async function publishFileAsDocument(plugin: ATmarkPlugin) {
 }
 
 async function updateFrontMatter(
-	plugin: ATmarkPlugin,
+	plugin: AtmospherePlugin,
 	file: TFile,
 	docUri: ResourceUri,
 	record: SiteStandardDocument.Main,
@@ -75,7 +75,7 @@ async function updateFrontMatter(
 }
 
 
-async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
+async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
 	const full = await plugin.app.vault.read(file);
 
 	let fm: Record<string, unknown> | null = null;
@@ -144,7 +144,7 @@ async function buildDocumentRecord(plugin: ATmarkPlugin, file: TFile): Promise<{
 	return { record, docUri };
 };
 
-async function selectPublication(plugin: ATmarkPlugin): Promise<PublicationSelection> {
+async function selectPublication(plugin: AtmospherePlugin): Promise<PublicationSelection> {
 	return new Promise<PublicationSelection>((resolve, reject) => {
 		let selected = false;
 		const modal = new SelectPublicationModal(plugin, (selection) => {
@@ -167,7 +167,7 @@ async function selectPublication(plugin: ATmarkPlugin): Promise<PublicationSelec
 
 
 async function createOrUpdateDocument(
-	plugin: ATmarkPlugin,
+	plugin: AtmospherePlugin,
 	doc: SiteStandardDocument.Main,
 	existingUri?: ResourceUri,
 ) {

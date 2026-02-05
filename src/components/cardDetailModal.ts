@@ -1,15 +1,15 @@
 import { Modal, Notice, setIcon } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { createNoteCard, deleteRecord } from "../lib";
-import type { ATmarkItem } from "../sources/types";
+import type { ATBookmarkItem } from "../sources/types";
 
 export class CardDetailModal extends Modal {
-	plugin: ATmarkPlugin;
-	item: ATmarkItem;
+	plugin: AtmospherePlugin;
+	item: ATBookmarkItem;
 	onSuccess?: () => void;
 	noteInput: HTMLTextAreaElement | null = null;
 
-	constructor(plugin: ATmarkPlugin, item: ATmarkItem, onSuccess?: () => void) {
+	constructor(plugin: AtmospherePlugin, item: ATBookmarkItem, onSuccess?: () => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.item = item;
@@ -19,13 +19,13 @@ export class CardDetailModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("atmark-detail-modal");
+		contentEl.addClass("atmosphere-detail-modal");
 
-		const header = contentEl.createEl("div", { cls: "atmark-detail-header" });
+		const header = contentEl.createEl("div", { cls: "atmosphere-detail-header" });
 		const source = this.item.getSource();
 		header.createEl("span", {
 			text: source,
-			cls: `atmark-badge atmark-badge-source atmark-badge-${source}`,
+			cls: `atmosphere-badge atmosphere-badge-source atmosphere-badge-${source}`,
 		});
 
 		this.item.renderDetail(contentEl);
@@ -39,10 +39,10 @@ export class CardDetailModal extends Modal {
 			this.renderAddNoteForm(contentEl);
 		}
 
-		const footer = contentEl.createEl("div", { cls: "atmark-detail-footer" });
+		const footer = contentEl.createEl("div", { cls: "atmosphere-detail-footer" });
 		footer.createEl("span", {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
-			cls: "atmark-detail-date",
+			cls: "atmosphere-detail-date",
 		});
 	}
 
@@ -50,18 +50,18 @@ export class CardDetailModal extends Modal {
 		const notes = this.item.getAttachedNotes?.();
 		if (!notes || notes.length === 0) return;
 
-		const notesSection = contentEl.createEl("div", { cls: "atmark-semble-detail-notes-section" });
-		notesSection.createEl("h3", { text: "Notes", cls: "atmark-detail-section-title" });
+		const notesSection = contentEl.createEl("div", { cls: "atmosphere-semble-detail-notes-section" });
+		notesSection.createEl("h3", { text: "Notes", cls: "atmosphere-detail-section-title" });
 
 		for (const note of notes) {
-			const noteEl = notesSection.createEl("div", { cls: "atmark-semble-detail-note" });
+			const noteEl = notesSection.createEl("div", { cls: "atmosphere-semble-detail-note" });
 
-			const noteContent = noteEl.createEl("div", { cls: "atmark-semble-detail-note-content" });
-			const noteIcon = noteContent.createEl("span", { cls: "atmark-semble-detail-note-icon" });
+			const noteContent = noteEl.createEl("div", { cls: "atmosphere-semble-detail-note-content" });
+			const noteIcon = noteContent.createEl("span", { cls: "atmosphere-semble-detail-note-icon" });
 			setIcon(noteIcon, "message-square");
-			noteContent.createEl("p", { text: note.text, cls: "atmark-semble-detail-note-text" });
+			noteContent.createEl("p", { text: note.text, cls: "atmosphere-semble-detail-note-text" });
 
-			const deleteBtn = noteEl.createEl("button", { cls: "atmark-semble-note-delete-btn" });
+			const deleteBtn = noteEl.createEl("button", { cls: "atmosphere-semble-note-delete-btn" });
 			setIcon(deleteBtn, "trash-2");
 			deleteBtn.addEventListener("click", () => {
 				void this.handleDeleteNote(note.uri);
@@ -70,17 +70,17 @@ export class CardDetailModal extends Modal {
 	}
 
 	private renderAddNoteForm(contentEl: HTMLElement) {
-		const formSection = contentEl.createEl("div", { cls: "atmark-semble-detail-add-note" });
-		formSection.createEl("h3", { text: "Add a note", cls: "atmark-detail-section-title" });
+		const formSection = contentEl.createEl("div", { cls: "atmosphere-semble-detail-add-note" });
+		formSection.createEl("h3", { text: "Add a note", cls: "atmosphere-detail-section-title" });
 
-		const form = formSection.createEl("div", { cls: "atmark-semble-add-note-form" });
+		const form = formSection.createEl("div", { cls: "atmosphere-semble-add-note-form" });
 
 		this.noteInput = form.createEl("textarea", {
-			cls: "atmark-textarea atmark-semble-note-input",
+			cls: "atmosphere-textarea atmosphere-semble-note-input",
 			attr: { placeholder: "Write a note about this item..." },
 		});
 
-		const addBtn = form.createEl("button", { text: "Add note", cls: "atmark-btn atmark-btn-primary" });
+		const addBtn = form.createEl("button", { text: "Add note", cls: "atmosphere-btn atmosphere-btn-primary" });
 		addBtn.addEventListener("click", () => { void this.handleAddNote(); });
 	}
 

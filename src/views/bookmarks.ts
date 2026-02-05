@@ -1,21 +1,21 @@
 import { ItemView, WorkspaceLeaf, setIcon } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { CardDetailModal } from "../components/cardDetailModal";
-import type { ATmarkItem, DataSource, SourceFilter } from "../sources/types";
+import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types";
 import { SembleSource } from "../sources/semble";
 import { BookmarkSource } from "../sources/bookmark";
 import { MarginSource } from "../sources/margin";
 
-export const VIEW_TYPE_ATMARK = "atmark-view";
+export const VIEW_TYPE_ATMOSPHERE_BOOKMARKS = "atmosphere-bookmarks";
 
 type SourceType = "semble" | "bookmark" | "margin";
 
-export class ATmarkView extends ItemView {
-	plugin: ATmarkPlugin;
+export class AtmosphereView extends ItemView {
+	plugin: AtmospherePlugin;
 	activeSource: SourceType = "semble";
 	sources: Map<SourceType, { source: DataSource; filters: Map<string, SourceFilter> }> = new Map();
 
-	constructor(leaf: WorkspaceLeaf, plugin: ATmarkPlugin) {
+	constructor(leaf: WorkspaceLeaf, plugin: AtmospherePlugin) {
 		super(leaf);
 		this.plugin = plugin;
 	}
@@ -40,13 +40,11 @@ export class ATmarkView extends ItemView {
 	}
 
 	getViewType() {
-		return VIEW_TYPE_ATMARK;
+		return VIEW_TYPE_ATMOSPHERE_BOOKMARKS;
 	}
 
 	getDisplayText() {
-		// This is the name of the plugin, which contains the acronym "AT"
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		return "ATmark";
+		return "Atmosphere bookmarks";
 	}
 
 	getIcon() {
@@ -58,7 +56,7 @@ export class ATmarkView extends ItemView {
 		await this.render();
 	}
 
-	async fetchItems(): Promise<ATmarkItem[]> {
+	async fetchItems(): Promise<ATBookmarkItem[]> {
 		if (!this.plugin.client) return [];
 
 		const sourceData = this.sources.get(this.activeSource);
@@ -71,7 +69,7 @@ export class ATmarkView extends ItemView {
 	async render() {
 		const container = this.contentEl;
 		container.empty();
-		container.addClass("atmark-view");
+		container.addClass("atmosphere-view");
 
 		this.renderHeader(container);
 
@@ -87,7 +85,7 @@ export class ATmarkView extends ItemView {
 				return;
 			}
 
-			const grid = container.createEl("div", { cls: "atmark-grid" });
+			const grid = container.createEl("div", { cls: "atmosphere-grid" });
 			for (const item of items) {
 				try {
 					this.renderItem(grid, item);
@@ -99,24 +97,24 @@ export class ATmarkView extends ItemView {
 		} catch (err) {
 			loading.remove();
 			const message = err instanceof Error ? err.message : String(err);
-			container.createEl("p", { text: `Failed to load: ${message}`, cls: "atmark-error" });
+			container.createEl("p", { text: `Failed to load: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 
 	private renderHeader(container: HTMLElement) {
-		const header = container.createEl("div", { cls: "atmark-header" });
+		const header = container.createEl("div", { cls: "atmosphere-header" });
 
-		const sourceSelector = header.createEl("div", { cls: "atmark-source-selector" });
+		const sourceSelector = header.createEl("div", { cls: "atmosphere-source-selector" });
 		const sources: SourceType[] = ["semble", "margin", "bookmark"];
 
 		for (const source of sources) {
-			const label = sourceSelector.createEl("label", { cls: "atmark-source-option" });
+			const label = sourceSelector.createEl("label", { cls: "atmosphere-source-option" });
 
 			const radio = label.createEl("input", {
 				type: "radio",
-				cls: "atmark-source-radio",
+				cls: "atmosphere-source-radio",
 			});
-			radio.name = "atmark-source";
+			radio.name = "atmosphere-source";
 			radio.checked = this.activeSource === source;
 			radio.addEventListener("change", () => {
 				this.activeSource = source;
@@ -125,11 +123,11 @@ export class ATmarkView extends ItemView {
 
 			label.createEl("span", {
 				text: source.charAt(0).toUpperCase() + source.slice(1),
-				cls: "atmark-source-text",
+				cls: "atmosphere-source-text",
 			});
 		}
 
-		const filtersContainer = container.createEl("div", { cls: "atmark-filters" });
+		const filtersContainer = container.createEl("div", { cls: "atmosphere-filters" });
 		const sourceData = this.sources.get(this.activeSource);
 		if (sourceData) {
 			sourceData.source.renderFilterUI(
@@ -141,12 +139,12 @@ export class ATmarkView extends ItemView {
 		}
 	}
 
-	private renderItem(container: HTMLElement, item: ATmarkItem) {
-		const el = container.createEl("div", { cls: "atmark-item" });
+	private renderItem(container: HTMLElement, item: ATBookmarkItem) {
+		const el = container.createEl("div", { cls: "atmosphere-item" });
 
 		el.addEventListener("click", (e) => {
 			// Don't open detail if clicking the edit button
-			if ((e.target as HTMLElement).closest(".atmark-item-edit-btn")) {
+			if ((e.target as HTMLElement).closest(".atmosphere-item-edit-btn")) {
 				return;
 			}
 			new CardDetailModal(this.plugin, item, () => {
@@ -154,16 +152,16 @@ export class ATmarkView extends ItemView {
 			}).open();
 		});
 
-		const header = el.createEl("div", { cls: "atmark-item-header" });
+		const header = el.createEl("div", { cls: "atmosphere-item-header" });
 		const source = item.getSource();
 		header.createEl("span", {
 			text: source,
-			cls: `atmark-badge atmark-badge-${source}`,
+			cls: `atmosphere-badge atmosphere-badge-${source}`,
 		});
 
 		if (item.canEdit()) {
 			const editBtn = header.createEl("button", {
-				cls: "atmark-item-edit-btn",
+				cls: "atmosphere-item-edit-btn",
 			});
 			setIcon(editBtn, "more-vertical");
 			editBtn.addEventListener("click", (e) => {
@@ -176,21 +174,21 @@ export class ATmarkView extends ItemView {
 
 		item.render(el);
 
-		const footer = el.createEl("div", { cls: "atmark-item-footer" });
+		const footer = el.createEl("div", { cls: "atmosphere-item-footer" });
 		footer.createEl("span", {
 			text: new Date(item.getCreatedAt()).toLocaleDateString(),
-			cls: "atmark-date",
+			cls: "atmosphere-date",
 		});
 
 		// Show note indicator for items with attached notes (semble cards)
 		const notes = item.getAttachedNotes?.();
 		if (notes && notes.length > 0) {
-			const noteIndicator = footer.createEl("div", { cls: "atmark-note-indicator" });
-			const icon = noteIndicator.createEl("span", { cls: "atmark-note-icon" });
+			const noteIndicator = footer.createEl("div", { cls: "atmosphere-note-indicator" });
+			const icon = noteIndicator.createEl("span", { cls: "atmosphere-note-icon" });
 			setIcon(icon, "message-square");
 			noteIndicator.createEl("span", {
 				text: `${notes.length} note${notes.length > 1 ? 's' : ''}`,
-				cls: "atmark-note-count"
+				cls: "atmosphere-note-count"
 			});
 		}
 	}

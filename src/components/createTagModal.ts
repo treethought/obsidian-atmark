@@ -1,12 +1,12 @@
 import { Modal, Notice } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { createTag } from "../lib";
 
 export class CreateTagModal extends Modal {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 	onSuccess?: () => void;
 
-	constructor(plugin: ATmarkPlugin, onSuccess?: () => void) {
+	constructor(plugin: AtmospherePlugin, onSuccess?: () => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.onSuccess = onSuccess;
@@ -15,7 +15,7 @@ export class CreateTagModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("atmark-modal");
+		contentEl.addClass("atmosphere-modal");
 
 		contentEl.createEl("h2", { text: "New tag" });
 
@@ -24,28 +24,28 @@ export class CreateTagModal extends Modal {
 			return;
 		}
 
-		const form = contentEl.createEl("form", { cls: "atmark-form" });
+		const form = contentEl.createEl("form", { cls: "atmosphere-form" });
 
-		const tagGroup = form.createEl("div", { cls: "atmark-form-group" });
+		const tagGroup = form.createEl("div", { cls: "atmosphere-form-group" });
 		tagGroup.createEl("label", { text: "Tag", attr: { for: "tag-value" } });
 		const tagInput = tagGroup.createEl("input", {
 			type: "text",
-			cls: "atmark-input",
+			cls: "atmosphere-input",
 			attr: { id: "tag-value", placeholder: "Tag name", required: "true" },
 		});
 
-		const actions = form.createEl("div", { cls: "atmark-modal-actions" });
+		const actions = form.createEl("div", { cls: "atmosphere-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "atmark-btn atmark-btn-secondary",
+			cls: "atmosphere-btn atmosphere-btn-secondary",
 			type: "button",
 		});
 		cancelBtn.addEventListener("click", () => this.close());
 
 		const createBtn = actions.createEl("button", {
 			text: "Create",
-			cls: "atmark-btn atmark-btn-primary",
+			cls: "atmosphere-btn atmosphere-btn-primary",
 			type: "submit",
 		});
 

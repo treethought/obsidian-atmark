@@ -1,12 +1,12 @@
 import { Modal, Notice } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { createCollection } from "../lib";
 
 export class CreateCollectionModal extends Modal {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 	onSuccess?: () => void;
 
-	constructor(plugin: ATmarkPlugin, onSuccess?: () => void) {
+	constructor(plugin: AtmospherePlugin, onSuccess?: () => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.onSuccess = onSuccess;
@@ -15,7 +15,7 @@ export class CreateCollectionModal extends Modal {
 	onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("atmark-modal");
+		contentEl.addClass("atmosphere-modal");
 
 		contentEl.createEl("h2", { text: "New collection" });
 
@@ -24,35 +24,35 @@ export class CreateCollectionModal extends Modal {
 			return;
 		}
 
-		const form = contentEl.createEl("form", { cls: "atmark-form" });
+		const form = contentEl.createEl("form", { cls: "atmosphere-form" });
 
-		const nameGroup = form.createEl("div", { cls: "atmark-form-group" });
+		const nameGroup = form.createEl("div", { cls: "atmosphere-form-group" });
 		nameGroup.createEl("label", { text: "Name", attr: { for: "collection-name" } });
 		const nameInput = nameGroup.createEl("input", {
 			type: "text",
-			cls: "atmark-input",
+			cls: "atmosphere-input",
 			attr: { id: "collection-name", placeholder: "Collection name", required: "true" },
 		});
 
-		const descGroup = form.createEl("div", { cls: "atmark-form-group" });
+		const descGroup = form.createEl("div", { cls: "atmosphere-form-group" });
 		descGroup.createEl("label", { text: "Description", attr: { for: "collection-desc" } });
 		const descInput = descGroup.createEl("textarea", {
-			cls: "atmark-textarea",
+			cls: "atmosphere-textarea",
 			attr: { id: "collection-desc", placeholder: "Optional description", rows: "3" },
 		});
 
-		const actions = form.createEl("div", { cls: "atmark-modal-actions" });
+		const actions = form.createEl("div", { cls: "atmosphere-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "atmark-btn atmark-btn-secondary",
+			cls: "atmosphere-btn atmosphere-btn-secondary",
 			type: "button",
 		});
 		cancelBtn.addEventListener("click", () => this.close());
 
 		const createBtn = actions.createEl("button", {
 			text: "Create",
-			cls: "atmark-btn atmark-btn-primary",
+			cls: "atmosphere-btn atmosphere-btn-primary",
 			type: "submit",
 		});
 

@@ -3,7 +3,7 @@ import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import type { Main as MarginBookmark } from "../lexicons/types/at/margin/bookmark";
 import type { Main as MarginCollection } from "../lexicons/types/at/margin/collection";
 import type { Main as MarginCollectionItem } from "../lexicons/types/at/margin/collectionItem";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { putRecord, deleteRecord, getMarginCollections, getMarginCollectionItems, createMarginCollectionItem, getMarginBookmarks } from "../lib";
 
 type MarginBookmarkRecord = Record & { value: MarginBookmark };
@@ -23,14 +23,14 @@ interface TagState {
 }
 
 export class EditMarginBookmarkModal extends Modal {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 	record: MarginBookmarkRecord;
 	onSuccess?: () => void;
 	tagStates: TagState[] = [];
 	newTagInput: HTMLInputElement | null = null;
 	collectionStates: CollectionState[] = [];
 
-	constructor(plugin: ATmarkPlugin, record: MarginBookmarkRecord, onSuccess?: () => void) {
+	constructor(plugin: AtmospherePlugin, record: MarginBookmarkRecord, onSuccess?: () => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.record = record;
@@ -40,7 +40,7 @@ export class EditMarginBookmarkModal extends Modal {
 	async onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("atmark-modal");
+		contentEl.addClass("atmosphere-modal");
 
 		contentEl.createEl("h2", { text: "Edit margin bookmark" });
 
@@ -96,30 +96,30 @@ export class EditMarginBookmarkModal extends Modal {
 		} catch (err) {
 			loading.remove();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 
 	private renderForm(contentEl: HTMLElement) {
-		const form = contentEl.createEl("div", { cls: "atmark-form" });
+		const form = contentEl.createEl("div", { cls: "atmosphere-form" });
 
-		const tagsGroup = form.createEl("div", { cls: "atmark-form-group" });
+		const tagsGroup = form.createEl("div", { cls: "atmosphere-form-group" });
 		tagsGroup.createEl("label", { text: "Tags" });
 
-		const tagsList = tagsGroup.createEl("div", { cls: "atmark-tag-list" });
+		const tagsList = tagsGroup.createEl("div", { cls: "atmosphere-tag-list" });
 		for (const state of this.tagStates) {
 			this.addTagChip(tagsList, state);
 		}
 
-		const newTagRow = tagsGroup.createEl("div", { cls: "atmark-tag-row" });
+		const newTagRow = tagsGroup.createEl("div", { cls: "atmosphere-tag-row" });
 		this.newTagInput = newTagRow.createEl("input", {
 			type: "text",
-			cls: "atmark-input",
+			cls: "atmosphere-input",
 			attr: { placeholder: "Add new tag..." }
 		});
 		const addBtn = newTagRow.createEl("button", {
 			text: "Add",
-			cls: "atmark-btn atmark-btn-secondary",
+			cls: "atmosphere-btn atmosphere-btn-secondary",
 			attr: { type: "button" }
 		});
 		addBtn.addEventListener("click", () => {
@@ -133,53 +133,53 @@ export class EditMarginBookmarkModal extends Modal {
 		});
 
 		if (this.collectionStates.length > 0) {
-			const collectionsGroup = form.createEl("div", { cls: "atmark-form-group" });
+			const collectionsGroup = form.createEl("div", { cls: "atmosphere-form-group" });
 			collectionsGroup.createEl("label", { text: "Collections" });
 
-			const collectionsList = collectionsGroup.createEl("div", { cls: "atmark-collection-list" });
+			const collectionsList = collectionsGroup.createEl("div", { cls: "atmosphere-collection-list" });
 
 			for (const state of this.collectionStates) {
-				const item = collectionsList.createEl("label", { cls: "atmark-collection-item" });
+				const item = collectionsList.createEl("label", { cls: "atmosphere-collection-item" });
 
-				const checkbox = item.createEl("input", { type: "checkbox", cls: "atmark-collection-checkbox" });
+				const checkbox = item.createEl("input", { type: "checkbox", cls: "atmosphere-collection-checkbox" });
 				checkbox.checked = state.isSelected;
 				checkbox.addEventListener("change", () => {
 					state.isSelected = checkbox.checked;
 				});
 
-				const info = item.createEl("div", { cls: "atmark-collection-item-info" });
-				info.createEl("span", { text: state.collection.value.name, cls: "atmark-collection-item-name" });
+				const info = item.createEl("div", { cls: "atmosphere-collection-item-info" });
+				info.createEl("span", { text: state.collection.value.name, cls: "atmosphere-collection-item-name" });
 				if (state.collection.value.description) {
-					info.createEl("span", { text: state.collection.value.description, cls: "atmark-collection-item-desc" });
+					info.createEl("span", { text: state.collection.value.description, cls: "atmosphere-collection-item-desc" });
 				}
 			}
 		}
 
-		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });
 
 		const deleteBtn = actions.createEl("button", {
 			text: "Delete",
-			cls: "atmark-btn atmark-btn-danger"
+			cls: "atmosphere-btn atmosphere-btn-danger"
 		});
 		deleteBtn.addEventListener("click", () => { this.confirmDelete(contentEl); });
 
-		actions.createEl("div", { cls: "atmark-spacer" });
+		actions.createEl("div", { cls: "atmosphere-spacer" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "atmark-btn atmark-btn-secondary"
+			cls: "atmosphere-btn atmosphere-btn-secondary"
 		});
 		cancelBtn.addEventListener("click", () => { this.close(); });
 
 		const saveBtn = actions.createEl("button", {
 			text: "Save",
-			cls: "atmark-btn atmark-btn-primary"
+			cls: "atmosphere-btn atmosphere-btn-primary"
 		});
 		saveBtn.addEventListener("click", () => { void this.saveChanges(); });
 	}
 
 	private addTagChip(container: HTMLElement, state: TagState) {
-		const item = container.createEl("label", { cls: "atmark-tag-item" });
+		const item = container.createEl("label", { cls: "atmosphere-tag-item" });
 		const checkbox = item.createEl("input", { type: "checkbox" });
 		checkbox.checked = state.isSelected;
 		checkbox.addEventListener("change", () => {
@@ -191,13 +191,13 @@ export class EditMarginBookmarkModal extends Modal {
 	private confirmDelete(contentEl: HTMLElement) {
 		contentEl.empty();
 		contentEl.createEl("h2", { text: "Delete bookmark" });
-		contentEl.createEl("p", { text: "Delete this bookmark?", cls: "atmark-warning-text" });
+		contentEl.createEl("p", { text: "Delete this bookmark?", cls: "atmosphere-warning-text" });
 
-		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });
 
 		const cancelBtn = actions.createEl("button", {
 			text: "Cancel",
-			cls: "atmark-btn atmark-btn-secondary"
+			cls: "atmosphere-btn atmosphere-btn-secondary"
 		});
 		cancelBtn.addEventListener("click", () => {
 			void this.onOpen();
@@ -205,7 +205,7 @@ export class EditMarginBookmarkModal extends Modal {
 
 		const confirmBtn = actions.createEl("button", {
 			text: "Delete",
-			cls: "atmark-btn atmark-btn-danger"
+			cls: "atmosphere-btn atmosphere-btn-danger"
 		});
 		confirmBtn.addEventListener("click", () => { void this.deleteBookmark(); });
 	}
@@ -221,7 +221,7 @@ export class EditMarginBookmarkModal extends Modal {
 			const rkey = this.record.uri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "atmark-error" });
+				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "atmosphere-error" });
 				return;
 			}
 
@@ -238,7 +238,7 @@ export class EditMarginBookmarkModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 
@@ -260,7 +260,7 @@ export class EditMarginBookmarkModal extends Modal {
 			const rkey = this.record.uri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "atmark-error" });
+				contentEl.createEl("p", { text: "Invalid bookmark uri.", cls: "atmosphere-error" });
 				return;
 			}
 
@@ -321,7 +321,7 @@ export class EditMarginBookmarkModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 

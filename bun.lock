@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "obsidian-atmark",
+      "name": "obsidian-atmosphere",
       "dependencies": {
         "@atcute/atproto": "^3.1.10",
         "@atcute/bluesky": "^3.2.15",

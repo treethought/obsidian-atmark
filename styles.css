@@ -1,15 +1,15 @@
-/* ATmark View */
-.atmark-view {
+/* Atmosphere View */
+.atmosphere-view {
 	padding: 20px;
 }
 
-.atmark-header {
+.atmosphere-header {
 	margin-bottom: 24px;
 	padding-bottom: 16px;
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
-.atmark-source-selector {
+.atmosphere-source-selector {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -19,7 +19,7 @@
 	position: relative;
 }
 
-.atmark-source-option {
+.atmosphere-source-option {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -34,7 +34,7 @@
 	margin-bottom: -1px;
 }
 
-.atmark-source-option::after {
+.atmosphere-source-option::after {
 	content: "";
 	position: absolute;
 	bottom: 0;
@@ -45,50 +45,50 @@
 	transition: background 0.15s ease;
 }
 
-.atmark-source-option:hover {
+.atmosphere-source-option:hover {
 	background: var(--background-modifier-hover);
 }
 
-.atmark-source-option:has(input:checked)::after {
+.atmosphere-source-option:has(input:checked)::after {
 	background: var(--interactive-accent);
 }
 
-.atmark-source-option:has(input:checked) .atmark-source-text {
+.atmosphere-source-option:has(input:checked) .atmosphere-source-text {
 	color: var(--interactive-accent);
 	font-weight: var(--font-semibold);
 }
 
-.atmark-source-radio {
+.atmosphere-source-radio {
 	display: none;
 }
 
-.atmark-source-text {
+.atmosphere-source-text {
 	font-size: var(--font-ui-small);
 	font-weight: var(--font-medium);
 	color: var(--text-muted);
 }
 
-.atmark-filters {
+.atmosphere-filters {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 	margin-bottom: 16px;
 }
 
-.atmark-filter-section {
+.atmosphere-filter-section {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 }
 
-.atmark-filter-title-row {
+.atmosphere-filter-title-row {
 	display: flex;
 	align-items: center;
 	gap: 6px;
 	margin-bottom: 2px;
 }
 
-.atmark-filter-title {
+.atmosphere-filter-title {
 	margin: 0;
 	font-size: var(--font-smallest);
 	font-weight: var(--font-semibold);
@@ -97,7 +97,7 @@
 	letter-spacing: 0.05em;
 }
 
-.atmark-filter-create-btn {
+.atmosphere-filter-create-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -113,25 +113,25 @@
 	opacity: 0.7;
 }
 
-.atmark-filter-create-btn:hover {
+.atmosphere-filter-create-btn:hover {
 	background: var(--background-modifier-hover);
 	color: var(--interactive-accent);
 	opacity: 1;
 }
 
-.atmark-filter-create-btn svg {
+.atmosphere-filter-create-btn svg {
 	width: 12px;
 	height: 12px;
 }
 
-.atmark-filter-chips {
+.atmosphere-filter-chips {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 	align-items: center;
 }
 
-.atmark-chip {
+.atmosphere-chip {
 	padding: 3px 10px;
 	border-radius: var(--radius-m);
 	border: none;
@@ -144,31 +144,31 @@
 	white-space: nowrap;
 }
 
-.atmark-chip:hover {
+.atmosphere-chip:hover {
 	background: var(--background-modifier-border-hover);
 	color: var(--text-normal);
 	transform: translateY(-1px);
 }
 
-.atmark-chip-active {
+.atmosphere-chip-active {
 	background: var(--interactive-accent);
 	color: var(--text-on-accent);
 	font-weight: var(--font-semibold);
 }
 
-.atmark-chip-active:hover {
+.atmosphere-chip-active:hover {
 	background: var(--interactive-accent-hover);
 	transform: translateY(-1px);
 }
 
-.atmark-grid {
+.atmosphere-grid {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 	gap: 16px;
 	padding: 8px 0;
 }
 
-.atmark-item {
+.atmosphere-item {
 	background: var(--background-secondary);
 	border: 1px solid var(--background-modifier-border);
 	border-radius: var(--radius-m);
@@ -179,19 +179,19 @@
 	cursor: pointer;
 }
 
-.atmark-item:hover {
+.atmosphere-item:hover {
 	box-shadow: var(--shadow-s);
 	border-color: var(--background-modifier-border-hover);
 }
 
-.atmark-item-header {
+.atmosphere-item-header {
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
 	gap: 8px;
 }
 
-.atmark-item-edit-btn {
+.atmosphere-item-edit-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -208,22 +208,22 @@
 	transition: all 0.15s ease;
 }
 
-.atmark-item:hover .atmark-item-edit-btn {
+.atmosphere-item:hover .atmosphere-item-edit-btn {
 	opacity: 1;
 }
 
-.atmark-item-edit-btn:hover {
+.atmosphere-item-edit-btn:hover {
 	background: var(--background-modifier-hover);
 	color: var(--text-normal);
 	opacity: 1;
 }
 
-.atmark-item-edit-btn svg {
+.atmosphere-item-edit-btn svg {
 	width: 14px;
 	height: 14px;
 }
 
-.atmark-badge {
+.atmosphere-badge {
 	font-size: 10px;
 	padding: 3px 8px;
 	border-radius: 12px;
@@ -233,25 +233,25 @@
 	letter-spacing: 0.3px;
 }
 
-.atmark-badge-semble {
+.atmosphere-badge-semble {
 	background: color-mix(in srgb, var(--color-orange) 15%, transparent);
 	color: var(--color-orange);
 	border: 1px solid color-mix(in srgb, var(--color-orange) 30%, transparent);
 }
 
-.atmark-badge-bookmark {
+.atmosphere-badge-bookmark {
 	background: color-mix(in srgb, var(--color-cyan) 15%, transparent);
 	color: var(--color-cyan);
 	border: 1px solid color-mix(in srgb, var(--color-cyan) 30%, transparent);
 }
 
-.atmark-badge-margin {
+.atmosphere-badge-margin {
 	background: color-mix(in srgb, var(--color-purple) 15%, transparent);
 	color: var(--color-purple);
 	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
 }
 
-.atmark-item-footer {
+.atmosphere-item-footer {
 	display: flex;
 	justify-content: space-between;
 	font-size: var(--font-smallest);
@@ -261,24 +261,24 @@
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.atmark-date {
+.atmosphere-date {
 	font-size: var(--font-smallest);
 	color: var(--text-faint);
 }
 
-.atmark-error {
+.atmosphere-error {
 	color: var(--text-error);
 }
 
 
 /* Item Content (shared between sources) */
-.atmark-item-content {
+.atmosphere-item-content {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.atmark-item-title {
+.atmosphere-item-title {
 	font-weight: var(--font-semibold);
 	font-size: 1em;
 	color: var(--text-normal);
@@ -290,14 +290,14 @@
 	margin-bottom: 4px;
 }
 
-.atmark-item-image {
+.atmosphere-item-image {
 	width: 100%;
 	max-height: 120px;
 	object-fit: cover;
 	border-radius: var(--radius-s);
 }
 
-.atmark-item-desc {
+.atmosphere-item-desc {
 	color: var(--text-muted);
 	font-size: var(--font-small);
 	margin: 0;
@@ -308,13 +308,13 @@
 	line-height: 1.5;
 }
 
-.atmark-item-site {
+.atmosphere-item-site {
 	font-size: var(--font-smallest);
 	color: var(--text-faint);
 	margin-bottom: 2px;
 }
 
-.atmark-item-url {
+.atmosphere-item-url {
 	font-size: var(--font-smallest);
 	color: var(--text-accent);
 	text-decoration: none;
@@ -325,18 +325,18 @@
 	overflow: hidden;
 }
 
-.atmark-item-url:hover {
+.atmosphere-item-url:hover {
 	text-decoration: underline;
 }
 
-.atmark-item-tags {
+.atmosphere-item-tags {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 	margin-bottom: 8px;
 }
 
-.atmark-tag {
+.atmosphere-tag {
 	font-size: var(--font-smallest);
 	padding: 2px 8px;
 	border-radius: var(--radius-s);
@@ -345,14 +345,14 @@
 	border: 1px solid var(--background-modifier-border-hover);
 }
 
-.atmark-item-collections {
+.atmosphere-item-collections {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 	margin-bottom: 8px;
 }
 
-.atmark-collection {
+.atmosphere-collection {
 	font-size: var(--font-smallest);
 	padding: 2px 8px;
 	border-radius: var(--radius-s);
@@ -361,20 +361,20 @@
 	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
 }
 
-.atmark-item-collections-section {
+.atmosphere-item-collections-section {
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.atmark-item-tags-section {
+.atmosphere-item-tags-section {
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
 /* Note indicator for cards with attached notes */
-.atmark-note-indicator {
+.atmosphere-note-indicator {
 	display: flex;
 	align-items: center;
 	gap: 4px;
@@ -382,29 +382,29 @@
 	color: var(--text-muted);
 }
 
-.atmark-note-icon {
+.atmosphere-note-icon {
 	display: flex;
 	align-items: center;
 	color: var(--text-muted);
 }
 
-.atmark-note-icon svg {
+.atmosphere-note-icon svg {
 	width: 12px;
 	height: 12px;
 }
 
-.atmark-note-count {
+.atmosphere-note-count {
 	font-size: var(--font-smallest);
 }
 
 /* Detail Modal (shared between sources) */
-.atmark-detail-body {
+.atmosphere-detail-body {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 }
 
-.atmark-detail-title {
+.atmosphere-detail-title {
 	margin: 0;
 	font-size: var(--h2-size);
 	font-weight: var(--font-semibold);
@@ -412,20 +412,20 @@
 	line-height: 1.3;
 }
 
-.atmark-detail-image {
+.atmosphere-detail-image {
 	max-width: 100%;
 	max-height: 200px;
 	object-fit: contain;
 	border-radius: var(--radius-m);
 }
 
-.atmark-detail-description {
+.atmosphere-detail-description {
 	margin: 0;
 	color: var(--text-normal);
 	line-height: var(--line-height-normal);
 }
 
-.atmark-detail-meta {
+.atmosphere-detail-meta {
 	display: grid;
 	grid-template-columns: repeat(2, 1fr);
 	gap: 12px;
@@ -434,40 +434,40 @@
 	border-radius: var(--radius-m);
 }
 
-.atmark-detail-meta-item {
+.atmosphere-detail-meta-item {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.atmark-detail-meta-label {
+.atmosphere-detail-meta-label {
 	font-size: var(--font-smallest);
 	color: var(--text-faint);
 	text-transform: uppercase;
 	letter-spacing: 0.5px;
 }
 
-.atmark-detail-meta-value {
+.atmosphere-detail-meta-value {
 	font-size: var(--font-small);
 	color: var(--text-normal);
 }
 
-.atmark-detail-link-wrapper {
+.atmosphere-detail-link-wrapper {
 	padding-top: 8px;
 }
 
-.atmark-detail-link {
+.atmosphere-detail-link {
 	font-size: var(--font-small);
 	color: var(--text-accent);
 	text-decoration: none;
 	word-break: break-all;
 }
 
-.atmark-detail-link:hover {
+.atmosphere-detail-link:hover {
 	text-decoration: underline;
 }
 
-.atmark-detail-section-title {
+.atmosphere-detail-section-title {
 	margin: 0 0 12px 0;
 	font-size: var(--font-small);
 	font-weight: var(--font-semibold);
@@ -477,37 +477,37 @@
 }
 
 /* Modals and Forms (shared) */
-.atmark-modal {
+.atmosphere-modal {
 	padding: 16px;
 }
 
-.atmark-modal h2 {
+.atmosphere-modal h2 {
 	margin: 0 0 16px 0;
 	font-size: var(--h2-size);
 	font-weight: var(--font-semibold);
 	color: var(--text-normal);
 }
 
-.atmark-form {
+.atmosphere-form {
 	display: flex;
 	flex-direction: column;
 	gap: 16px;
 }
 
-.atmark-form-group {
+.atmosphere-form-group {
 	display: flex;
 	flex-direction: column;
 	gap: 6px;
 }
 
-.atmark-form-group label {
+.atmosphere-form-group label {
 	font-size: var(--font-small);
 	font-weight: var(--font-medium);
 	color: var(--text-normal);
 }
 
-.atmark-input,
-.atmark-textarea {
+.atmosphere-input,
+.atmosphere-textarea {
 	padding: 8px 12px;
 	background: var(--background-primary);
 	border: 1px solid var(--background-modifier-border);
@@ -518,24 +518,24 @@
 	transition: border-color 0.15s ease;
 }
 
-.atmark-input:focus,
-.atmark-textarea:focus {
+.atmosphere-input:focus,
+.atmosphere-textarea:focus {
 	outline: none;
 	border-color: var(--interactive-accent);
 	box-shadow: 0 0 0 2px var(--background-modifier-border-focus);
 }
 
-.atmark-input::placeholder,
-.atmark-textarea::placeholder {
+.atmosphere-input::placeholder,
+.atmosphere-textarea::placeholder {
 	color: var(--text-faint);
 }
 
-.atmark-textarea {
+.atmosphere-textarea {
 	resize: vertical;
 	min-height: 60px;
 }
 
-.atmark-modal-actions {
+.atmosphere-modal-actions {
 	display: flex;
 	align-items: center;
 	gap: 8px;
@@ -543,11 +543,11 @@
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.atmark-spacer {
+.atmosphere-spacer {
 	flex: 1;
 }
 
-.atmark-btn {
+.atmosphere-btn {
 	padding: 8px 16px;
 	border-radius: var(--radius-s);
 	font-size: var(--font-small);
@@ -556,64 +556,64 @@
 	transition: all 0.15s ease;
 }
 
-.atmark-btn:disabled {
+.atmosphere-btn:disabled {
 	opacity: 0.5;
 	cursor: not-allowed;
 }
 
-.atmark-btn-secondary {
+.atmosphere-btn-secondary {
 	background: var(--background-secondary);
 	border: 1px solid var(--background-modifier-border);
 	color: var(--text-normal);
 }
 
-.atmark-btn-secondary:hover:not(:disabled) {
+.atmosphere-btn-secondary:hover:not(:disabled) {
 	background: var(--background-modifier-hover);
 }
 
-.atmark-btn-primary {
+.atmosphere-btn-primary {
 	background: var(--interactive-accent);
 	border: 1px solid var(--interactive-accent);
 	color: var(--text-on-accent);
 }
 
-.atmark-btn-primary:hover:not(:disabled) {
+.atmosphere-btn-primary:hover:not(:disabled) {
 	background: var(--interactive-accent-hover);
 }
 
-.atmark-btn-danger {
+.atmosphere-btn-danger {
 	background: color-mix(in srgb, var(--color-red) 15%, transparent);
 	border: none;
 	color: var(--color-red);
 }
 
-.atmark-btn-danger:hover:not(:disabled) {
+.atmosphere-btn-danger:hover:not(:disabled) {
 	background: color-mix(in srgb, var(--color-red) 25%, transparent);
 }
 
-.atmark-warning-text {
+.atmosphere-warning-text {
 	color: var(--text-muted);
 	margin-bottom: 16px;
 }
 
-.atmark-tags-container {
+.atmosphere-tags-container {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
 	margin-bottom: 8px;
 }
 
-.atmark-tag-row {
+.atmosphere-tag-row {
 	display: flex;
 	align-items: center;
 	gap: 8px;
 }
 
-.atmark-tag-row .atmark-input {
+.atmosphere-tag-row .atmosphere-input {
 	flex: 1;
 }
 
-.atmark-tag-remove-btn {
+.atmosphere-tag-remove-btn {
 	width: 32px;
 	height: 32px;
 	padding: 0;
@@ -623,7 +623,7 @@
 }
 
 
-.atmark-collection-list {
+.atmosphere-collection-list {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
@@ -631,7 +631,7 @@
 	overflow-y: auto;
 }
 
-.atmark-collection-item {
+.atmosphere-collection-item {
 	display: flex;
 	align-items: center;
 	gap: 12px;
@@ -643,12 +643,12 @@
 	transition: all 0.15s ease;
 }
 
-.atmark-collection-item:hover {
+.atmosphere-collection-item:hover {
 	background: var(--background-modifier-hover);
 	border-color: var(--background-modifier-border-hover);
 }
 
-.atmark-collection-checkbox {
+.atmosphere-collection-checkbox {
 	width: 18px;
 	height: 18px;
 	margin: 0;
@@ -656,31 +656,31 @@
 	accent-color: var(--interactive-accent);
 }
 
-.atmark-collection-item-info {
+.atmosphere-collection-item-info {
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 	flex: 1;
 }
 
-.atmark-collection-item-name {
+.atmosphere-collection-item-name {
 	font-weight: var(--font-medium);
 	color: var(--text-normal);
 }
 
-.atmark-collection-item-desc {
+.atmosphere-collection-item-desc {
 	font-size: var(--font-small);
 	color: var(--text-muted);
 }
 
-.atmark-tag-list {
+.atmosphere-tag-list {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 6px;
 	margin-bottom: 8px;
 }
 
-.atmark-tag-item {
+.atmosphere-tag-item {
 	display: flex;
 	align-items: center;
 	padding: 4px 12px;
@@ -692,22 +692,22 @@
 	color: var(--text-muted);
 }
 
-.atmark-tag-item:hover {
+.atmosphere-tag-item:hover {
 	background: var(--background-modifier-border-hover);
 	color: var(--text-normal);
 }
 
-.atmark-tag-item:has(input:checked) {
+.atmosphere-tag-item:has(input:checked) {
 	background: var(--interactive-accent);
 	color: var(--text-on-accent);
 }
 
-.atmark-tag-item input {
+.atmosphere-tag-item input {
 	display: none;
 }
 
 /* Semble-specific styles (for NOTE cards and attached notes) */
-.atmark-semble-card-note {
+.atmosphere-semble-card-note {
 	margin: 0;
 	padding: 8px 12px;
 	background: var(--background-primary);
@@ -720,7 +720,7 @@
 	line-height: var(--line-height-normal);
 }
 
-.atmark-semble-card-text {
+.atmosphere-semble-card-text {
 	margin: 0;
 	line-height: 1.5;
 	color: var(--text-normal);
@@ -730,7 +730,7 @@
 	overflow: hidden;
 }
 
-.atmark-semble-detail-text {
+.atmosphere-semble-detail-text {
 	margin: 0;
 	white-space: pre-wrap;
 	line-height: var(--line-height-normal);
@@ -738,13 +738,13 @@
 	font-size: 1.1em;
 }
 
-.atmark-semble-detail-notes-section {
+.atmosphere-semble-detail-notes-section {
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.atmark-semble-detail-note {
+.atmosphere-semble-detail-note {
 	display: flex;
 	align-items: flex-start;
 	justify-content: space-between;
@@ -756,24 +756,24 @@
 	margin-bottom: 8px;
 }
 
-.atmark-semble-detail-note-content {
+.atmosphere-semble-detail-note-content {
 	display: flex;
 	gap: 12px;
 	flex: 1;
 	min-width: 0;
 }
 
-.atmark-semble-detail-note-icon {
+.atmosphere-semble-detail-note-icon {
 	flex-shrink: 0;
 	color: var(--color-accent);
 }
 
-.atmark-semble-detail-note-icon svg {
+.atmosphere-semble-detail-note-icon svg {
 	width: 16px;
 	height: 16px;
 }
 
-.atmark-semble-detail-note-text {
+.atmosphere-semble-detail-note-text {
 	margin: 0;
 	color: var(--text-normal);
 	line-height: var(--line-height-normal);
@@ -781,28 +781,28 @@
 }
 
 /* Card type badges */
-.atmark-semble-badge-note {
+.atmosphere-semble-badge-note {
 	background: var(--color-accent);
 	color: var(--text-on-accent);
 }
 
-.atmark-semble-badge-url {
+.atmosphere-semble-badge-url {
 	background: color-mix(in srgb, var(--color-purple) 80%, var(--background-primary));
 	color: var(--text-on-accent);
 }
 
-.atmark-badge-source {
+.atmosphere-badge-source {
 	font-size: var(--font-smallest);
 	opacity: 0.8;
 }
 
-.atmark-semble-badge-semble {
+.atmosphere-semble-badge-semble {
 	background: color-mix(in srgb, var(--color-green) 80%, var(--background-primary));
 	color: var(--text-on-accent);
 }
 
 /* Profile Icon */
-.atmark-profile-icon {
+.atmosphere-profile-icon {
 	display: flex;
 	align-items: center;
 	gap: 6px;
@@ -815,11 +815,11 @@
 	transition: background 0.15s ease;
 }
 
-.atmark-profile-icon:hover {
+.atmosphere-profile-icon:hover {
 	background: var(--background-modifier-hover);
 }
 
-.atmark-avatar-btn {
+.atmosphere-avatar-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -834,24 +834,24 @@
 	transition: opacity 0.15s ease;
 }
 
-.atmark-avatar-btn:hover {
+.atmosphere-avatar-btn:hover {
 	opacity: 0.8;
 }
 
-.atmark-avatar-img {
+.atmosphere-avatar-img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	border-radius: 50%;
 }
 
-.atmark-avatar-initials {
+.atmosphere-avatar-initials {
 	font-size: var(--font-smallest);
 	font-weight: var(--font-semibold);
 	color: var(--text-muted);
 }
 
-.atmark-avatar-placeholder {
+.atmosphere-avatar-placeholder {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -864,66 +864,66 @@
 	font-size: var(--font-smallest);
 }
 
-.atmark-profile-info {
+.atmosphere-profile-info {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-end;
 	gap: 1px;
 }
 
-.atmark-profile-name {
+.atmosphere-profile-name {
 	font-size: var(--font-ui-small);
 	font-weight: var(--font-medium);
 	color: var(--text-muted);
 	line-height: 1.2;
 }
 
-.atmark-profile-handle {
+.atmosphere-profile-handle {
 	font-size: var(--font-smallest);
 	color: var(--text-faint);
 	line-height: 1.2;
 }
 
 /* Generic Card Detail Modal (used for all sources) */
-.atmark-detail-modal {
+.atmosphere-detail-modal {
 	padding: 20px;
 	max-width: 600px;
 }
 
-.atmark-detail-header {
+.atmosphere-detail-header {
 	margin-bottom: 16px;
 }
 
-.atmark-detail-footer {
+.atmosphere-detail-footer {
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.atmark-detail-date {
+.atmosphere-detail-date {
 	font-size: var(--font-small);
 	color: var(--text-faint);
 }
 
 /* Semble-specific Add Note Form */
-.atmark-semble-detail-add-note {
+.atmosphere-semble-detail-add-note {
 	margin-top: 20px;
 	padding-top: 20px;
 	border-top: 1px solid var(--background-modifier-border);
 }
 
-.atmark-semble-add-note-form {
+.atmosphere-semble-add-note-form {
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
 }
 
-.atmark-semble-note-input {
+.atmosphere-semble-note-input {
 	min-height: 80px;
 	resize: vertical;
 }
 
-.atmark-semble-note-delete-btn {
+.atmosphere-semble-note-delete-btn {
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -940,46 +940,46 @@
 	transition: all 0.15s ease;
 }
 
-.atmark-semble-note-delete-btn:hover {
+.atmosphere-semble-note-delete-btn:hover {
 	background: color-mix(in srgb, var(--color-red) 15%, transparent);
 	color: var(--color-red);
 	opacity: 1;
 }
 
-.atmark-semble-note-delete-btn svg {
+.atmosphere-semble-note-delete-btn svg {
 	width: 14px;
 	height: 14px;
 }
 
 /* Responsive styles */
 @media (max-width: 600px) {
-	.atmark-view {
+	.atmosphere-view {
 		padding: 12px;
 	}
 
-	.atmark-header {
+	.atmosphere-header {
 		margin-bottom: 16px;
 		padding-bottom: 12px;
 	}
 
-	.atmark-profile-icon {
+	.atmosphere-profile-icon {
 		display: none;
 	}
 
-	.atmark-source-option {
+	.atmosphere-source-option {
 		padding: 8px 16px;
 		font-size: var(--font-ui-small);
 	}
 
-	.atmark-source-text {
+	.atmosphere-source-text {
 		font-size: var(--font-ui-small);
 	}
 
-	.atmark-source-selector {
+	.atmosphere-source-selector {
 		justify-content: center;
 	}
 
-	.atmark-grid {
+	.atmosphere-grid {
 		grid-template-columns: 1fr;
 		gap: 12px;
 	}
@@ -989,32 +989,32 @@
 		gap: 12px;
 	}
 
-	.atmark-filter-section {
+	.atmosphere-filter-section {
 		margin-bottom: 12px;
 	}
 }
 
 /* Hide profile in narrow sidebar widths (but not mobile) */
 @media (max-width: 400px) {
-	.atmark-profile-icon {
+	.atmosphere-profile-icon {
 		display: none;
 	}
 }
 
-.is-mobile .atmark-profile-icon {
+.is-mobile .atmosphere-profile-icon {
 	display: none;
 }
 
-.is-mobile .atmark-source-option {
+.is-mobile .atmosphere-source-option {
 	padding: 8px 16px;
 	font-size: var(--font-ui-small);
 }
 
-.is-mobile .atmark-source-text {
+.is-mobile .atmosphere-source-text {
 	font-size: var(--font-ui-small);
 }
 
-.is-mobile .atmark-source-selector {
+.is-mobile .atmosphere-source-selector {
 	justify-content: center;
 }
 

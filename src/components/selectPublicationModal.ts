@@ -1,5 +1,5 @@
 import { Modal } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { getPublications } from "../lib";
 import { SiteStandardPublication } from "@atcute/standard-site";
 import type { ResourceUri } from "@atcute/lexicons";
@@ -10,10 +10,10 @@ export type PublicationSelection = {
 };
 
 export class SelectPublicationModal extends Modal {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 	onSelect: (selection: PublicationSelection) => void;
 
-	constructor(plugin: ATmarkPlugin, onSelect: (selection: PublicationSelection) => void) {
+	constructor(plugin: AtmospherePlugin, onSelect: (selection: PublicationSelection) => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.onSelect = onSelect;
@@ -22,12 +22,12 @@ export class SelectPublicationModal extends Modal {
 	async onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("atmark-modal");
+		contentEl.addClass("atmosphere-modal");
 
 		contentEl.createEl("h2", { text: "Select publication" });
 
 		if (!this.plugin.client) {
-			contentEl.createEl("p", { text: "Not logged in", cls: "atmark-error" });
+			contentEl.createEl("p", { text: "Not logged in", cls: "atmosphere-error" });
 			return;
 		}
 
@@ -45,26 +45,26 @@ export class SelectPublicationModal extends Modal {
 			}
 
 			// Create a list of publications
-			const listContainer = contentEl.createEl("div", { cls: "atmark-collection-list" });
+			const listContainer = contentEl.createEl("div", { cls: "atmosphere-collection-list" });
 
 			for (const pub of pubs) {
-				const item = listContainer.createEl("div", { cls: "atmark-collection-item" });
+				const item = listContainer.createEl("div", { cls: "atmosphere-collection-item" });
 
 				const publication = pub.value;
 
-				const info = item.createEl("div", { cls: "atmark-collection-item-info" });
-				info.createEl("div", { text: publication.name, cls: "atmark-collection-item-name" });
+				const info = item.createEl("div", { cls: "atmosphere-collection-item-info" });
+				info.createEl("div", { text: publication.name, cls: "atmosphere-collection-item-name" });
 
 				if (publication.description) {
 					info.createEl("div", {
 						text: publication.description,
-						cls: "atmark-collection-item-desc"
+						cls: "atmosphere-collection-item-desc"
 					});
 				}
 
 				info.createEl("div", {
 					text: publication.url,
-					cls: "atmark-collection-item-desc"
+					cls: "atmosphere-collection-item-desc"
 				});
 
 				item.addEventListener("click", () => {
@@ -79,7 +79,7 @@ export class SelectPublicationModal extends Modal {
 		} catch (error) {
 			loading.remove();
 			const message = error instanceof Error ? error.message : String(error);
-			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 

@@ -1,12 +1,12 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import { setIcon } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { getCards, getCollections, getCollectionLinks } from "../lib";
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
-import type { ATmarkItem, DataSource, SourceFilter } from "./types";
+import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
 import { EditCardModal } from "../components/editCardModal";
 import { CreateCollectionModal } from "../components/createCollectionModal";
 
@@ -14,12 +14,12 @@ type CardRecord = Record & { value: Card };
 type CollectionRecord = Record & { value: Collection };
 type CollectionLinkRecord = Record & { value: CollectionLink };
 
-class SembleItem implements ATmarkItem {
+class SembleItem implements ATBookmarkItem {
 	private record: CardRecord;
 	private attachedNotes: Array<{ uri: string; text: string }>;
-	private plugin: ATmarkPlugin;
+	private plugin: AtmospherePlugin;
 
-	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, plugin: ATmarkPlugin) {
+	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, plugin: AtmospherePlugin) {
 		this.record = record;
 		this.attachedNotes = attachedNotes;
 		this.plugin = plugin;
@@ -54,23 +54,23 @@ class SembleItem implements ATmarkItem {
 	}
 
 	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "atmark-item-content" });
+		const el = container.createEl("div", { cls: "atmosphere-item-content" });
 
 		const card = this.record.value;
 
 		if (card.type === "NOTE") {
 			const content = card.content as NoteContent;
-			el.createEl("p", { text: content.text, cls: "atmark-semble-card-text" });
+			el.createEl("p", { text: content.text, cls: "atmosphere-semble-card-text" });
 		} else if (card.type === "URL") {
 			const content = card.content as UrlContent;
 			const meta = content.metadata;
 
 			if (meta?.title) {
-				el.createEl("div", { text: meta.title, cls: "atmark-item-title" });
+				el.createEl("div", { text: meta.title, cls: "atmosphere-item-title" });
 			}
 
 			if (meta?.imageUrl) {
-				const img = el.createEl("img", { cls: "atmark-item-image" });
+				const img = el.createEl("img", { cls: "atmosphere-item-image" });
 				img.src = meta.imageUrl;
 				img.alt = meta.title || "Image";
 			}
@@ -79,59 +79,59 @@ class SembleItem implements ATmarkItem {
 				const desc = meta.description.length > 200
 					? meta.description.slice(0, 200) + "…"
 					: meta.description;
-				el.createEl("p", { text: desc, cls: "atmark-item-desc" });
+				el.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
 			}
 
 			if (meta?.siteName) {
-				el.createEl("span", { text: meta.siteName, cls: "atmark-item-site" });
+				el.createEl("span", { text: meta.siteName, cls: "atmosphere-item-site" });
 			}
 
 			const link = el.createEl("a", {
 				text: content.url,
 				href: content.url,
-				cls: "atmark-item-url",
+				cls: "atmosphere-item-url",
 			});
 			link.setAttr("target", "_blank");
 		}
 	}
 
 	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "atmark-detail-body" });
+		const body = container.createEl("div", { cls: "atmosphere-detail-body" });
 		const card = this.record.value;
 
 		if (card.type === "NOTE") {
 			const content = card.content as NoteContent;
-			body.createEl("p", { text: content.text, cls: "atmark-semble-detail-text" });
+			body.createEl("p", { text: content.text, cls: "atmosphere-semble-detail-text" });
 		} else if (card.type === "URL") {
 			const content = card.content as UrlContent;
 			const meta = content.metadata;
 
 			if (meta?.title) {
-				body.createEl("h2", { text: meta.title, cls: "atmark-detail-title" });
+				body.createEl("h2", { text: meta.title, cls: "atmosphere-detail-title" });
 			}
 
 			if (meta?.imageUrl) {
-				const img = body.createEl("img", { cls: "atmark-detail-image" });
+				const img = body.createEl("img", { cls: "atmosphere-detail-image" });
 				img.src = meta.imageUrl;
 				img.alt = meta.title || "Image";
 			}
 
 			if (meta?.description) {
-				body.createEl("p", { text: meta.description, cls: "atmark-detail-description" });
+				body.createEl("p", { text: meta.description, cls: "atmosphere-detail-description" });
 			}
 
 			if (meta?.siteName) {
-				const metaGrid = body.createEl("div", { cls: "atmark-detail-meta" });
-				const item = metaGrid.createEl("div", { cls: "atmark-detail-meta-item" });
-				item.createEl("span", { text: "Site", cls: "atmark-detail-meta-label" });
-				item.createEl("span", { text: meta.siteName, cls: "atmark-detail-meta-value" });
+				const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
+				const item = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
+				item.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
+				item.createEl("span", { text: meta.siteName, cls: "atmosphere-detail-meta-value" });
 			}
 
-			const linkWrapper = body.createEl("div", { cls: "atmark-detail-link-wrapper" });
+			const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
 			const link = linkWrapper.createEl("a", {
 				text: content.url,
 				href: content.url,
-				cls: "atmark-detail-link",
+				cls: "atmosphere-detail-link",
 			});
 			link.setAttr("target", "_blank");
 		}
@@ -157,7 +157,7 @@ export class SembleSource implements DataSource {
 		this.repo = repo;
 	}
 
-	async fetchItems(filters: SourceFilter[], plugin: ATmarkPlugin): Promise<ATmarkItem[]> {
+	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
 		const cardsResp = await getCards(this.client, this.repo);
 		if (!cardsResp.ok) return [];
 
@@ -215,23 +215,23 @@ export class SembleSource implements DataSource {
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void {
-		const section = container.createEl("div", { cls: "atmark-filter-section" });
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: AtmospherePlugin): void {
+		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
 
-		const titleRow = section.createEl("div", { cls: "atmark-filter-title-row" });
-		titleRow.createEl("h3", { text: "Semble collections", cls: "atmark-filter-title" });
+		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
+		titleRow.createEl("h3", { text: "Semble collections", cls: "atmosphere-filter-title" });
 
-		const createBtn = titleRow.createEl("button", { cls: "atmark-filter-create-btn" });
+		const createBtn = titleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
 		setIcon(createBtn, "plus");
 		createBtn.addEventListener("click", () => {
 			new CreateCollectionModal(plugin, onChange).open();
 		});
 
-		const chips = section.createEl("div", { cls: "atmark-filter-chips" });
+		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
 
 		const allChip = chips.createEl("button", {
 			text: "All",
-			cls: `atmark-chip ${!activeFilters.has("sembleCollection") ? "atmark-chip-active" : ""}`,
+			cls: `atmosphere-chip ${!activeFilters.has("sembleCollection") ? "atmosphere-chip-active" : ""}`,
 		});
 		allChip.addEventListener("click", () => {
 			activeFilters.delete("sembleCollection");
@@ -244,7 +244,7 @@ export class SembleSource implements DataSource {
 			for (const collection of collections) {
 				const chip = chips.createEl("button", {
 					text: collection.label,
-					cls: `atmark-chip ${activeFilters.get("sembleCollection")?.value === collection.value ? "atmark-chip-active" : ""}`,
+					cls: `atmosphere-chip ${activeFilters.get("sembleCollection")?.value === collection.value ? "atmosphere-chip-active" : ""}`,
 				});
 				chip.addEventListener("click", () => {
 					activeFilters.set("sembleCollection", collection);

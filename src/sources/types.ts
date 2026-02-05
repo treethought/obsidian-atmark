@@ -1,6 +1,6 @@
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 
-export interface ATmarkItem {
+export interface ATBookmarkItem {
 	render(container: HTMLElement): void;
 	renderDetail(container: HTMLElement): void;
 	canAddNotes(): boolean;
@@ -21,7 +21,7 @@ export interface SourceFilter {
 
 export interface DataSource {
 	readonly name: "semble" | "bookmark" | "margin";
-	fetchItems(filters: SourceFilter[], plugin: ATmarkPlugin): Promise<ATmarkItem[]>;
+	fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]>;
 	getAvailableFilters(): Promise<SourceFilter[]>;
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void;
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: AtmospherePlugin): void;
 }

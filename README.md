@@ -57,7 +57,7 @@ Access commands via the command palette (Ctrl/Cmd + P) or ribbon icons.
 | Setting | Description | Default |
 |---------|-------------|---------|
 | **Handle** | Your AT Protocol handle or DID (e.g., `user.bsky.social`) | - |
-| **App password** | App password created in your AT Protocol client | - |
+| **App password** | App password from bluesky settings | - |
 | **Clip directory** | Directory in your vault where clipped documents are saved | `AtmosphereClips` |
 
 ## Usage
@@ -68,7 +68,7 @@ Switch between sources (Semble, Margin, Bookmarks) and filter by collections or 
 
 ### Publishing Documents
 
-Open a note and run "Publish document" command. After selecting one of your existing standard.site publication, your note will be converted to the applicable format (for leaflet or pckt) and update your note's properties with publication url, AT uris, etc.
+Open a note and run "Publish document" command. After selecting one of your existing standard.site publication, your note will be converted to the applicable format (for leaflet or pckt), published, and update your note's properties with publication url, AT uris, etc.
 
 ### Reading & Clipping
 

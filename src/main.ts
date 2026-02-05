@@ -1,12 +1,12 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
-import { ATmarkView, VIEW_TYPE_ATMARK } from "./views/atmark";
+import { AtmosphereView, VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { publishFileAsDocument } from "./commands/publishDocument";
-import { StandardFeedView, VIEW_STANDARD_FEED } from "views/standardfeed";
+import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
 
-export default class ATmarkPlugin extends Plugin {
+export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
 	client: ATClient;
 	clipper: Clipper;
@@ -21,40 +21,30 @@ export default class ATmarkPlugin extends Plugin {
 		this.client = new ATClient(creds);
 		this.clipper = new Clipper(this);
 
-		this.registerView(VIEW_TYPE_ATMARK, (leaf) => {
-			return new ATmarkView(leaf, this);
+		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
+			return new AtmosphereView(leaf, this);
 		});
 
-		this.registerView(VIEW_STANDARD_FEED, (leaf) => {
+		this.registerView(VIEW_ATMOSPHERE_STANDARD_FEED, (leaf) => {
 			return new StandardFeedView(leaf, this);
 		});
 
-		// included name of the plugin, which contains the acronym "AT"
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		this.addRibbonIcon("layers", "ATmark bookmarks", () => {
-			void this.activateView(VIEW_TYPE_ATMARK);
+		this.addRibbonIcon("layers", "Atmosphere bookmarks", () => {
+			void this.activateView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS);
 		});
 
-		// included name of the plugin, which contains the acronym "AT"
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
-		this.addRibbonIcon("rss", "ATmark feed", () => {
-			void this.activateView(VIEW_STANDARD_FEED);
+		this.addRibbonIcon("rss", "Atmosphere feed", () => {
+			void this.activateView(VIEW_ATMOSPHERE_STANDARD_FEED);
 		});
 
 		this.addCommand({
-			id: "view",
-			name: "Open view",
-			callback: () => { void this.activateView(VIEW_TYPE_ATMARK); },
+			id: "open-bookmarks",
+			name: "Open bookmarks",
+			callback: () => { void this.activateView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS); },
 		});
 
-		// this.addCommand({
-		// 	id: "standard-site-view",
-		// 	name: "View publications",
-		// 	callback: () => { void this.activateView(VIEW_TYPE_STANDARD_SITE); },
-		// });
-
 		this.addCommand({
-			id: "standard-site-publich-document",
+			id: "open-feed",
 			name: "Publish document",
 			editorCheckCallback: (checking: boolean,) => {
 				const file = this.app.workspace.getActiveFile();

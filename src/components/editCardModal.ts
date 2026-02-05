@@ -1,5 +1,5 @@
 import { Modal, Notice } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { getCollections, getCollectionLinks, createCollectionLink, getRecord, deleteRecord } from "../lib";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
@@ -23,13 +23,13 @@ interface CollectionState {
 }
 
 export class EditCardModal extends Modal {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 	cardUri: string;
 	cardCid: string;
 	onSuccess?: () => void;
 	collectionStates: CollectionState[] = [];
 
-	constructor(plugin: ATmarkPlugin, cardUri: string, cardCid: string, onSuccess?: () => void) {
+	constructor(plugin: AtmospherePlugin, cardUri: string, cardCid: string, onSuccess?: () => void) {
 		super(plugin.app);
 		this.plugin = plugin;
 		this.cardUri = cardUri;
@@ -40,7 +40,7 @@ export class EditCardModal extends Modal {
 	async onOpen() {
 		const { contentEl } = this;
 		contentEl.empty();
-		contentEl.addClass("atmark-modal");
+		contentEl.addClass("atmosphere-modal");
 
 		contentEl.createEl("h2", { text: "Edit collections" });
 
@@ -60,7 +60,7 @@ export class EditCardModal extends Modal {
 			loading.remove();
 
 			if (!collectionsResp.ok) {
-				contentEl.createEl("p", { text: "Failed to load collections.", cls: "atmark-error" });
+				contentEl.createEl("p", { text: "Failed to load collections.", cls: "atmosphere-error" });
 				return;
 			}
 
@@ -89,42 +89,42 @@ export class EditCardModal extends Modal {
 		} catch (err) {
 			loading.remove();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Error: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 
 	private renderCollectionList(contentEl: HTMLElement) {
-		const list = contentEl.createEl("div", { cls: "atmark-collection-list" });
+		const list = contentEl.createEl("div", { cls: "atmosphere-collection-list" });
 
 		for (const state of this.collectionStates) {
-			const item = list.createEl("label", { cls: "atmark-collection-item" });
+			const item = list.createEl("label", { cls: "atmosphere-collection-item" });
 
-			const checkbox = item.createEl("input", { type: "checkbox", cls: "atmark-collection-checkbox" });
+			const checkbox = item.createEl("input", { type: "checkbox", cls: "atmosphere-collection-checkbox" });
 			checkbox.checked = state.isSelected;
 			checkbox.addEventListener("change", () => {
 				state.isSelected = checkbox.checked;
 				this.updateSaveButton();
 			});
 
-			const info = item.createEl("div", { cls: "atmark-collection-item-info" });
-			info.createEl("span", { text: state.collection.value.name, cls: "atmark-collection-item-name" });
+			const info = item.createEl("div", { cls: "atmosphere-collection-item-info" });
+			info.createEl("span", { text: state.collection.value.name, cls: "atmosphere-collection-item-name" });
 			if (state.collection.value.description) {
-				info.createEl("span", { text: state.collection.value.description, cls: "atmark-collection-item-desc" });
+				info.createEl("span", { text: state.collection.value.description, cls: "atmosphere-collection-item-desc" });
 			}
 		}
 
-		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });
 
-		const deleteBtn = actions.createEl("button", { text: "Delete", cls: "atmark-btn atmark-btn-danger" });
+		const deleteBtn = actions.createEl("button", { text: "Delete", cls: "atmosphere-btn atmosphere-btn-danger" });
 		deleteBtn.addEventListener("click", () => { this.confirmDelete(contentEl); });
 
-		actions.createEl("div", { cls: "atmark-spacer" });
+		actions.createEl("div", { cls: "atmosphere-spacer" });
 
-		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "atmark-btn atmark-btn-secondary" });
+		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "atmosphere-btn atmosphere-btn-secondary" });
 		cancelBtn.addEventListener("click", () => { this.close(); });
 
-		const saveBtn = actions.createEl("button", { text: "Save", cls: "atmark-btn atmark-btn-primary" });
-		saveBtn.id = "atmark-save-btn";
+		const saveBtn = actions.createEl("button", { text: "Save", cls: "atmosphere-btn atmosphere-btn-primary" });
+		saveBtn.id = "atmosphere-save-btn";
 		saveBtn.disabled = true;
 		saveBtn.addEventListener("click", () => { void this.saveChanges(); });
 	}
@@ -132,16 +132,16 @@ export class EditCardModal extends Modal {
 	private confirmDelete(contentEl: HTMLElement) {
 		contentEl.empty();
 		contentEl.createEl("h2", { text: "Delete card" });
-		contentEl.createEl("p", { text: "Delete this card?", cls: "atmark-warning-text" });
+		contentEl.createEl("p", { text: "Delete this card?", cls: "atmosphere-warning-text" });
 
-		const actions = contentEl.createEl("div", { cls: "atmark-modal-actions" });
+		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });
 
-		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "atmark-btn atmark-btn-secondary" });
+		const cancelBtn = actions.createEl("button", { text: "Cancel", cls: "atmosphere-btn atmosphere-btn-secondary" });
 		cancelBtn.addEventListener("click", () => {
 			void this.onOpen();
 		});
 
-		const confirmBtn = actions.createEl("button", { text: "Delete", cls: "atmark-btn atmark-btn-danger" });
+		const confirmBtn = actions.createEl("button", { text: "Delete", cls: "atmosphere-btn atmosphere-btn-danger" });
 		confirmBtn.addEventListener("click", () => { void this.deleteCard(); });
 	}
 
@@ -156,7 +156,7 @@ export class EditCardModal extends Modal {
 			const rkey = this.cardUri.split("/").pop();
 			if (!rkey) {
 				contentEl.empty();
-				contentEl.createEl("p", { text: "Invalid card uri.", cls: "atmark-error" });
+				contentEl.createEl("p", { text: "Invalid card uri.", cls: "atmosphere-error" });
 				return;
 			}
 
@@ -173,12 +173,12 @@ export class EditCardModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Failed to delete: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 
 	private updateSaveButton() {
-		const saveBtn = document.getElementById("atmark-save-btn") as HTMLButtonElement | null;
+		const saveBtn = document.getElementById("atmosphere-save-btn") as HTMLButtonElement | null;
 		if (!saveBtn) return;
 
 		const hasChanges = this.collectionStates.some(s => s.isSelected !== s.wasSelected);
@@ -248,7 +248,7 @@ export class EditCardModal extends Modal {
 		} catch (err) {
 			contentEl.empty();
 			const message = err instanceof Error ? err.message : String(err);
-			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "atmark-error" });
+			contentEl.createEl("p", { text: `Failed to save: ${message}`, cls: "atmosphere-error" });
 		}
 	}
 

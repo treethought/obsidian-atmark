@@ -1,5 +1,5 @@
 import { getSubscribedPublications } from "lib/standardsite";
-import ATmarkPlugin from "main";
+import AtmospherePlugin from "main";
 import { ItemView, Notice, WorkspaceLeaf, setIcon } from "obsidian";
 import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
@@ -7,18 +7,18 @@ import { ATRecord } from "lib";
 import { parseResourceUri } from "@atcute/lexicons";
 import { getPublicationDocuments } from "lib/standardsite";
 
-export const VIEW_STANDARD_FEED = "standard-site-feed";
+export const VIEW_ATMOSPHERE_STANDARD_FEED = "atmosphere-standard-site-feed";
 
 export class StandardFeedView extends ItemView {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 
-	constructor(leaf: WorkspaceLeaf, plugin: ATmarkPlugin) {
+	constructor(leaf: WorkspaceLeaf, plugin: AtmospherePlugin) {
 		super(leaf);
 		this.plugin = plugin;
 	}
 
 	getViewType() {
-		return VIEW_STANDARD_FEED;
+		return VIEW_ATMOSPHERE_STANDARD_FEED;
 	}
 
 	getDisplayText() {
@@ -132,7 +132,7 @@ export class StandardFeedView extends ItemView {
 
 		const parsed = parseResourceUri(pub.uri);
 		if (!parsed.ok) {
-			// This is the name of the plugin, which contains the acronym "AT"
+			// URI is an acronym
 			// eslint-disable-next-line obsidianmd/ui/sentence-case
 			container.createEl("p", { text: "Failed to parse publication URI." });
 			console.error("Failed to parse publication URI:", parsed.error);

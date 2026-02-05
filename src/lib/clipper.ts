@@ -3,7 +3,7 @@ import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { is, parseResourceUri } from "@atcute/lexicons";
 import { Notice, TFile } from "obsidian";
-import ATmarkPlugin from "main";
+import AtmospherePlugin from "main";
 import { leafletContentToMarkdown } from "./markdown/leaflet";
 import { pcktContentToMarkdown } from "./markdown/pckt";
 import { ResolvedActor } from "@atcute/identity-resolver";
@@ -16,9 +16,9 @@ function bskyLink(handle: string) {
 }
 
 export class Clipper {
-	plugin: ATmarkPlugin;
+	plugin: AtmospherePlugin;
 
-	constructor(plugin: ATmarkPlugin) {
+	constructor(plugin: AtmospherePlugin) {
 		this.plugin = plugin;
 	}
 
@@ -50,8 +50,6 @@ export class Clipper {
 			if (actor && actor.handle) {
 				fm["author"] = `[${actor.handle}](${bskyLink(actor.handle)})`;
 			}
-			fm["aturi"] = doc.uri;
-
 			let docUrl = "";
 
 			// pubUrl is at:// record uri or https:// for loose document

@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-atmark",
+	"name": "obsidian-atmosphere",
 	"version": "0.1.9",
-	"description": "View and manage AT Protocol bookmarks.",
+	"description": "Various integrations with AT Protocol",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {

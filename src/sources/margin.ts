@@ -1,9 +1,9 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import { setIcon } from "obsidian";
-import type ATmarkPlugin from "../main";
+import type AtmospherePlugin from "../main";
 import { getMarginBookmarks, getMarginCollections, getMarginCollectionItems } from "../lib";
-import type { ATmarkItem, DataSource, SourceFilter } from "./types";
+import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
 import type { Main as MarginBookmark } from "../lexicons/types/at/margin/bookmark";
 import type { Main as MarginCollection } from "../lexicons/types/at/margin/collection";
 import type { Main as MarginCollectionItem } from "../lexicons/types/at/margin/collectionItem";
@@ -14,12 +14,12 @@ type MarginBookmarkRecord = Record & { value: MarginBookmark };
 type MarginCollectionRecord = Record & { value: MarginCollection };
 type MarginCollectionItemRecord = Record & { value: MarginCollectionItem };
 
-class MarginItem implements ATmarkItem {
+class MarginItem implements ATBookmarkItem {
 	private record: MarginBookmarkRecord;
-	private plugin: ATmarkPlugin;
+	private plugin: AtmospherePlugin;
 	private collections: Array<{ uri: string; name: string }>;
 
-	constructor(record: MarginBookmarkRecord, collections: Array<{ uri: string; name: string }>, plugin: ATmarkPlugin) {
+	constructor(record: MarginBookmarkRecord, collections: Array<{ uri: string; name: string }>, plugin: AtmospherePlugin) {
 		this.record = record;
 		this.collections = collections;
 		this.plugin = plugin;
@@ -54,77 +54,77 @@ class MarginItem implements ATmarkItem {
 	}
 
 	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "atmark-item-content" });
+		const el = container.createEl("div", { cls: "atmosphere-item-content" });
 		const bookmark = this.record.value;
 
 		if (this.collections.length > 0) {
-			const collectionsContainer = el.createEl("div", { cls: "atmark-item-collections" });
+			const collectionsContainer = el.createEl("div", { cls: "atmosphere-item-collections" });
 			for (const collection of this.collections) {
-				collectionsContainer.createEl("span", { text: collection.name, cls: "atmark-collection" });
+				collectionsContainer.createEl("span", { text: collection.name, cls: "atmosphere-collection" });
 			}
 		}
 
 		if (bookmark.tags && bookmark.tags.length > 0) {
-			const tagsContainer = el.createEl("div", { cls: "atmark-item-tags" });
+			const tagsContainer = el.createEl("div", { cls: "atmosphere-item-tags" });
 			for (const tag of bookmark.tags) {
-				tagsContainer.createEl("span", { text: tag, cls: "atmark-tag" });
+				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
 			}
 		}
 
 		if (bookmark.title) {
-			el.createEl("div", { text: bookmark.title, cls: "atmark-item-title" });
+			el.createEl("div", { text: bookmark.title, cls: "atmosphere-item-title" });
 		}
 
 		if (bookmark.description) {
 			const desc = bookmark.description.length > 200
 				? bookmark.description.slice(0, 200) + "…"
 				: bookmark.description;
-			el.createEl("p", { text: desc, cls: "atmark-item-desc" });
+			el.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
 		}
 
 		const link = el.createEl("a", {
 			text: bookmark.source,
 			href: bookmark.source,
-			cls: "atmark-item-url",
+			cls: "atmosphere-item-url",
 		});
 		link.setAttr("target", "_blank");
 	}
 
 	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "atmark-detail-body" });
+		const body = container.createEl("div", { cls: "atmosphere-detail-body" });
 		const bookmark = this.record.value;
 
 		if (bookmark.title) {
-			body.createEl("h2", { text: bookmark.title, cls: "atmark-detail-title" });
+			body.createEl("h2", { text: bookmark.title, cls: "atmosphere-detail-title" });
 		}
 
 		if (bookmark.description) {
-			body.createEl("p", { text: bookmark.description, cls: "atmark-detail-description" });
+			body.createEl("p", { text: bookmark.description, cls: "atmosphere-detail-description" });
 		}
 
-		const linkWrapper = body.createEl("div", { cls: "atmark-detail-link-wrapper" });
+		const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
 		const link = linkWrapper.createEl("a", {
 			text: bookmark.source,
 			href: bookmark.source,
-			cls: "atmark-detail-link",
+			cls: "atmosphere-detail-link",
 		});
 		link.setAttr("target", "_blank");
 
 		if (this.collections.length > 0) {
-			const collectionsSection = container.createEl("div", { cls: "atmark-item-collections-section" });
-			collectionsSection.createEl("h3", { text: "Collections", cls: "atmark-detail-section-title" });
-			const collectionsContainer = collectionsSection.createEl("div", { cls: "atmark-item-collections" });
+			const collectionsSection = container.createEl("div", { cls: "atmosphere-item-collections-section" });
+			collectionsSection.createEl("h3", { text: "Collections", cls: "atmosphere-detail-section-title" });
+			const collectionsContainer = collectionsSection.createEl("div", { cls: "atmosphere-item-collections" });
 			for (const collection of this.collections) {
-				collectionsContainer.createEl("span", { text: collection.name, cls: "atmark-collection" });
+				collectionsContainer.createEl("span", { text: collection.name, cls: "atmosphere-collection" });
 			}
 		}
 
 		if (bookmark.tags && bookmark.tags.length > 0) {
-			const tagsSection = container.createEl("div", { cls: "atmark-item-tags-section" });
-			tagsSection.createEl("h3", { text: "Tags", cls: "atmark-detail-section-title" });
-			const tagsContainer = tagsSection.createEl("div", { cls: "atmark-item-tags" });
+			const tagsSection = container.createEl("div", { cls: "atmosphere-item-tags-section" });
+			tagsSection.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
+			const tagsContainer = tagsSection.createEl("div", { cls: "atmosphere-item-tags" });
 			for (const tag of bookmark.tags) {
-				tagsContainer.createEl("span", { text: tag, cls: "atmark-tag" });
+				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
 			}
 		}
 	}
@@ -148,7 +148,7 @@ export class MarginSource implements DataSource {
 		this.repo = repo;
 	}
 
-	async fetchItems(filters: SourceFilter[], plugin: ATmarkPlugin): Promise<ATmarkItem[]> {
+	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
 		const bookmarksResp = await getMarginBookmarks(this.client, this.repo);
 		if (!bookmarksResp.ok) return [];
 
@@ -238,39 +238,39 @@ export class MarginSource implements DataSource {
 		return filters;
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: ATmarkPlugin): void {
-		const collectionsSection = container.createEl("div", { cls: "atmark-filter-section" });
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: AtmospherePlugin): void {
+		const collectionsSection = container.createEl("div", { cls: "atmosphere-filter-section" });
 
-		const collectionsTitleRow = collectionsSection.createEl("div", { cls: "atmark-filter-title-row" });
-		collectionsTitleRow.createEl("h3", { text: "Collections", cls: "atmark-filter-title" });
+		const collectionsTitleRow = collectionsSection.createEl("div", { cls: "atmosphere-filter-title-row" });
+		collectionsTitleRow.createEl("h3", { text: "Collections", cls: "atmosphere-filter-title" });
 
-		const createCollectionBtn = collectionsTitleRow.createEl("button", { cls: "atmark-filter-create-btn" });
+		const createCollectionBtn = collectionsTitleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
 		setIcon(createCollectionBtn, "plus");
 		createCollectionBtn.addEventListener("click", () => {
 			new CreateMarginCollectionModal(plugin, onChange).open();
 		});
 
-		const collectionsChips = collectionsSection.createEl("div", { cls: "atmark-filter-chips" });
+		const collectionsChips = collectionsSection.createEl("div", { cls: "atmosphere-filter-chips" });
 
 		const allCollectionsChip = collectionsChips.createEl("button", {
 			text: "All",
-			cls: `atmark-chip ${!activeFilters.has("marginCollection") ? "atmark-chip-active" : ""}`,
+			cls: `atmosphere-chip ${!activeFilters.has("marginCollection") ? "atmosphere-chip-active" : ""}`,
 		});
 		allCollectionsChip.addEventListener("click", () => {
 			activeFilters.delete("marginCollection");
 			onChange();
 		});
 
-		const tagsSection = container.createEl("div", { cls: "atmark-filter-section" });
+		const tagsSection = container.createEl("div", { cls: "atmosphere-filter-section" });
 
-		const tagsTitleRow = tagsSection.createEl("div", { cls: "atmark-filter-title-row" });
-		tagsTitleRow.createEl("h3", { text: "Tags", cls: "atmark-filter-title" });
+		const tagsTitleRow = tagsSection.createEl("div", { cls: "atmosphere-filter-title-row" });
+		tagsTitleRow.createEl("h3", { text: "Tags", cls: "atmosphere-filter-title" });
 
-		const tagsChips = tagsSection.createEl("div", { cls: "atmark-filter-chips" });
+		const tagsChips = tagsSection.createEl("div", { cls: "atmosphere-filter-chips" });
 
 		const allTagsChip = tagsChips.createEl("button", {
 			text: "All",
-			cls: `atmark-chip ${!activeFilters.has("marginTag") ? "atmark-chip-active" : ""}`,
+			cls: `atmosphere-chip ${!activeFilters.has("marginTag") ? "atmosphere-chip-active" : ""}`,
 		});
 		allTagsChip.addEventListener("click", () => {
 			activeFilters.delete("marginTag");
@@ -282,7 +282,7 @@ export class MarginSource implements DataSource {
 				if (filter.type === "marginCollection") {
 					const chip = collectionsChips.createEl("button", {
 						text: filter.label,
-						cls: `atmark-chip ${activeFilters.get("marginCollection")?.value === filter.value ? "atmark-chip-active" : ""}`,
+						cls: `atmosphere-chip ${activeFilters.get("marginCollection")?.value === filter.value ? "atmosphere-chip-active" : ""}`,
 					});
 					chip.addEventListener("click", () => {
 						activeFilters.set("marginCollection", filter);
@@ -291,7 +291,7 @@ export class MarginSource implements DataSource {
 				} else if (filter.type === "marginTag") {
 					const chip = tagsChips.createEl("button", {
 						text: filter.label,
-						cls: `atmark-chip ${activeFilters.get("marginTag")?.value === filter.value ? "atmark-chip-active" : ""}`,
+						cls: `atmosphere-chip ${activeFilters.get("marginTag")?.value === filter.value ? "atmosphere-chip-active" : ""}`,
 					});
 					chip.addEventListener("click", () => {
 						activeFilters.set("marginTag", filter);

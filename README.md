@@ -1,4 +1,4 @@
-# Atmosphere
+# obsidian-atmosphere
 
 Obsidian plugin for AT Protocol integrations, including bookmarking platforms and standard.site publishing.
 
@@ -13,9 +13,9 @@ Surf the atmosphere from the coziness of your vault.
 
 View and manage bookmarks from AT Protocol platforms:
 
-- **Semble** (`network.cosmik.*`) - Collections and cards with notes
-- **margin.at** (`at.margin.*`) - Bookmarks with collections and tags
-- **Bookmarks** (`community.lexicon.bookmarks.*`) - Community bookmarks lexicon (supports kipclip tags)
+- [Semble](https://semble.so) (`network.cosmik.*`) - Collections and cards with notes
+- [Margin](https://margin.at) (`at.margin.*`) - Bookmarks with collections and tags
+-  [Kipclip](https://kipclip.com) and community bookmarks (`community.lexicon.bookmarks.*`) - Community bookmarks lexicon (supports kipclip tags)
 
 ### Publishing & Reading
 

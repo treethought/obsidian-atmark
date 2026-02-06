@@ -5,7 +5,6 @@ import { ResolvedActor } from "@atcute/identity-resolver";
 
 const DEFAULT_SERVICE = "https://bsky.social";
 
-// Custom fetch function using Obsidian's requestUrl to avoid CORS issues
 export interface Credentials {
 	identifier: string;
 	password: string;
@@ -22,10 +21,10 @@ export class ATClient extends Client {
 	}
 
 	get loggedIn(): boolean {
-		return !!this.hh.cm.session?.did;
+		return !!this.hh.cm?.session?.did;
 	}
 	get session() {
-		return this.hh.cm.session;
+		return this.hh.cm?.session;
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -35,13 +34,22 @@ export class ATClient extends Client {
 
 export class Handler implements FetchHandlerObject {
 	creds?: Credentials;
-	cm: CredentialManager;
+	cm?: CredentialManager;
 	cache: Cache
 
 	constructor(creds?: Credentials) {
 		this.creds = creds;
 		this.cache = new Cache(5 * 60 * 1000); // 5 minutes TTL
-		this.cm = new CredentialManager({ service: DEFAULT_SERVICE });
+	}
+
+	async initAuth(): Promise<void> {
+		if (this.cm?.session?.did || !this.creds) {
+			return;
+		}
+
+		const actor = await this.getActor(this.creds.identifier);
+		this.cm = new CredentialManager({ service: actor.pds });
+		await this.cm.login(this.creds);
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -71,7 +79,7 @@ export class Handler implements FetchHandlerObject {
 		if (!repo) {
 			return null
 		}
-		const own = (repo === this.cm.session?.handle || repo === this.cm.session?.did);
+		const own = (repo === this.cm?.session?.handle || repo === this.cm?.session?.did);
 		if (!own) {
 			const actor = await this.getActor(repo);
 			return actor.pds
@@ -80,12 +88,7 @@ export class Handler implements FetchHandlerObject {
 	}
 
 	async handle(pathname: string, init: RequestInit): Promise<Response> {
-		if (this.creds && !this.cm.session?.did) {
-			await this.cm.login(this.creds);
-			if (this.cm.session?.did) {
-				void this.getActor(this.cm.session?.did)
-			}
-		}
+		await this.initAuth();
 
 		const cacheKey = `${init?.method || "GET"}:${pathname}`;
 		if (init?.method?.toLowerCase() === "get") {
@@ -100,8 +103,11 @@ export class Handler implements FetchHandlerObject {
 		if (pds) {
 			const sfh = simpleFetchHandler({ service: pds });
 			resp = await sfh(pathname, init);
-		} else {
+		} else if (this.cm) {
 			resp = await this.cm.handle(pathname, init);
+		} else {
+			const sfh = simpleFetchHandler({ service: DEFAULT_SERVICE });
+			resp = await sfh(pathname, init);
 		}
 
 		if (init?.method?.toLowerCase() === "get" && resp.ok) {

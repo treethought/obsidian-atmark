@@ -43,6 +43,18 @@ export async function publishFileAsDocument(plugin: AtmospherePlugin) {
 	}
 }
 
+function normalizePath(raw: unknown): string | undefined {
+	if (typeof raw !== "string") {
+		return undefined;
+	}
+	const trimmed = raw.trim();
+	if (!trimmed) {
+		return undefined;
+	}
+	const withoutLeading = trimmed.replace(/^\/+/, "");
+	return withoutLeading || undefined;
+}
+
 async function updateFrontMatter(
 	plugin: AtmospherePlugin,
 	file: TFile,
@@ -97,6 +109,7 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 		docUri = fm["atDocument"] as ResourceUri;
 		description = fm["description"];
 		title = fm["title"];
+		path = normalizePath(fm["path"]);
 		tags = fm["tags"] && Array.isArray(fm["tags"]) ? fm["tags"] : undefined;
 		publishedAt = fm["publishedAt"]; // Preserve existing if updating
 	}

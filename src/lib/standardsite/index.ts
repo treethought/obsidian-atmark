@@ -21,7 +21,8 @@ export function buildDocumentUrl(pubUrl: string, docUri: string, record: SiteSta
 		return ""
 	}
 
-	return `${baseUrl}/${record.path}`
+	const normalizedPath = record.path.replace(/^\/+/, "");
+	return `${baseUrl}/${normalizedPath}`
 }
 
 
@@ -211,4 +212,3 @@ export async function getSubscribedPublications(client: Client, repo: string): P
 	}
 	return pubs;
 }
-

@@ -121,7 +121,7 @@ function convertNodeToBlock(node: RootContent): PcktBlock | null {
 export function pcktContentToMarkdown(content: BlogPcktContent.Main): string {
 	const mdastNodes: RootContent[] = [];
 
-	for (const block of content.items) {
+	for (const block of content.items ?? []) {
 		const node = pcktBlockToMdast(block);
 		if (node) {
 			mdastNodes.push(node);

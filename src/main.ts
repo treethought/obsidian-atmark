@@ -5,20 +5,18 @@ import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
+import { OAuthModal } from "./components/oAuthModal";
+import type { OAuthSession } from "@atcute/oauth-node-client";
 
 export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
 	client: ATClient;
 	clipper: Clipper;
+	session: OAuthSession | null = null;
 
 	async onload() {
 		await this.loadSettings();
 
-		const creds = {
-			identifier: this.settings.identifier,
-			password: this.settings.appPassword,
-		};
-		this.client = new ATClient(creds);
 		this.clipper = new Clipper(this);
 
 		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
@@ -70,9 +68,42 @@ export default class AtmospherePlugin extends Plugin {
 		this.addSettingTab(new SettingTab(this.app, this));
 	}
 
+	async doOAuth(): Promise<void> {
+		return new Promise<void>((resolve, reject) => {
+			const modal = new OAuthModal(this, async (session) => {
+				this.session = session;
+				this.client = new ATClient(session);
 
+				this.settings.identifier = session.did;
+				await this.saveSettings();
+				// TODO: Store session for persistence across restarts
+				resolve();
+			});
+
+			// Override close to reject if not authenticated
+			const originalClose = modal.close.bind(modal);
+			modal.close = () => {
+				originalClose();
+				if (!this.session) {
+					reject(new Error("OAuth flow cancelled"));
+				}
+			};
+
+			modal.open();
+		});
+	}
 
 	async activateView(v: string) {
+		// Check if we need to authenticate
+		if (!this.client || !this.client.loggedIn) {
+			try {
+				await this.doOAuth();
+			} catch (error) {
+				console.error("OAuth failed:", error);
+				return;
+			}
+		}
+
 		const { workspace } = this.app;
 
 		let leaf: WorkspaceLeaf | null = null;

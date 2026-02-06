@@ -1,9 +1,8 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type AtmospherePlugin from "./main";
 
 export interface AtProtoSettings {
 	identifier: string;
-	appPassword: string;
 	clipDir: string;
 	publish: {
 		useFirstHeaderAsTitle: boolean;
@@ -12,7 +11,6 @@ export interface AtProtoSettings {
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
 	identifier: "",
-	appPassword: "",
 	clipDir: "AtmosphereClips",
 	publish: {
 		useFirstHeaderAsTitle: false,
@@ -31,31 +29,37 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName("Handle")
-			.setDesc("Your bluesky handle or identifier (e.g., user.bsky.social)")
-			// .setDesc("user.bsky.social")
-			.addText((text) =>
-				text
-					.setValue(this.plugin.settings.identifier)
-					.onChange(async (value) => {
-						this.plugin.settings.identifier = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		containerEl.createEl("h2", { text: "Atmosphere Settings" });
 
-		new Setting(containerEl)
-			.setName("App password")
-			.setDesc("Create one at https://bsky.app/settings/app-passwords")
-			.addText((text) => {
-				text.inputEl.type = "password";
-				text
-					.setValue(this.plugin.settings.appPassword)
-					.onChange(async (value) => {
-						this.plugin.settings.appPassword = value;
-						await this.plugin.saveSettings();
-					});
+		if (this.plugin.settings.identifier) {
+			new Setting(containerEl)
+				.setName("Authenticated as")
+				.setDesc(this.plugin.settings.identifier);
+
+			new Setting(containerEl)
+				.setName("Log out")
+				.setDesc("Clear your authentication and log out")
+				.addButton((button) =>
+					button
+						.setButtonText("Log out")
+						.setCta()
+						.onClick(async () => {
+							this.plugin.session = null;
+							this.plugin.client = null as any;
+
+							this.plugin.settings.identifier = "";
+							await this.plugin.saveSettings();
+
+							// refresh settings
+							this.display();
+							new Notice("Logged out successfully");
+						})
+				);
+		} else {
+			containerEl.createEl("p", {
+				text: "You'll be prompted to authenticate via OAuth when you first use the plugin.",
 			});
+		}
 
 		new Setting(containerEl)
 			.setName("Clip directory")

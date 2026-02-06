@@ -1,30 +1,24 @@
-import { Client, CredentialManager, FetchHandlerObject, simpleFetchHandler } from "@atcute/client";
+import { Client, FetchHandlerObject, simpleFetchHandler } from "@atcute/client";
 import { resolveActor } from "./identity";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { ResolvedActor } from "@atcute/identity-resolver";
-
-const DEFAULT_SERVICE = "https://bsky.social";
-
-export interface Credentials {
-	identifier: string;
-	password: string;
-}
+import type { OAuthSession } from "@atcute/oauth-node-client";
 
 export class ATClient extends Client {
 	hh: Handler;
-	slingshot: Client
 
-	constructor(creds?: Credentials) {
-		const handler = new Handler(creds);
-		super({ handler });
-		this.hh = handler;
+	constructor(session: OAuthSession) {
+		const hh = new Handler(session);
+		super({ handler: hh });
+		this.hh = hh;
 	}
 
 	get loggedIn(): boolean {
-		return !!this.hh.cm?.session?.did;
+		return !!this.hh.session.did;
 	}
+
 	get session() {
-		return this.hh.cm?.session;
+		return { did: this.hh.session.did };
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -32,24 +26,16 @@ export class ATClient extends Client {
 	}
 }
 
+/**
+ * Custom handler that wraps OAuthSession and adds PDS routing logic
+ */
 export class Handler implements FetchHandlerObject {
-	creds?: Credentials;
-	cm?: CredentialManager;
-	cache: Cache
+	session: OAuthSession;
+	cache: Cache;
 
-	constructor(creds?: Credentials) {
-		this.creds = creds;
+	constructor(session: OAuthSession) {
+		this.session = session;
 		this.cache = new Cache(5 * 60 * 1000); // 5 minutes TTL
-	}
-
-	async initAuth(): Promise<void> {
-		if (this.cm?.session?.did || !this.creds) {
-			return;
-		}
-
-		const actor = await this.getActor(this.creds.identifier);
-		this.cm = new CredentialManager({ service: actor.pds });
-		await this.cm.login(this.creds);
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -63,9 +49,8 @@ export class Handler implements FetchHandlerObject {
 				const res = await resolveActor(identifier);
 				this.cache.set(key, res);
 				return res;
-			}
-			catch (e) {
-				console.error("Error resolving actor:", e)
+			} catch (e) {
+				console.error("Error resolving actor:", e);
 				throw new Error("Failed to resolve actor: " + JSON.stringify(identifier));
 			}
 		} else {
@@ -74,22 +59,22 @@ export class Handler implements FetchHandlerObject {
 	}
 
 	async getPDS(pathname: string): Promise<string | null> {
-		const url = new URL(pathname, "https://placeholder")
+		const url = new URL(pathname, "https://placeholder");
 		const repo = url.searchParams.get("repo");
 		if (!repo) {
-			return null
+			return null;
 		}
-		const own = (repo === this.cm?.session?.handle || repo === this.cm?.session?.did);
+
+		const own = (repo === this.session.did);
 		if (!own) {
+			// resolve to get user's PDS
 			const actor = await this.getActor(repo);
-			return actor.pds
+			return actor.pds;
 		}
-		return null
+		return null;
 	}
 
 	async handle(pathname: string, init: RequestInit): Promise<Response> {
-		await this.initAuth();
-
 		const cacheKey = `${init?.method || "GET"}:${pathname}`;
 		if (init?.method?.toLowerCase() === "get") {
 			const cached = this.cache.get<Response>(cacheKey);
@@ -99,15 +84,13 @@ export class Handler implements FetchHandlerObject {
 		}
 
 		let resp: Response;
+
 		const pds = await this.getPDS(pathname);
 		if (pds) {
 			const sfh = simpleFetchHandler({ service: pds });
 			resp = await sfh(pathname, init);
-		} else if (this.cm) {
-			resp = await this.cm.handle(pathname, init);
 		} else {
-			const sfh = simpleFetchHandler({ service: DEFAULT_SERVICE });
-			resp = await sfh(pathname, init);
+			resp = await this.session.handle(pathname, init);
 		}
 
 		if (init?.method?.toLowerCase() === "get" && resp.ok) {

@@ -59,7 +59,9 @@ export class StandardFeedView extends ItemView {
 				return;
 			}
 
-			const pubUris = subsResp.records.map(sub => sub.value.publication);
+			const pubUris = subsResp.records
+				.map(sub => sub.value.publication)
+				.filter(uri => !this.plugin.settings.hiddenPublications?.[uri]);
 			for (const uri of pubUris) {
 				try {
 					const pub = await getPublication(this.plugin.client, uri);

@@ -48,6 +48,9 @@ export class SelectPublicationModal extends Modal {
 			const listContainer = contentEl.createEl("div", { cls: "atmosphere-collection-list" });
 
 			for (const pub of pubs) {
+				if (this.plugin.settings.hiddenPublications?.[pub.uri]) {
+					continue;
+				}
 				const item = listContainer.createEl("div", { cls: "atmosphere-collection-item" });
 
 				const publication = pub.value;

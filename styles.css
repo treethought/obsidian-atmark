@@ -255,6 +255,15 @@
 	height: 14px;
 }
 
+.atmosphere-publication-hidden {
+	opacity: 0.55;
+}
+
+.atmosphere-publication-hidden select {
+	pointer-events: none;
+	opacity: 0.7;
+}
+
 .atmosphere-badge {
 	font-size: 10px;
 	padding: 3px 8px;

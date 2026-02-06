@@ -1,8 +1,11 @@
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting, setIcon } from "obsidian";
 import type AtmospherePlugin from "./main";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { VIEW_ATMOSPHERE_STANDARD_FEED } from "./views/standardfeed";
+import { getPublications } from "./lib/standardsite";
+import type { SiteStandardPublication } from "@atcute/standard-site";
+import type { ATRecord } from "./lib";
 
 export interface AtProtoSettings {
 	did?: string;
@@ -11,6 +14,7 @@ export interface AtProtoSettings {
 		useFirstHeaderAsTitle: boolean;
 	};
 	publicationFormats: Record<string, ContentFormat>;
+	hiddenPublications: Record<string, boolean>;
 }
 
 export type ContentFormat = "leaflet" | "pckt" | "plaintext";
@@ -21,6 +25,7 @@ export const DEFAULT_SETTINGS: AtProtoSettings = {
 		useFirstHeaderAsTitle: false,
 	},
 	publicationFormats: {},
+	hiddenPublications: {},
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -130,6 +135,78 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+		const pubsSection = containerEl.createEl("div");
+		void this.renderPublications(pubsSection);
+	}
 
+	private async renderPublications(containerEl: HTMLElement): Promise<void> {
+		containerEl.empty();
+		containerEl.createEl("h3", { text: "Publications" });
+
+		if (!this.plugin.client.loggedIn || !this.plugin.client.actor?.did) {
+			containerEl.createEl("p", { text: "Log in to load publications." });
+			return;
+		}
+
+		const loading = containerEl.createEl("p", { text: "Loading publications..." });
+		try {
+			const resp = await getPublications(this.plugin.client, this.plugin.client.actor.did);
+			loading.remove();
+
+			if (resp.records.length === 0) {
+				containerEl.createEl("p", { text: "No publications found." });
+				return;
+			}
+
+			const allPubs = resp.records as ATRecord<SiteStandardPublication.Main>[];
+			const visiblePubs: ATRecord<SiteStandardPublication.Main>[] = [];
+			const hiddenPubs: ATRecord<SiteStandardPublication.Main>[] = [];
+			for (const pub of allPubs) {
+				if (this.plugin.settings.hiddenPublications?.[pub.uri]) {
+					hiddenPubs.push(pub);
+				} else {
+					visiblePubs.push(pub);
+				}
+			}
+
+			for (const pub of [...visiblePubs, ...hiddenPubs]) {
+				const current = this.plugin.settings.publicationFormats[pub.uri] ?? "plaintext";
+				let isVisible = !(this.plugin.settings.hiddenPublications[pub.uri] ?? false);
+				const setting = new Setting(containerEl);
+				setting
+					.setName(pub.value.name ?? pub.uri)
+					.setDesc(pub.value.url)
+					.addExtraButton((button) => {
+						const updateIcon = () => {
+							button.setTooltip(isVisible ? "Visible in lists" : "Hidden from lists");
+							setIcon(button.extraSettingsEl, isVisible ? "eye" : "eye-off");
+							setting.settingEl.toggleClass("atmosphere-publication-hidden", !isVisible);
+						};
+						updateIcon();
+						button.onClick(async () => {
+							isVisible = !isVisible;
+							this.plugin.settings.hiddenPublications[pub.uri] = !isVisible;
+							await this.plugin.saveSettings();
+							updateIcon();
+						});
+					})
+					.addDropdown((dropdown) => {
+						dropdown
+							.addOption("leaflet", "Leaflet.pub")
+							.addOption("pckt", "Pckt.blog")
+							.addOption("plaintext", "Plaintext")
+							.setValue(current)
+							.onChange(async (value) => {
+								this.plugin.settings.publicationFormats[pub.uri] = value as ContentFormat;
+								await this.plugin.saveSettings();
+							});
+					});
+				setting.settingEl.toggleClass("atmosphere-publication-hidden", !isVisible);
+			}
+		} catch (error) {
+			loading.remove();
+			const message = error instanceof Error ? error.message : String(error);
+			containerEl.createEl("p", { text: `Failed to load publications: ${message}` });
+		}
 	}
 }

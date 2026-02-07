@@ -11,8 +11,9 @@ import {
 	BlogPcktBlockHorizontalRule,
 	BlogPcktBlockBlockquote,
 	BlogPcktContent,
+	BlogPcktRichtextFacet,
 } from "@atcute/pckt";
-import { parseMarkdown, extractText, cleanPlaintext } from "../markdown";
+import { parseMarkdown, cleanPlaintext } from "../markdown";
 
 type PcktBlock =
 	| BlogPcktBlockText.Main
@@ -22,6 +23,8 @@ type PcktBlock =
 	| BlogPcktBlockOrderedList.Main
 	| BlogPcktBlockHorizontalRule.Main
 	| BlogPcktBlockBlockquote.Main;
+
+type PcktTextBlock = BlogPcktBlockText.Main & { $type: "blog.pckt.block.text" };
 
 export function markdownToPcktContent(markdown: string): BlogPcktContent.Main {
 	const tree = parseMarkdown(markdown);
@@ -40,32 +43,150 @@ export function markdownToPcktContent(markdown: string): BlogPcktContent.Main {
 	} as BlogPcktContent.Main;
 }
 
+const textEncoder = new TextEncoder();
+
+function byteLength(text: string): number {
+	return textEncoder.encode(text).length;
+}
+
+function createFacet(byteStart: number, byteEnd: number, features: BlogPcktRichtextFacet.Main["features"]): BlogPcktRichtextFacet.Main {
+	return {
+		$type: "blog.pckt.richtext.facet",
+		index: {
+			$type: "blog.pckt.richtext.facet#byteSlice",
+			byteStart,
+			byteEnd,
+		},
+		features,
+	};
+}
+
+function buildTextFromNodes(nodes: RootContent[]): { text: string; facets: BlogPcktRichtextFacet.Main[] } {
+	let text = "";
+	let byteOffset = 0;
+	const facets: BlogPcktRichtextFacet.Main[] = [];
+
+	const appendText = (value: string) => {
+		if (!value) {
+			return;
+		}
+		text += value;
+		byteOffset += byteLength(value);
+	};
+
+	const walk = (node: RootContent) => {
+		switch (node.type) {
+			case "text":
+				appendText(node.value);
+				return;
+			case "inlineCode": {
+				const start = byteOffset;
+				appendText(node.value);
+				const end = byteOffset;
+				if (start < end) {
+					facets.push(createFacet(start, end, [{ $type: "blog.pckt.richtext.facet#code" }]));
+				}
+				return;
+			}
+			case "strong": {
+				const start = byteOffset;
+				for (const child of node.children) {
+					walk(child);
+				}
+				const end = byteOffset;
+				if (start < end) {
+					facets.push(createFacet(start, end, [{ $type: "blog.pckt.richtext.facet#bold" }]));
+				}
+				return;
+			}
+			case "emphasis": {
+				const start = byteOffset;
+				for (const child of node.children) {
+					walk(child);
+				}
+				const end = byteOffset;
+				if (start < end) {
+					facets.push(createFacet(start, end, [{ $type: "blog.pckt.richtext.facet#italic" }]));
+				}
+				return;
+			}
+			case "delete": {
+				const start = byteOffset;
+				for (const child of node.children) {
+					walk(child);
+				}
+				const end = byteOffset;
+				if (start < end) {
+					facets.push(createFacet(start, end, [{ $type: "blog.pckt.richtext.facet#strikethrough" }]));
+				}
+				return;
+			}
+			case "link": {
+				const start = byteOffset;
+				for (const child of node.children) {
+					walk(child);
+				}
+				const end = byteOffset;
+				if (start < end && node.url) {
+					facets.push(createFacet(start, end, [{ $type: "blog.pckt.richtext.facet#link", uri: node.url }]));
+				}
+				return;
+			}
+			case "break":
+				appendText("\n");
+				return;
+			default: {
+				if ("children" in node && Array.isArray(node.children)) {
+					for (const child of node.children) {
+						walk(child);
+					}
+					return;
+				}
+				if ("value" in node && typeof node.value === "string") {
+					appendText(node.value);
+				}
+				return;
+			}
+		}
+	};
+
+	for (const node of nodes) {
+		walk(node);
+	}
+
+	return { text, facets };
+}
+
+function buildTextBlockFromNode(node: { children?: RootContent[] }): PcktTextBlock {
+	const { text, facets } = buildTextFromNodes(node.children ?? []);
+	return {
+		$type: "blog.pckt.block.text",
+		plaintext: text,
+		facets: facets.length > 0 ? facets : undefined,
+	} as PcktTextBlock;
+}
+
 function convertNodeToBlock(node: RootContent): PcktBlock | null {
 	switch (node.type) {
 		case "heading": {
+			const { text, facets } = buildTextFromNodes(node.children);
 			const block: BlogPcktBlockHeading.Main = {
 				$type: "blog.pckt.block.heading",
 				level: node.depth,
-				plaintext: extractText(node),
+				plaintext: text,
+				facets: facets.length > 0 ? facets : undefined,
 			};
 			return block;
 		}
 
 		case "paragraph": {
-			const block: BlogPcktBlockText.Main = {
-				$type: "blog.pckt.block.text",
-				plaintext: extractText(node),
-			};
-			return block;
+			return buildTextBlockFromNode(node);
 		}
 
 		case "list": {
 			const listItems: BlogPcktBlockListItem.Main[] = node.children.map((item) => ({
 				$type: "blog.pckt.block.listItem",
-				content: [{
-					$type: "blog.pckt.block.text",
-					plaintext: extractText(item),
-				}],
+				content: [buildTextBlockFromNode(item)],
 			}));
 
 			if (node.ordered) {
@@ -100,12 +221,10 @@ function convertNodeToBlock(node: RootContent): PcktBlock | null {
 		}
 
 		case "blockquote": {
+			const textBlock = buildTextBlockFromNode(node);
 			const block: BlogPcktBlockBlockquote.Main = {
 				$type: "blog.pckt.block.blockquote",
-				content: [{
-					$type: "blog.pckt.block.text",
-					plaintext: extractText(node),
-				}],
+				content: [textBlock],
 			};
 			return block;
 		}

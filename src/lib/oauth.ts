@@ -98,7 +98,7 @@ export class OauthServer {
 		this.oauth = new OAuthClient({
 			metadata: {
 				redirect_uris: [redirectUri],
-				scope: 'atproto repo:site.standard.document repo:site.standard.publication repo:network.cosmik.card at.margin.bookmark',
+				scope: 'atproto include:at.margin.authFull repo:site.standard.document repo:network.cosmik.card repo:network.cosmik.collection repo:network.cosmik.collectionLink',
 			},
 			actorResolver: compositeResolver,
 			stores: {

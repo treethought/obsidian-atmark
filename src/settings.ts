@@ -1,5 +1,8 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type AtmospherePlugin from "./main";
+import { isActorIdentifier } from "@atcute/lexicons/syntax";
+import { OauthServer } from "./lib/oauth";
+import { ATClient } from "./lib/client";
 
 export interface AtProtoSettings {
 	identifier: string;
@@ -33,12 +36,11 @@ export class SettingTab extends PluginSettingTab {
 
 		if (this.plugin.settings.identifier) {
 			new Setting(containerEl)
-				.setName("Authenticated as")
+				.setName("Logged in")
 				.setDesc(this.plugin.settings.identifier);
 
 			new Setting(containerEl)
 				.setName("Log out")
-				.setDesc("Clear your authentication and log out")
 				.addButton((button) =>
 					button
 						.setButtonText("Log out")
@@ -56,9 +58,60 @@ export class SettingTab extends PluginSettingTab {
 						})
 				);
 		} else {
-			containerEl.createEl("p", {
-				text: "You'll be prompted to authenticate via OAuth when you first use the plugin.",
-			});
+			let handleInput: HTMLInputElement;
+
+			new Setting(containerEl)
+				.setName("Log in")
+				.setDesc("Enter your Bluesky or AT Protocol handle (e.g., user.bsky.social)")
+				.addText((text) => {
+					handleInput = text.inputEl;
+					text.setPlaceholder("user.bsky.social")
+						.setValue("");
+				})
+				.addButton((button) =>
+					button
+						.setButtonText("Log in")
+						.setCta()
+						.onClick(async () => {
+							const handle = handleInput.value.trim();
+
+							if (!handle) {
+								new Notice("Please enter a handle.");
+								return;
+							}
+
+							if (!isActorIdentifier(handle)) {
+								new Notice("Invalid handle format. Please enter a valid AT Protocol handle (e.g., user.bsky.social).");
+								return;
+							}
+
+							try {
+								button.setDisabled(true);
+								button.setButtonText("Logging in...");
+
+								new Notice("Opening browser for authorization...");
+
+								const oauth = new OauthServer();
+								const session = await oauth.authorize(handle);
+
+								this.plugin.session = session;
+								this.plugin.client = new ATClient(session);
+								this.plugin.settings.identifier = session.did;
+								await this.plugin.saveSettings();
+
+								new Notice(`Successfully authenticated as ${session.handle}`);
+
+								// refresh settings to show authenticated state
+								this.display();
+							} catch (error) {
+								console.error("Login failed:", error);
+								const errorMessage = error instanceof Error ? error.message : String(error);
+								new Notice(`Authentication failed: ${errorMessage}`);
+								button.setDisabled(false);
+								button.setButtonText("Log in");
+							}
+						})
+				);
 		}
 
 		new Setting(containerEl)

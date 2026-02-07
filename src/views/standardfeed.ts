@@ -53,7 +53,7 @@ export class StandardFeedView extends ItemView {
 			for (const uri of pubUris) {
 				try {
 					const pub = await getPublication(this.plugin.client, uri);
-					void this.renderPublicationCard(list, pub);
+					this.renderPublicationCard(list, pub);
 				} catch (e) {
 					console.warn(`Failed to fetch publication at ${uri}:`, e);
 				}
@@ -68,7 +68,7 @@ export class StandardFeedView extends ItemView {
 		}
 	}
 
-	private async renderPublicationCard(container: HTMLElement, pub: ATRecord<Publication>) {
+	private renderPublicationCard(container: HTMLElement, pub: ATRecord<Publication>) {
 		const card = container.createEl("div", { cls: "standard-site-publication" });
 
 		const header = card.createEl("div", { cls: "standard-site-publication-header" });
@@ -136,11 +136,8 @@ export class StandardFeedView extends ItemView {
 
 		const parsed = parseResourceUri(pub.uri);
 		if (!parsed.ok) {
-			// URI is an acronym
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
-			container.createEl("p", { text: "Failed to parse publication URI." });
+			container.createEl("p", { text: "Failed to parse publication address." });
 			console.error("Failed to parse publication URI:", parsed.error);
-
 			return;
 		}
 

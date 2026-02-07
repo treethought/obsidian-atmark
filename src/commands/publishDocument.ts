@@ -6,6 +6,7 @@ import { type ResourceUri, } from "@atcute/lexicons";
 import { SiteStandardDocument, SiteStandardPublication } from "@atcute/standard-site";
 import { PubLeafletContent } from "@atcute/leaflet";
 import { BlogPcktContent } from "@atcute/pckt";
+import { extractFirstH1 } from "lib/markdown";
 
 export async function publishFileAsDocument(plugin: AtmospherePlugin) {
 	const file = plugin.app.workspace.getActiveFile();
@@ -74,72 +75,6 @@ async function updateFrontMatter(
 	});
 }
 
-function extractFirstH1(markdown: string): string | undefined {
-	const lines = markdown.split(/\r?\n/);
-	let inFence = false;
-	let fenceMarker: string | null = null;
-
-	for (const line of lines) {
-		const trimmed = line.trim();
-		const fence = trimmed.match(/^(```+|~~~+)/);
-		if (fence && fence[1]) {
-			const marker = fence[1].charAt(0);
-			if (!inFence) {
-				inFence = true;
-				fenceMarker = marker;
-			} else if (fenceMarker === marker) {
-				inFence = false;
-				fenceMarker = null;
-			}
-			continue;
-		}
-
-		if (inFence) {
-			continue;
-		}
-
-		const atxMatch = line.match(/^\s*#\s+(.+?)\s*$/);
-		if (atxMatch?.[1]) {
-			return atxMatch[1].trim();
-		}
-	}
-
-	for (let i = 0; i < lines.length - 1; i++) {
-		const line = lines[i];
-		const next = lines[i + 1];
-		if (!line || !next) {
-			continue;
-		}
-		const trimmed = line.trim();
-
-		const fence = trimmed.match(/^(```+|~~~+)/);
-		if (fence && fence[1]) {
-			const marker = fence[1].charAt(0);
-			if (!inFence) {
-				inFence = true;
-				fenceMarker = marker;
-			} else if (fenceMarker === marker) {
-				inFence = false;
-				fenceMarker = null;
-			}
-			continue;
-		}
-
-		if (inFence) {
-			continue;
-		}
-
-		if (!trimmed) {
-			continue;
-		}
-
-		if (/^\s*=+\s*$/.test(next)) {
-			return trimmed;
-		}
-	}
-
-	return undefined;
-}
 
 async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
 	const full = await plugin.app.vault.read(file);

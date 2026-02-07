@@ -1,6 +1,6 @@
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import type { Root, RootContent } from "mdast";
+import type { Root, RootContent, Heading } from "mdast";
 
 export function parseMarkdown(markdown: string): Root {
 	return unified().use(remarkParse).parse(markdown);
@@ -24,6 +24,15 @@ export function extractText(node: RootContent | Root): string {
 	}
 
 	return "";
+}
+
+export function extractFirstH1(markdown: string): string | undefined {
+	const tree = parseMarkdown(markdown);
+	const first = tree.children.find(
+		node => node.type === "heading" && node.depth === 1
+	) as Heading | undefined;
+
+	return first ? extractText(first) : undefined;
 }
 
 /**

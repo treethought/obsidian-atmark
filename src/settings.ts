@@ -71,7 +71,7 @@ export class SettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName("Use first header as publish title")
-			.setDesc('When enabled and no "title" property is set, first markdown level 1 header will be used as the title of the published document. If disabled, the title will default to the note filename.')
+			.setDesc('Use the first level one header instead of filename when no title property is set')
 			.addToggle((toggle) =>
 				toggle
 					.setValue(this.plugin.settings.publish.useFirstHeaderAsTitle)

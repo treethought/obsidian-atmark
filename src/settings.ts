@@ -3,6 +3,8 @@ import type AtmospherePlugin from "./main";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { OauthServer } from "./lib/oauth";
 import { ATClient } from "./lib/client";
+import { VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
+import { VIEW_ATMOSPHERE_STANDARD_FEED } from "./views/standardfeed";
 
 export interface AtProtoSettings {
 	identifier: string;
@@ -46,13 +48,15 @@ export class SettingTab extends PluginSettingTab {
 						.setButtonText("Log out")
 						.setCta()
 						.onClick(async () => {
-							this.plugin.session = null;
 							this.plugin.client = null as any;
 
 							this.plugin.settings.identifier = "";
 							await this.plugin.saveSettings();
 
-							// refresh settings
+							// close all plugin views
+							this.app.workspace.detachLeavesOfType(VIEW_TYPE_ATMOSPHERE_BOOKMARKS);
+							this.app.workspace.detachLeavesOfType(VIEW_ATMOSPHERE_STANDARD_FEED);
+
 							this.display();
 							new Notice("Logged out successfully");
 						})
@@ -94,14 +98,14 @@ export class SettingTab extends PluginSettingTab {
 								const oauth = new OauthServer();
 								const session = await oauth.authorize(handle);
 
-								this.plugin.session = session;
 								this.plugin.client = new ATClient(session);
 								this.plugin.settings.identifier = session.did;
+								const actor = await this.plugin.client.getActor(session.did);
+
 								await this.plugin.saveSettings();
 
-								new Notice(`Successfully authenticated as ${session.handle}`);
+								new Notice(`Successfully logged in as ${actor.handle}`);
 
-								// refresh settings to show authenticated state
 								this.display();
 							} catch (error) {
 								console.error("Login failed:", error);

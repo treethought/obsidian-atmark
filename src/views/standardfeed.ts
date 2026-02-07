@@ -5,6 +5,7 @@ import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { ATRecord } from "lib";
 import { parseResourceUri } from "@atcute/lexicons";
+import { renderLoginMessage } from "components/loginMessage";
 
 export const VIEW_ATMOSPHERE_STANDARD_FEED = "atmosphere-standard-site-feed";
 
@@ -36,6 +37,13 @@ export class StandardFeedView extends ItemView {
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("standard-site-view");
+
+		// Check authentication
+		if (!this.plugin.checkLoggedIn()) {
+			renderLoginMessage(container)
+			return
+		}
+
 		this.renderHeader(container);
 
 		const loading = container.createEl("p", { text: "Loading subscriptions..." });

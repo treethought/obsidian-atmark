@@ -1,18 +1,15 @@
-import { Plugin, WorkspaceLeaf } from "obsidian";
+import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { AtmosphereView, VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
-import { OAuthModal } from "./components/oAuthModal";
-import type { OAuthSession } from "@atcute/oauth-node-client";
 
 export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
 	client: ATClient;
 	clipper: Clipper;
-	session: OAuthSession | null = null;
 
 	async onload() {
 		await this.loadSettings();
@@ -68,40 +65,19 @@ export default class AtmospherePlugin extends Plugin {
 		this.addSettingTab(new SettingTab(this.app, this));
 	}
 
-	async doOAuth(): Promise<void> {
-		return new Promise<void>((resolve, reject) => {
-			const modal = new OAuthModal(this, async (session) => {
-				this.session = session;
-				this.client = new ATClient(session);
 
-				this.settings.identifier = session.did;
-				await this.saveSettings();
-				// TODO: Store session for persistence across restarts
-				resolve();
-			});
+	checkLoggedIn() {
+		if (this.client?.loggedIn) {
+			return true;
+		}
 
-			// Override close to reject if not authenticated
-			const originalClose = modal.close.bind(modal);
-			modal.close = () => {
-				originalClose();
-				if (!this.session) {
-					reject(new Error("OAuth flow cancelled"));
-				}
-			};
-
-			modal.open();
-		});
+		new Notice("Please log in by opening Atmosphere settings");
+		return false;
 	}
 
 	async activateView(v: string) {
-		// Check if we need to authenticate
-		if (!this.client || !this.client.loggedIn) {
-			try {
-				await this.doOAuth();
-			} catch (error) {
-				console.error("OAuth failed:", error);
-				return;
-			}
+		if (!this.checkLoggedIn()) {
+			return;
 		}
 
 		const { workspace } = this.app;

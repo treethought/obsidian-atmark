@@ -5,6 +5,7 @@ import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types"
 import { SembleSource } from "../sources/semble";
 import { BookmarkSource } from "../sources/bookmark";
 import { MarginSource } from "../sources/margin";
+import { renderLoginMessage } from "components/loginMessage";
 
 export const VIEW_TYPE_ATMOSPHERE_BOOKMARKS = "atmosphere-bookmarks";
 
@@ -70,6 +71,11 @@ export class AtmosphereView extends ItemView {
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("atmosphere-view");
+
+		if (!this.plugin.checkLoggedIn()) {
+			renderLoginMessage(container)
+			return
+		}
 
 		this.renderHeader(container);
 

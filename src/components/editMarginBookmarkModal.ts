@@ -53,9 +53,9 @@ export class EditMarginBookmarkModal extends Modal {
 
 		try {
 			const [collectionsResp, itemsResp, bookmarksResp] = await Promise.all([
-				getMarginCollections(this.plugin.client, this.plugin.settings.identifier),
-				getMarginCollectionItems(this.plugin.client, this.plugin.settings.identifier),
-				getMarginBookmarks(this.plugin.client, this.plugin.settings.identifier),
+				getMarginCollections(this.plugin.client, this.plugin.settings.did!),
+				getMarginCollectionItems(this.plugin.client, this.plugin.settings.did!),
+				getMarginBookmarks(this.plugin.client, this.plugin.settings.did!),
 			]);
 
 			loading.remove();
@@ -227,7 +227,7 @@ export class EditMarginBookmarkModal extends Modal {
 
 			await deleteRecord(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				"at.margin.bookmark",
 				rkey
 			);
@@ -271,7 +271,7 @@ export class EditMarginBookmarkModal extends Modal {
 
 			await putRecord(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				"at.margin.bookmark",
 				rkey,
 				updatedRecord
@@ -286,7 +286,7 @@ export class EditMarginBookmarkModal extends Modal {
 					if (linkRkey) {
 						await deleteRecord(
 							this.plugin.client,
-							this.plugin.settings.identifier,
+							this.plugin.settings.did!,
 							"at.margin.collectionItem",
 							linkRkey
 						);
@@ -297,7 +297,7 @@ export class EditMarginBookmarkModal extends Modal {
 			for (const state of collectionsToAdd) {
 				await createMarginCollectionItem(
 					this.plugin.client,
-					this.plugin.settings.identifier,
+					this.plugin.settings.did!,
 					this.record.uri,
 					state.collection.uri
 				);

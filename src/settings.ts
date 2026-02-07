@@ -1,22 +1,24 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type AtmospherePlugin from "./main";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
-import { OauthServer } from "./lib/oauth";
-import { ATClient } from "./lib/client";
 import { VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { VIEW_ATMOSPHERE_STANDARD_FEED } from "./views/standardfeed";
+import { StoredSession } from "@atcute/oauth-node-client";
 
 export interface AtProtoSettings {
-	identifier: string;
+	did?: string;
 	clipDir: string;
+	oauth: {
+		sessions?: Record<string, StoredSession> | null;
+	}
 	publish: {
 		useFirstHeaderAsTitle: boolean;
 	};
 }
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
-	identifier: "",
 	clipDir: "AtmosphereClips",
+	oauth: {},
 	publish: {
 		useFirstHeaderAsTitle: false,
 	}
@@ -34,12 +36,12 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		containerEl.createEl("h2", { text: "Atmosphere Settings" });
+		if (this.plugin.settings.did) {
+			const displayName = this.plugin.client.actor?.handle || this.plugin.settings.did;
 
-		if (this.plugin.settings.identifier) {
 			new Setting(containerEl)
 				.setName("Logged in")
-				.setDesc(this.plugin.settings.identifier);
+				.setDesc(displayName);
 
 			new Setting(containerEl)
 				.setName("Log out")
@@ -48,9 +50,8 @@ export class SettingTab extends PluginSettingTab {
 						.setButtonText("Log out")
 						.setCta()
 						.onClick(async () => {
-							this.plugin.client = null as any;
-
-							this.plugin.settings.identifier = "";
+							await this.plugin.client.logout(this.plugin.settings.did!)
+							this.plugin.settings.did = undefined;
 							await this.plugin.saveSettings();
 
 							// close all plugin views
@@ -66,11 +67,10 @@ export class SettingTab extends PluginSettingTab {
 
 			new Setting(containerEl)
 				.setName("Log in")
-				.setDesc("Enter your Bluesky or AT Protocol handle (e.g., user.bsky.social)")
+				.setDesc("Enter your handle (e.g., user.bsky.social)")
 				.addText((text) => {
 					handleInput = text.inputEl;
-					text.setPlaceholder("user.bsky.social")
-						.setValue("");
+					text.setValue("");
 				})
 				.addButton((button) =>
 					button
@@ -85,7 +85,7 @@ export class SettingTab extends PluginSettingTab {
 							}
 
 							if (!isActorIdentifier(handle)) {
-								new Notice("Invalid handle format. Please enter a valid AT Protocol handle (e.g., user.bsky.social).");
+								new Notice("Invalid handle format. Please enter a valid handle (e.g., user.bsky.social).");
 								return;
 							}
 
@@ -94,19 +94,12 @@ export class SettingTab extends PluginSettingTab {
 								button.setButtonText("Logging in...");
 
 								new Notice("Opening browser for authorization...");
-
-								const oauth = new OauthServer();
-								const session = await oauth.authorize(handle);
-
-								this.plugin.client = new ATClient(session);
-								this.plugin.settings.identifier = session.did;
-								const actor = await this.plugin.client.getActor(session.did);
-
+								await this.plugin.client.login(handle)
+								this.plugin.settings.did = this.plugin.client.actor?.did;
 								await this.plugin.saveSettings();
 
-								new Notice(`Successfully logged in as ${actor.handle}`);
-
-								this.display();
+								this.display()
+								new Notice(`Successfully logged in as ${this.plugin.client.actor!.handle}`);
 							} catch (error) {
 								console.error("Login failed:", error);
 								const errorMessage = error instanceof Error ? error.message : String(error);

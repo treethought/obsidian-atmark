@@ -45,7 +45,7 @@ export function stripMarkdown(markdown: string): string {
 }
 
 export function cleanPlaintext(text: string): string {
-	return text.trim();
+	return text ? text.trim() : "";
 }
 
 export type { Root, RootContent };

@@ -5,6 +5,7 @@ import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
+import { OAuthSessionStore } from "lib/oauth/oauthStore";
 
 export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
@@ -13,7 +14,7 @@ export default class AtmospherePlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-
+		this.client = new ATClient(new OAuthSessionStore(this));
 		this.clipper = new Clipper(this);
 
 		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
@@ -66,17 +67,30 @@ export default class AtmospherePlugin extends Plugin {
 	}
 
 
-	checkLoggedIn() {
-		if (this.client?.loggedIn) {
+	async checkAuth() {
+		if (this.client.loggedIn) {
 			return true;
 		}
-
-		new Notice("Please log in by opening Atmosphere settings");
+		if (this.settings.did) {
+			try {
+				await this.client.restoreSession(this.settings.did);
+				return true
+			} catch (e) {
+				console.error("Failed to restore session:", e);
+				// Clear invalid session data
+				this.settings.did = undefined;
+				this.settings.oauth.sessions = {};
+				await this.saveSettings();
+				new Notice("Session expired. Please login by opening settings");
+				return false;
+			}
+		}
+		new Notice("Please log in by opening settings");
 		return false;
 	}
 
 	async activateView(v: string) {
-		if (!this.checkLoggedIn()) {
+		if (!await this.checkAuth()) {
 			return;
 		}
 

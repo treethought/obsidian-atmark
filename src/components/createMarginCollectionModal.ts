@@ -90,7 +90,7 @@ export class CreateMarginCollectionModal extends Modal {
 		try {
 			await createMarginCollection(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				name,
 				descInput.value.trim() || undefined,
 				iconInput.value.trim() || undefined

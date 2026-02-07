@@ -3,22 +3,36 @@ import { resolveActor } from "./identity";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { ResolvedActor } from "@atcute/identity-resolver";
 import type { OAuthSession } from "@atcute/oauth-node-client";
+import { OAuthHandler } from "./oauth/oauth";
+import { OAuthSessionStore } from "./oauth/oauthStore";
 
 export class ATClient extends Client {
-	hh: Handler;
+	private hh: Handler;
+	actor?: ResolvedActor
 
-	constructor(session: OAuthSession) {
-		const hh = new Handler(session);
+	constructor(store: OAuthSessionStore) {
+		const oauth = new OAuthHandler(store);
+		const hh = new Handler(oauth);
 		super({ handler: hh });
 		this.hh = hh;
 	}
 
 	get loggedIn(): boolean {
-		return !!this.hh.session.did;
+		return (!!this.actor?.did && !!this.hh.session?.did)
 	}
 
-	get session() {
-		return { did: this.hh.session.did };
+	async login(identifier: string): Promise<void> {
+		await this.hh.login(identifier);
+		this.actor = await this.hh.getActor(this.hh.session!.did);
+	}
+
+	async restoreSession(did: string): Promise<void> {
+		await this.hh.restoreSession(did);
+		this.actor = await this.hh.getActor(did);
+	}
+
+	async logout(identifier: string): Promise<void> {
+		await this.hh.logout(identifier);
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -30,12 +44,27 @@ export class ATClient extends Client {
  * Custom handler that wraps OAuthSession and adds PDS routing logic
  */
 export class Handler implements FetchHandlerObject {
-	session: OAuthSession;
 	cache: Cache;
+	oauth: OAuthHandler;
+	session?: OAuthSession
+	actor?: ResolvedActor;
 
-	constructor(session: OAuthSession) {
-		this.session = session;
+	constructor(oauth: OAuthHandler) {
+		this.oauth = oauth;
 		this.cache = new Cache(5 * 60 * 1000); // 5 minutes TTL
+	}
+
+	async login(identifier: string): Promise<void> {
+		const session = await this.oauth.authorize(identifier);
+		this.session = session;
+	}
+	async restoreSession(did: string): Promise<void> {
+		const session = await this.oauth.restore(did);
+		this.session = session;
+	}
+	async logout(identifier: string): Promise<void> {
+		await this.oauth.revoke(identifier);
+		this.session = undefined;
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {
@@ -50,11 +79,10 @@ export class Handler implements FetchHandlerObject {
 				this.cache.set(key, res);
 				return res;
 			} catch (e) {
-				console.error("Error resolving actor:", e);
-				throw new Error("Failed to resolve actor: " + JSON.stringify(identifier));
+				throw new Error(`Failed to resolve actor ${identifier}:` + JSON.stringify(e));
 			}
 		} else {
-			throw new Error("Invalid actor identifier: " + JSON.stringify(identifier));
+			throw new Error("Invalid actor identifier: " + identifier);
 		}
 	}
 
@@ -65,7 +93,7 @@ export class Handler implements FetchHandlerObject {
 			return null;
 		}
 
-		const own = (repo === this.session.did);
+		const own = (repo === this.session?.did)
 		if (!own) {
 			// resolve to get user's PDS
 			const actor = await this.getActor(repo);
@@ -87,10 +115,16 @@ export class Handler implements FetchHandlerObject {
 
 		const pds = await this.getPDS(pathname);
 		if (pds) {
+			// use configureable public fetch for external PDS
 			const sfh = simpleFetchHandler({ service: pds });
 			resp = await sfh(pathname, init);
-		} else {
+		} else if (this.session) {
+			// oauth handler if we are logged in
 			resp = await this.session.handle(pathname, init);
+		} else {
+			// default public fetch to bsky
+			const sfh = simpleFetchHandler({ service: "https://bsky.social" });
+			resp = await sfh(pathname, init);
 		}
 
 		if (init?.method?.toLowerCase() === "get" && resp.ok) {

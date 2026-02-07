@@ -34,7 +34,7 @@ export class SelectPublicationModal extends Modal {
 		const loading = contentEl.createEl("p", { text: "Loading publications..." });
 
 		try {
-			const response = await getPublications(this.plugin.client, this.plugin.settings.identifier);
+			const response = await getPublications(this.plugin.client, this.plugin.settings.did!);
 			loading.remove();
 
 			let pubs = response.records

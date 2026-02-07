@@ -85,7 +85,7 @@ export class CardDetailModal extends Modal {
 	}
 
 	private async handleAddNote() {
-		if (!this.plugin.client || !this.noteInput) return;
+		if (!this.plugin.client.loggedIn || !this.noteInput) return;
 
 		const text = this.noteInput.value.trim();
 		if (!text) {
@@ -96,7 +96,7 @@ export class CardDetailModal extends Modal {
 		try {
 			await createNoteCard(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				text,
 				{ uri: this.item.getUri(), cid: this.item.getCid() }
 			);
@@ -111,7 +111,7 @@ export class CardDetailModal extends Modal {
 	}
 
 	private async handleDeleteNote(noteUri: string) {
-		if (!this.plugin.client) return;
+		if (!this.plugin.client.loggedIn) return;
 
 		const rkey = noteUri.split("/").pop();
 		if (!rkey) {
@@ -122,7 +122,7 @@ export class CardDetailModal extends Modal {
 		try {
 			await deleteRecord(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				"network.cosmik.card",
 				rkey
 			);

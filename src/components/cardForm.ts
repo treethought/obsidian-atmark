@@ -50,7 +50,7 @@
 // 				new Notice("Please enter some text");
 // 				return;
 // 			}
-// 			await ok(createNoteCard(this.plugin.client!, this.plugin.settings.identifier, text));
+// 			await ok(createNoteCard(this.plugin.client!, this.plugin.settings.did!, text));
 // 			new Notice("Card created successfully!");
 // 			this.close();
 // 		};

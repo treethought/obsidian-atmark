@@ -38,8 +38,7 @@ export class StandardFeedView extends ItemView {
 		container.empty();
 		container.addClass("standard-site-view");
 
-		// Check authentication
-		if (!this.plugin.checkLoggedIn()) {
+		if (!await this.plugin.checkAuth()) {
 			renderLoginMessage(container)
 			return
 		}
@@ -50,7 +49,7 @@ export class StandardFeedView extends ItemView {
 		const list = container.createEl("div", { cls: "standard-site-list" });
 
 		try {
-			const subsResp = await getSubscriptions(this.plugin.client, this.plugin.settings.identifier);
+			const subsResp = await getSubscriptions(this.plugin.client, this.plugin.client.actor!.did);
 			if (subsResp.records.length === 0) {
 				loading.remove();
 				container.createEl("p", { text: "No subscriptions found" });

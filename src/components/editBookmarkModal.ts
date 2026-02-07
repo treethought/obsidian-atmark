@@ -40,7 +40,7 @@ export class EditBookmarkModal extends Modal {
 		const loading = contentEl.createEl("p", { text: "Loading..." });
 
 		try {
-			const bookmarksResp = await getBookmarks(this.plugin.client, this.plugin.settings.identifier);
+			const bookmarksResp = await getBookmarks(this.plugin.client, this.plugin.settings.did!);
 			loading.remove();
 
 			const bookmarks = (bookmarksResp.ok ? bookmarksResp.data.records : []) as unknown as BookmarkRecord[];
@@ -172,7 +172,7 @@ export class EditBookmarkModal extends Modal {
 
 			await deleteRecord(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				"community.lexicon.bookmarks.bookmark",
 				rkey
 			);
@@ -216,7 +216,7 @@ export class EditBookmarkModal extends Modal {
 
 			await putRecord(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				"community.lexicon.bookmarks.bookmark",
 				rkey,
 				updatedRecord

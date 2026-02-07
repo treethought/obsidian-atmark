@@ -53,8 +53,8 @@ export class EditCardModal extends Modal {
 
 		try {
 			const [collectionsResp, linksResp] = await Promise.all([
-				getCollections(this.plugin.client, this.plugin.settings.identifier),
-				getCollectionLinks(this.plugin.client, this.plugin.settings.identifier),
+				getCollections(this.plugin.client, this.plugin.settings.did!),
+				getCollectionLinks(this.plugin.client, this.plugin.settings.did!),
 			]);
 
 			loading.remove();
@@ -162,7 +162,7 @@ export class EditCardModal extends Modal {
 
 			await deleteRecord(
 				this.plugin.client,
-				this.plugin.settings.identifier,
+				this.plugin.settings.did!,
 				"network.cosmik.card",
 				rkey
 			);
@@ -202,7 +202,7 @@ export class EditCardModal extends Modal {
 					if (rkey) {
 						await deleteRecord(
 							this.plugin.client,
-							this.plugin.settings.identifier,
+							this.plugin.settings.did!,
 							"network.cosmik.collectionLink",
 							rkey
 						);
@@ -216,7 +216,7 @@ export class EditCardModal extends Modal {
 
 				const collectionResp = await getRecord(
 					this.plugin.client,
-					this.plugin.settings.identifier,
+					this.plugin.settings.did!,
 					"network.cosmik.collection",
 					collectionRkey
 				);
@@ -225,7 +225,7 @@ export class EditCardModal extends Modal {
 
 				await createCollectionLink(
 					this.plugin.client,
-					this.plugin.settings.identifier,
+					this.plugin.settings.did!,
 					this.cardUri,
 					this.cardCid,
 					state.collection.uri,

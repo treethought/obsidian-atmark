@@ -22,8 +22,8 @@ export class AtmosphereView extends ItemView {
 	}
 
 	initSources() {
-		if (this.plugin.settings.identifier) {
-			const repo = this.plugin.settings.identifier;
+		if (this.plugin.settings.did) {
+			const repo = this.plugin.settings.did;
 			this.sources.set("semble", {
 				source: new SembleSource(this.plugin.client, repo),
 				filters: new Map()
@@ -58,8 +58,6 @@ export class AtmosphereView extends ItemView {
 	}
 
 	async fetchItems(): Promise<ATBookmarkItem[]> {
-		if (!this.plugin.client) return [];
-
 		const sourceData = this.sources.get(this.activeSource);
 		if (!sourceData) return [];
 
@@ -72,7 +70,8 @@ export class AtmosphereView extends ItemView {
 		container.empty();
 		container.addClass("atmosphere-view");
 
-		if (!this.plugin.checkLoggedIn()) {
+
+		if (!await this.plugin.checkAuth()) {
 			renderLoginMessage(container)
 			return
 		}

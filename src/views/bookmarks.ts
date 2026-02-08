@@ -5,6 +5,7 @@ import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types"
 import { SembleSource } from "../sources/semble";
 import { BookmarkSource } from "../sources/bookmark";
 import { MarginSource } from "../sources/margin";
+import { renderLoginMessage } from "components/loginMessage";
 
 export const VIEW_TYPE_ATMOSPHERE_BOOKMARKS = "atmosphere-bookmarks";
 
@@ -21,8 +22,8 @@ export class AtmosphereView extends ItemView {
 	}
 
 	initSources() {
-		if (this.plugin.settings.identifier) {
-			const repo = this.plugin.settings.identifier;
+		if (this.plugin.settings.did) {
+			const repo = this.plugin.settings.did;
 			this.sources.set("semble", {
 				source: new SembleSource(this.plugin.client, repo),
 				filters: new Map()
@@ -57,8 +58,6 @@ export class AtmosphereView extends ItemView {
 	}
 
 	async fetchItems(): Promise<ATBookmarkItem[]> {
-		if (!this.plugin.client) return [];
-
 		const sourceData = this.sources.get(this.activeSource);
 		if (!sourceData) return [];
 
@@ -70,6 +69,12 @@ export class AtmosphereView extends ItemView {
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("atmosphere-view");
+
+
+		if (!await this.plugin.checkAuth()) {
+			renderLoginMessage(container)
+			return
+		}
 
 		this.renderHeader(container);
 

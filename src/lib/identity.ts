@@ -87,7 +87,7 @@ class CompositeActorResolver implements ActorResolver {
 
 const slingshotResolver = new SlingshotActorResolver();
 
-const compositeResolver = new CompositeActorResolver(slingshotResolver, localActorResolver);
+export const compositeResolver = new CompositeActorResolver(slingshotResolver, localActorResolver);
 
 export async function resolveActor(identifier: ActorIdentifier) {
 	return compositeResolver.resolve(identifier);

@@ -1,0 +1,14 @@
+{
+	"client_id": "https://treethought.github.io/obsidian-atmosphere/client-metadata.json",
+	"client_name": "obsidian-atmosphere",
+	"client_uri": "https://treethought.github.io/obsidian-atmosphere",
+	"redirect_uris": [
+		"https://treethought.github.io/obsidian-atmosphere/oauth-callback.html"
+	],
+	"scope": "atproto include:at.margin.authFull repo:site.standard.document repo:network.cosmik.card repo:network.cosmik.collection repo:network.cosmik.collectionLink",
+	"grant_types": ["authorization_code", "refresh_token"],
+	"response_types": ["code"],
+	"token_endpoint_auth_method": "none",
+	"application_type": "native",
+	"dpop_bound_access_tokens": true
+}

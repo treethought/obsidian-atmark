@@ -1,9 +1,11 @@
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type AtmospherePlugin from "./main";
+import { isActorIdentifier } from "@atcute/lexicons/syntax";
+import { VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
+import { VIEW_ATMOSPHERE_STANDARD_FEED } from "./views/standardfeed";
 
 export interface AtProtoSettings {
-	identifier: string;
-	appPassword: string;
+	did?: string;
 	clipDir: string;
 	publish: {
 		useFirstHeaderAsTitle: boolean;
@@ -11,8 +13,6 @@ export interface AtProtoSettings {
 }
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
-	identifier: "",
-	appPassword: "",
 	clipDir: "AtmosphereClips",
 	publish: {
 		useFirstHeaderAsTitle: false,
@@ -31,31 +31,77 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		new Setting(containerEl)
-			.setName("Handle")
-			.setDesc("Your bluesky handle or identifier (e.g., user.bsky.social)")
-			// .setDesc("user.bsky.social")
-			.addText((text) =>
-				text
-					.setValue(this.plugin.settings.identifier)
-					.onChange(async (value) => {
-						this.plugin.settings.identifier = value;
-						await this.plugin.saveSettings();
-					})
-			);
+		if (this.plugin.client.loggedIn) {
+			const displayName = this.plugin.client.actor?.handle || this.plugin.settings.did;
 
-		new Setting(containerEl)
-			.setName("App password")
-			.setDesc("Create one at https://bsky.app/settings/app-passwords")
-			.addText((text) => {
-				text.inputEl.type = "password";
-				text
-					.setValue(this.plugin.settings.appPassword)
-					.onChange(async (value) => {
-						this.plugin.settings.appPassword = value;
-						await this.plugin.saveSettings();
-					});
-			});
+			new Setting(containerEl)
+				.setName("Logged in as @" + displayName)
+				.setDesc(this.plugin.client.actor?.did as string || "")
+				.addButton((button) =>
+					button
+						.setButtonText("Log out")
+						.setCta()
+						.onClick(async () => {
+							await this.plugin.client.logout(this.plugin.settings.did!)
+							this.plugin.settings.did = undefined;
+							await this.plugin.saveSettings();
+
+							// close all plugin views
+							this.app.workspace.detachLeavesOfType(VIEW_TYPE_ATMOSPHERE_BOOKMARKS);
+							this.app.workspace.detachLeavesOfType(VIEW_ATMOSPHERE_STANDARD_FEED);
+
+							this.display();
+							new Notice("Logged out successfully");
+						})
+				);
+		} else {
+			let handleInput: HTMLInputElement;
+
+			new Setting(containerEl)
+				.setName("Log in")
+				.setDesc("Enter your handle (e.g., user.bsky.social)")
+				.addText((text) => {
+					handleInput = text.inputEl;
+					text.setValue("");
+				})
+				.addButton((button) =>
+					button
+						.setButtonText("Log in")
+						.setCta()
+						.onClick(async () => {
+							const handle = handleInput.value.trim();
+
+							if (!handle) {
+								new Notice("Please enter a handle.");
+								return;
+							}
+
+							if (!isActorIdentifier(handle)) {
+								new Notice("Invalid handle format. Please enter a valid handle (e.g., user.bsky.social).");
+								return;
+							}
+
+							try {
+								button.setDisabled(true);
+								button.setButtonText("Logging in...");
+
+								new Notice("Opening browser for authorization...");
+								await this.plugin.client.login(handle)
+								this.plugin.settings.did = this.plugin.client.actor?.did;
+								await this.plugin.saveSettings();
+
+								this.display()
+								new Notice(`Successfully logged in as ${this.plugin.client.actor!.handle}`);
+							} catch (error) {
+								console.error("Login failed:", error);
+								const errorMessage = error instanceof Error ? error.message : String(error);
+								new Notice(`Authentication failed: ${errorMessage}`);
+								button.setDisabled(false);
+								button.setButtonText("Log in");
+							}
+						})
+				);
+		}
 
 		new Setting(containerEl)
 			.setName("Clip directory")

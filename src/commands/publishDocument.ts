@@ -189,13 +189,13 @@ async function createOrUpdateDocument(
 	doc: SiteStandardDocument.Main,
 	existingUri?: ResourceUri,
 ) {
-	if (!plugin.client) {
+	if (!await plugin.checkAuth()) {
 		throw new Error("Client not initialized");
 	}
 
 	const response = existingUri
-		? await putDocument(plugin.client, plugin.settings.identifier, existingUri, doc)
-		: await createDocument(plugin.client, plugin.settings.identifier, doc);
+		? await putDocument(plugin.client, plugin.settings.did!, existingUri, doc)
+		: await createDocument(plugin.client, plugin.settings.did!, doc);
 
 	if (!response.ok) {
 		throw new Error(`Failed to publish: ${response.status}`);

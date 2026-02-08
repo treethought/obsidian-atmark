@@ -5,6 +5,7 @@ import { Main as Document } from "@atcute/standard-site/types/document";
 import { Main as Publication } from "@atcute/standard-site/types/publication";
 import { ATRecord } from "lib";
 import { parseResourceUri } from "@atcute/lexicons";
+import { renderLoginMessage } from "components/loginMessage";
 
 export const VIEW_ATMOSPHERE_STANDARD_FEED = "atmosphere-standard-site-feed";
 
@@ -36,13 +37,22 @@ export class StandardFeedView extends ItemView {
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("standard-site-view");
-		this.renderHeader(container);
 
+		if (!await this.plugin.checkAuth()) {
+			renderLoginMessage(container)
+			return
+		}
+
+		this.renderHeader(container);
+		void this.fetchAndRender(container);
+	}
+
+	async fetchAndRender(container: HTMLElement) {
 		const loading = container.createEl("p", { text: "Loading subscriptions..." });
 		const list = container.createEl("div", { cls: "standard-site-list" });
 
 		try {
-			const subsResp = await getSubscriptions(this.plugin.client, this.plugin.settings.identifier);
+			const subsResp = await getSubscriptions(this.plugin.client, this.plugin.client.actor!.did);
 			if (subsResp.records.length === 0) {
 				loading.remove();
 				container.createEl("p", { text: "No subscriptions found" });
@@ -66,6 +76,7 @@ export class StandardFeedView extends ItemView {
 			container.createEl("p", { text: `Failed to load feed: ${message}`, cls: "standard-site-error" });
 			loading.remove();
 		}
+
 	}
 
 	private renderPublicationCard(container: HTMLElement, pub: ATRecord<Publication>) {

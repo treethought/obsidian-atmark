@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf } from "obsidian";
+import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
 import { AtmosphereView, VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { publishFileAsDocument } from "./commands/publishDocument";
@@ -13,13 +13,24 @@ export default class AtmospherePlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
-
-		const creds = {
-			identifier: this.settings.identifier,
-			password: this.settings.appPassword,
-		};
-		this.client = new ATClient(creds);
+		this.client = new ATClient();
 		this.clipper = new Clipper(this);
+
+		this.registerObsidianProtocolHandler('atmosphere-oauth', (params) => {
+			try {
+				const urlParams = new URLSearchParams();
+				for (const [key, value] of Object.entries(params)) {
+					if (value) {
+						urlParams.set(key, String(value));
+					}
+				}
+				this.client.handleOAuthCallback(urlParams);
+				new Notice('Authentication completed! Processing...');
+			} catch (error) {
+				console.error('Error handling OAuth callback:', error);
+				new Notice('Authentication error. Please try again.');
+			}
+		});
 
 		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
 			return new AtmosphereView(leaf, this);
@@ -70,9 +81,31 @@ export default class AtmospherePlugin extends Plugin {
 		this.addSettingTab(new SettingTab(this.app, this));
 	}
 
-
+	async checkAuth() {
+		if (this.client.loggedIn) {
+			return true;
+		}
+		if (this.settings.did) {
+			try {
+				await this.client.restoreSession(this.settings.did);
+				return true
+			} catch (e) {
+				console.error("Failed to restore session:", e);
+				this.settings.did = undefined;
+				await this.saveSettings();
+				new Notice("Session expired. Please login by opening settings");
+				return false;
+			}
+		}
+		new Notice("Please log in by opening settings");
+		return false;
+	}
 
 	async activateView(v: string) {
+		if (!await this.checkAuth()) {
+			return;
+		}
+
 		const { workspace } = this.app;
 
 		let leaf: WorkspaceLeaf | null = null;

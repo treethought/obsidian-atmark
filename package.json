@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-atmosphere",
-	"version": "0.1.13",
+	"version": "0.1.15",
 	"description": "Various integrations with AT Protocol.",
 	"main": "main.js",
 	"type": "module",

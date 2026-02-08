@@ -145,9 +145,9 @@ export class AtmosphereView extends ItemView {
 			attr: { "aria-label": "Refresh bookmarks" }
 		});
 		setIcon(refreshBtn, "refresh-cw");
-		refreshBtn.addEventListener("click", async () => {
+		refreshBtn.addEventListener("click", () => {
 			refreshBtn.addClass("atmosphere-refresh-btn-spinning");
-			await this.refresh();
+			void this.refresh();
 			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
 		});
 
@@ -158,6 +158,7 @@ export class AtmosphereView extends ItemView {
 				filtersContainer,
 				sourceData.filters,
 				() => void this.render(),
+				() => void this.refresh(),
 				this.plugin
 			);
 		}
@@ -172,7 +173,7 @@ export class AtmosphereView extends ItemView {
 				return;
 			}
 			new CardDetailModal(this.plugin, item, () => {
-				void this.render();
+				void this.refresh();
 			}).open();
 		});
 
@@ -191,7 +192,7 @@ export class AtmosphereView extends ItemView {
 			editBtn.addEventListener("click", (e) => {
 				e.stopPropagation();
 				item.openEditModal(() => {
-					void this.render();
+					void this.refresh();
 				});
 			});
 		}

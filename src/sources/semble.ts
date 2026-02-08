@@ -215,7 +215,7 @@ export class SembleSource implements DataSource {
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: AtmospherePlugin): void {
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void {
 		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
 
 		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
@@ -224,7 +224,7 @@ export class SembleSource implements DataSource {
 		const createBtn = titleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
 		setIcon(createBtn, "plus");
 		createBtn.addEventListener("click", () => {
-			new CreateCollectionModal(plugin, onChange).open();
+			new CreateCollectionModal(plugin, onDataChange).open();
 		});
 
 		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
@@ -238,8 +238,6 @@ export class SembleSource implements DataSource {
 			onChange();
 		});
 
-		// Get collections synchronously - note: this is a limitation
-		// In a real app, we'd want to cache these or handle async properly
 		void this.getAvailableFilters().then(collections => {
 			for (const collection of collections) {
 				const chip = chips.createEl("button", {

@@ -238,7 +238,7 @@ export class MarginSource implements DataSource {
 		return filters;
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, plugin: AtmospherePlugin): void {
+	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void {
 		const collectionsSection = container.createEl("div", { cls: "atmosphere-filter-section" });
 
 		const collectionsTitleRow = collectionsSection.createEl("div", { cls: "atmosphere-filter-title-row" });
@@ -247,7 +247,7 @@ export class MarginSource implements DataSource {
 		const createCollectionBtn = collectionsTitleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
 		setIcon(createCollectionBtn, "plus");
 		createCollectionBtn.addEventListener("click", () => {
-			new CreateMarginCollectionModal(plugin, onChange).open();
+			new CreateMarginCollectionModal(plugin, onDataChange).open();
 		});
 
 		const collectionsChips = collectionsSection.createEl("div", { cls: "atmosphere-filter-chips" });

@@ -3,16 +3,17 @@ import { resolveActor } from "./identity";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
 import { ResolvedActor } from "@atcute/identity-resolver";
 import { OAuthHandler, } from "./oauth/oauth";
-import { OAuthUserAgent, Session } from "@atcute/oauth-browser-client";
+import { OAuthUserAgent } from "@atcute/oauth-browser-client";
 
 export class ATClient extends Client {
 	private hh: Handler;
+	private oauth: OAuthHandler;
 	actor?: ResolvedActor;
 
 	constructor() {
-		const oauth = new OAuthHandler();
-		const hh = new Handler(oauth);
+		const hh = new Handler();
 		super({ handler: hh });
+		this.oauth = new OAuthHandler();
 		this.hh = hh;
 	}
 
@@ -21,7 +22,8 @@ export class ATClient extends Client {
 	}
 
 	async login(identifier: string): Promise<void> {
-		await this.hh.login(identifier);
+		const session = await this.oauth.authorize(identifier);
+		this.hh.agent = new OAuthUserAgent(session);
 		const did = this.hh.agent?.session.info.sub;
 		if (did) {
 			this.actor = await this.hh.getActor(did);
@@ -29,12 +31,14 @@ export class ATClient extends Client {
 	}
 
 	async restoreSession(did: string): Promise<void> {
-		await this.hh.restoreSession(did);
+		const session = await this.oauth.restore(did);
+		this.hh.agent = new OAuthUserAgent(session);
 		this.actor = await this.hh.getActor(did);
 	}
 
 	async logout(identifier: string): Promise<void> {
-		await this.hh.logout(identifier);
+		await this.oauth.revoke(identifier);
+		this.hh.agent = undefined;
 		this.actor = undefined;
 	}
 
@@ -43,7 +47,7 @@ export class ATClient extends Client {
 	}
 
 	handleOAuthCallback(params: URLSearchParams): void {
-		this.hh.handleOAuthCallback(params);
+		this.oauth.handleCallback(params);
 	}
 }
 
@@ -52,31 +56,10 @@ export class ATClient extends Client {
  */
 export class Handler implements FetchHandlerObject {
 	cache: Cache;
-	oauth: OAuthHandler;
 	agent?: OAuthUserAgent;
 
-	constructor(oauth: OAuthHandler) {
-		this.oauth = oauth;
+	constructor() {
 		this.cache = new Cache(5 * 60 * 1000); // 5 minutes TTL
-	}
-
-	async login(identifier: string): Promise<void> {
-		const session = await this.oauth.authorize(identifier);
-		this.agent = new OAuthUserAgent(session);
-	}
-
-	async restoreSession(did: string): Promise<void> {
-		const session = await this.oauth.restore(did);
-		this.agent = new OAuthUserAgent(session);
-	}
-
-	async logout(identifier: string): Promise<void> {
-		await this.oauth.revoke(identifier);
-		this.agent = undefined;
-	}
-
-	handleOAuthCallback(params: URLSearchParams): void {
-		this.oauth.handleCallback(params);
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {

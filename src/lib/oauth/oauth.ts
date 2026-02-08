@@ -45,7 +45,7 @@ export class OAuthHandler {
 			target: { type: 'account', identifier: identifier as ActorIdentifier },
 			scope: metadata.scope,
 		});
-		await sleep(200);
+		await new Promise((resolve) => setTimeout(resolve, 200));
 
 		// Create promise for callback
 		const waitForCallback = new Promise<URLSearchParams>((resolve, reject) => {

@@ -81,7 +81,6 @@ export default class AtmospherePlugin extends Plugin {
 		this.addSettingTab(new SettingTab(this.app, this));
 	}
 
-
 	async checkAuth() {
 		if (this.client.loggedIn) {
 			return true;

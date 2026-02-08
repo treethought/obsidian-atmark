@@ -46,6 +46,10 @@ export class ATClient extends Client {
 		return this.hh.getActor(identifier);
 	}
 
+	clearCache(): void {
+		this.hh.clearCache();
+	}
+
 	handleOAuthCallback(params: URLSearchParams): void {
 		this.oauth.handleCallback(params);
 	}
@@ -95,6 +99,10 @@ export class Handler implements FetchHandlerObject {
 			return actor.pds;
 		}
 		return null;
+	}
+
+	clearCache(): void {
+		this.cache.clear();
 	}
 
 	async handle(pathname: string, init: RequestInit): Promise<Response> {
@@ -160,5 +168,9 @@ class Cache {
 
 	set<T>(key: string, value: T): void {
 		this.#store.set(key, new CacheEntry(value));
+	}
+
+	clear(): void {
+		this.#store.clear();
 	}
 }

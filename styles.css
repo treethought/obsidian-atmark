@@ -9,12 +9,19 @@
 	border-bottom: 1px solid var(--background-modifier-border);
 }
 
+.atmosphere-header-top-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin-bottom: 12px;
+}
+
 .atmosphere-source-selector {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	gap: 0;
-	margin-bottom: 12px;
+	flex: 1;
 	border-bottom: 1px solid var(--background-modifier-border);
 	position: relative;
 }
@@ -66,6 +73,46 @@
 	font-size: var(--font-ui-small);
 	font-weight: var(--font-medium);
 	color: var(--text-muted);
+}
+
+.atmosphere-refresh-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	padding: 0;
+	background: transparent;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-muted);
+	transition: all 0.15s ease;
+	flex-shrink: 0;
+}
+
+.atmosphere-refresh-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--text-normal);
+	border-color: var(--background-modifier-border-hover);
+}
+
+.atmosphere-refresh-btn svg {
+	width: 16px;
+	height: 16px;
+}
+
+.atmosphere-refresh-btn-spinning svg {
+	animation: atmosphere-spin 0.8s linear infinite;
+}
+
+@keyframes atmosphere-spin {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
 }
 
 .atmosphere-filters {

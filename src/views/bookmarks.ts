@@ -106,10 +106,18 @@ export class AtmosphereView extends ItemView {
 		}
 	}
 
+	private async refresh() {
+		this.plugin.client.clearCache();
+		await this.render();
+
+	}
+
 	private renderHeader(container: HTMLElement) {
 		const header = container.createEl("div", { cls: "atmosphere-header" });
 
-		const sourceSelector = header.createEl("div", { cls: "atmosphere-source-selector" });
+		const topRow = header.createEl("div", { cls: "atmosphere-header-top-row" });
+
+		const sourceSelector = topRow.createEl("div", { cls: "atmosphere-source-selector" });
 		const sources: SourceType[] = ["semble", "margin", "bookmark"];
 
 		for (const source of sources) {
@@ -131,6 +139,17 @@ export class AtmosphereView extends ItemView {
 				cls: "atmosphere-source-text",
 			});
 		}
+
+		const refreshBtn = topRow.createEl("button", {
+			cls: "atmosphere-refresh-btn",
+			attr: { "aria-label": "Refresh bookmarks" }
+		});
+		setIcon(refreshBtn, "refresh-cw");
+		refreshBtn.addEventListener("click", async () => {
+			refreshBtn.addClass("atmosphere-refresh-btn-spinning");
+			await this.refresh();
+			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
+		});
 
 		const filtersContainer = container.createEl("div", { cls: "atmosphere-filters" });
 		const sourceData = this.sources.get(this.activeSource);

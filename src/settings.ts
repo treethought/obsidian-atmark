@@ -31,15 +31,12 @@ export class SettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		containerEl.empty();
 
-		if (this.plugin.settings.did) {
+		if (this.plugin.client.loggedIn) {
 			const displayName = this.plugin.client.actor?.handle || this.plugin.settings.did;
 
 			new Setting(containerEl)
-				.setName("Logged in")
-				.setDesc(displayName);
-
-			new Setting(containerEl)
-				.setName("Log out")
+				.setName("Logged in as @" + displayName)
+				.setDesc(this.plugin.client.actor?.did as string || "")
 				.addButton((button) =>
 					button
 						.setButtonText("Log out")

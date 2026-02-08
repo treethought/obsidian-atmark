@@ -47,12 +47,11 @@ export class OAuthHandler {
 		});
 		await new Promise((resolve) => setTimeout(resolve, 200));
 
-		// Create promise for callback
 		const waitForCallback = new Promise<URLSearchParams>((resolve, reject) => {
 			this.callbackResolver = resolve;
 			this.callbackRejecter = reject;
 
-			// Timeout after 5 minutes
+			// timeout after 5 minutes
 			this.callbackTimeout = setTimeout(() => {
 				if (this.callbackRejecter) {
 					this.callbackRejecter(new Error('OAuth callback timed out after 5 minutes'));

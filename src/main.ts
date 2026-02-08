@@ -91,7 +91,6 @@ export default class AtmospherePlugin extends Plugin {
 				return true
 			} catch (e) {
 				console.error("Failed to restore session:", e);
-				// Clear invalid session data
 				this.settings.did = undefined;
 				await this.saveSettings();
 				new Notice("Session expired. Please login by opening settings");

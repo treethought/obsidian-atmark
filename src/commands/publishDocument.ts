@@ -1,5 +1,6 @@
 import { Notice, TFile } from "obsidian";
 import type AtmospherePlugin from "../main";
+import type { ContentFormat } from "../settings";
 import { createDocument, putDocument, getPublication, markdownToLeafletContent, stripMarkdown, markdownToPcktContent, buildDocumentUrl } from "../lib";
 import { PublicationSelection, SelectPublicationModal } from "../components/selectPublicationModal";
 import { type ResourceUri, } from "@atcute/lexicons";
@@ -87,6 +88,17 @@ async function updateFrontMatter(
 	});
 }
 
+function normalizeFormat(raw: unknown): ContentFormat | undefined {
+	if (typeof raw !== "string") {
+		return undefined;
+	}
+	const trimmed = raw.trim().toLowerCase();
+	if (trimmed === "leaflet" || trimmed === "pckt" || trimmed === "plaintext") {
+		return trimmed;
+	}
+	return undefined;
+}
+
 
 async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promise<{ record: SiteStandardDocument.Main; docUri?: ResourceUri }> {
 	const full = await plugin.app.vault.read(file);
@@ -105,6 +117,7 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 	let path: string | undefined;
 	let tags: string[] | undefined;
 	let publishedAt: string | undefined;
+	let format: ContentFormat | undefined;
 	if (fm) {
 		pubUri = fm["atPublication"];
 		docUri = fm["atDocument"] as ResourceUri;
@@ -114,6 +127,7 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 		tags = fm["tags"] && Array.isArray(fm["tags"]) ? fm["tags"] : undefined;
 		publishedAt = fm["publishedAt"]; // Preserve existing if updating
 	}
+	format = normalizeFormat(fm?.["format"]);
 
 	if (!title && plugin.settings.publish.useFirstHeaderAsTitle) {
 		title = extractFirstH1(content);
@@ -142,10 +156,20 @@ async function buildDocumentRecord(plugin: AtmospherePlugin, file: TFile): Promi
 	let textContent = stripMarkdown(content);
 
 	let richContent: PubLeafletContent.Main | BlogPcktContent.Main | null = null;
+	const publicationFormat = pubUri ? normalizeFormat(plugin.settings.publicationFormats?.[pubUri]) : undefined;
+	let contentFormat: ContentFormat = "plaintext";
 	if (pub?.url.contains("leaflet.pub")) {
-		richContent = markdownToLeafletContent(content)
+		contentFormat = "leaflet";
 	} else if (pub?.url.contains("pckt.blog")) {
-		richContent = markdownToPcktContent(content)
+		contentFormat = "pckt";
+	} else {
+		contentFormat = format ?? publicationFormat ?? "plaintext";
+	}
+
+	if (contentFormat === "leaflet") {
+		richContent = markdownToLeafletContent(content);
+	} else if (contentFormat === "pckt") {
+		richContent = markdownToPcktContent(content);
 	}
 
 	let record = {

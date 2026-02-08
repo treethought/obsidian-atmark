@@ -8,7 +8,10 @@ export interface AtProtoSettings {
 	publish: {
 		useFirstHeaderAsTitle: boolean;
 	};
+	publicationFormats: Record<string, ContentFormat>;
 }
+
+export type ContentFormat = "leaflet" | "pckt" | "plaintext";
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
 	identifier: "",
@@ -16,7 +19,8 @@ export const DEFAULT_SETTINGS: AtProtoSettings = {
 	clipDir: "AtmosphereClips",
 	publish: {
 		useFirstHeaderAsTitle: false,
-	}
+	},
+	publicationFormats: {},
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -80,5 +84,6 @@ export class SettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					})
 			);
+
 	}
 }

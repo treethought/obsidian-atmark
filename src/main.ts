@@ -17,6 +17,23 @@ export default class AtmospherePlugin extends Plugin {
 		this.client = new ATClient(new OAuthSessionStore(this));
 		this.clipper = new Clipper(this);
 
+		this.registerObsidianProtocolHandler('atmosphere-oauth', (params) => {
+			try {
+				const urlParams = new URLSearchParams();
+				for (const [key, value] of Object.entries(params)) {
+					if (value) {
+						urlParams.set(key, String(value));
+					}
+				}
+
+				this.client.handleOAuthCallback(urlParams);
+				new Notice('Authentication completed! Processing...');
+			} catch (error) {
+				console.error('Error handling OAuth callback:', error);
+				new Notice('Authentication error. Please try again.');
+			}
+		});
+
 		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
 			return new AtmosphereView(leaf, this);
 		});

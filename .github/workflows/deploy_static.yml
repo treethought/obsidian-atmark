@@ -36,8 +36,9 @@ jobs:
         uses: actions/configure-pages@v5
       - name: Prepare static files
         run: |
-          mkdir -p _site/home/treethought/Pictures/Screenshot_20260205_205803.png 
+          mkdir -p _site
           cp client-metadata.json _site/
+          cp oauth-callback.html _site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

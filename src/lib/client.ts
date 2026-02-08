@@ -38,6 +38,10 @@ export class ATClient extends Client {
 	async getActor(identifier: string): Promise<ResolvedActor> {
 		return this.hh.getActor(identifier);
 	}
+
+	handleOAuthCallback(params: URLSearchParams): void {
+		this.hh.handleOAuthCallback(params);
+	}
 }
 
 /**
@@ -65,6 +69,10 @@ export class Handler implements FetchHandlerObject {
 	async logout(identifier: string): Promise<void> {
 		await this.oauth.revoke(identifier);
 		this.session = undefined;
+	}
+
+	handleOAuthCallback(params: URLSearchParams): void {
+		this.oauth.handleCallback(params);
 	}
 
 	async getActor(identifier: string): Promise<ResolvedActor> {

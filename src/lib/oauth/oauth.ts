@@ -65,9 +65,14 @@ export class OAuthHandler {
 		new Notice('Continue login in the browser');
 
 		const params = await waitForCallback;
-		await new Promise((resolve) => setTimeout(resolve, 300));
 
+		console.log('[OAuth] Callback received, params:', params.toString());
+		console.log('[OAuth] Waiting for IndexedDB to settle...');
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
+		console.log('[OAuth] Starting token exchange...');
 		const { session } = await finalizeAuthorization(params);
+		console.log('[OAuth] Token exchange successful!');
 		return session;
 	}
 

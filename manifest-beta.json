@@ -1,7 +1,7 @@
 {
 	"id": "atmosphere",
 	"name": "Atmosphere",
-	"version": "0.1.16-beta.1",
+	"version": "0.1.16-beta.2",
 	"minAppVersion": "0.15.0",
 	"description": "Various integrations with AT Protocol.",
 	"author": "treethought",

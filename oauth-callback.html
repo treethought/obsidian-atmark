@@ -107,17 +107,6 @@
 	<script>
 		(function() {
 			try {
-				// Prevent duplicate execution on mobile (when switching back to browser)
-				const redirectKey = 'atmosphere_oauth_redirected';
-				if (sessionStorage.getItem(redirectKey) === 'true') {
-					// Already redirected, show completion message
-					document.querySelector('.spinner').style.display = 'none';
-					document.querySelector('h1').textContent = '✅ Redirected!';
-					document.getElementById('status').textContent = 'Return to Obsidian to complete login.';
-					document.getElementById('manual-link').classList.add('show');
-					return;
-				}
-
 				// extract OAuth parameters from URL hash (not search string)
 				const params = new URLSearchParams(window.location.hash.slice(1));
 
@@ -126,14 +115,7 @@
 				// store the URI for manual copy
 				document.getElementById('link-text').textContent = obsidianUri;
 
-				// Mark as redirected BEFORE the redirect to prevent race conditions
-				sessionStorage.setItem(redirectKey, 'true');
-
-				// Small delay to ensure any pending IndexedDB writes complete
-				// This is important on mobile where the browser may suspend the tab
-				setTimeout(function() {
-					window.location.href = obsidianUri;
-				}, 100);
+				window.location.href = obsidianUri;
 
 				setTimeout(function() {
 					const spinner = document.querySelector('.spinner');

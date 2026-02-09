@@ -65,6 +65,8 @@ export class OAuthHandler {
 		new Notice('Continue login in the browser');
 
 		const params = await waitForCallback;
+		await new Promise((resolve) => setTimeout(resolve, 300));
+
 		const { session } = await finalizeAuthorization(params);
 		return session;
 	}

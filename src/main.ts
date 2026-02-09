@@ -16,14 +16,29 @@ export default class AtmospherePlugin extends Plugin {
 		this.client = new ATClient();
 		this.clipper = new Clipper(this);
 
+		// prevent duplicate handling
+		const processedStates = new Set<string>();
+
 		this.registerObsidianProtocolHandler('atmosphere-oauth', (params) => {
 			try {
+				const state = params.state as string;
+
+				if (state && processedStates.has(state)) {
+					console.log('[OAuth] Ignoring duplicate callback for state:', state);
+					return;
+				}
+
 				const urlParams = new URLSearchParams();
 				for (const [key, value] of Object.entries(params)) {
 					if (value) {
 						urlParams.set(key, String(value));
 					}
 				}
+				if (state) {
+					processedStates.add(state);
+					setTimeout(() => processedStates.delete(state), 2 * 60_000);
+				}
+
 				this.client.handleOAuthCallback(urlParams);
 				new Notice('Authentication completed! Processing...');
 			} catch (error) {

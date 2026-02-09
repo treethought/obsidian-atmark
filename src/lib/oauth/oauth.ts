@@ -10,7 +10,7 @@ import {
 import { compositeResolver } from 'lib/identity';
 import { Notice } from 'obsidian';
 import { isDid, type ActorIdentifier } from "@atcute/lexicons/syntax";
-import metadata from '../../../client-metadata.json' with { type: 'json' };
+import metadata from '../../../client-metadata-beta.json' with { type: 'json' };
 
 
 export class OAuthHandler {

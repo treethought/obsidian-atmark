@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir -p _site
           cp client-metadata.json _site/
+          cp client-metadata-beta.json _site/
           cp oauth-callback.html _site/
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

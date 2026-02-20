@@ -196,7 +196,7 @@ export class SembleSource implements DataSource {
 			return true;
 		});
 
-		if (filteredCollections !== undefined) {
+		if (filteredCollections.size > 0) {
 			sembleCards = sembleCards.filter((card: CardRecord) => filteredCollections.has(card.uri));
 		}
 

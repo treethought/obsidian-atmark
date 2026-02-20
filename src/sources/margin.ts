@@ -134,7 +134,7 @@ export class MarginSource implements DataSource {
 
 		let bookmarks = bookmarksResp.data.records as MarginBookmarkRecord[];
 
-		if (filteredCollections !== undefined) {
+		if (filteredCollections.size > 0) {
 			bookmarks = bookmarks.filter((bookmark: MarginBookmarkRecord) => filteredCollections.has(bookmark.uri));
 		}
 

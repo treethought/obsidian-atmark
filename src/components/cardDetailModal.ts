@@ -28,14 +28,17 @@ export class CardDetailModal extends Modal {
 			cls: `atmosphere-badge atmosphere-badge-source atmosphere-badge-${source}`,
 		});
 
-		this.item.renderDetail(contentEl);
+		this.renderBody(contentEl);
 
 		const collections = this.item.getCollections();
 		if (collections.length > 0) {
 			this.renderCollectionsSection(contentEl, collections);
 		}
 
-		// semble
+		if (this.item.canAddTags()) {
+			this.renderTagsSection(contentEl);
+		}
+
 		if (this.item.canAddNotes() && this.item.getAttachedNotes) {
 			this.renderNotesSection(contentEl);
 		}
@@ -51,12 +54,65 @@ export class CardDetailModal extends Modal {
 		});
 	}
 
-	private renderCollectionsSection(contentEl: HTMLElement, collections: Array<{ uri: string; name: string }>) {
+	private renderBody(contentEl: HTMLElement) {
+		const body = contentEl.createEl("div", { cls: "atmosphere-detail-body" });
+
+		const title = this.item.getTitle();
+		if (title) {
+			body.createEl("h2", { text: title, cls: "atmosphere-detail-title" });
+		}
+
+		const imageUrl = this.item.getImageUrl();
+		if (imageUrl) {
+			const img = body.createEl("img", { cls: "atmosphere-detail-image" });
+			img.src = imageUrl;
+			img.alt = title || "Image";
+		}
+
+		const description = this.item.getDescription();
+		if (description) {
+			body.createEl("p", { text: description, cls: "atmosphere-detail-description" });
+		}
+
+		const siteName = this.item.getSiteName();
+		if (siteName) {
+			const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
+			const metaItem = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
+			metaItem.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
+			metaItem.createEl("span", { text: siteName, cls: "atmosphere-detail-meta-value" });
+		}
+
+		const url = this.item.getUrl();
+		if (url) {
+			const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
+			const link = linkWrapper.createEl("a", {
+				text: url,
+				href: url,
+				cls: "atmosphere-detail-link",
+			});
+			link.setAttr("target", "_blank");
+		}
+	}
+
+	private renderTagsSection(contentEl: HTMLElement) {
+		const tags = this.item.getTags();
+		if (tags.length === 0) return;
+		const section = contentEl.createEl("div", { cls: "atmosphere-detail-tags" });
+		section.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
+		const container = section.createEl("div", { cls: "atmosphere-item-tags" });
+		for (const tag of tags) {
+			container.createEl("span", { text: tag, cls: "atmosphere-tag" });
+		}
+	}
+
+	private renderCollectionsSection(contentEl: HTMLElement, collections: Array<{ uri: string; name: string; source: string }>) {
 		const section = contentEl.createEl("div", { cls: "atmosphere-detail-collections" });
 		section.createEl("span", { text: "In collections", cls: "atmosphere-detail-collections-label" });
 		const badges = section.createEl("div", { cls: "atmosphere-detail-collections-badges" });
 		for (const collection of collections) {
-			badges.createEl("span", { text: collection.name, cls: "atmosphere-collection" });
+			const prefix = collection.source === "semble" ? "s" : collection.source === "margin" ? "m" : "";
+			const label = prefix ? `${prefix} ${collection.name}` : collection.name;
+			badges.createEl("span", { text: label, cls: "atmosphere-collection" });
 		}
 	}
 

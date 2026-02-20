@@ -15,10 +15,10 @@ type CollectionLinkRecord = Record & { value: CollectionLink };
 class SembleItem implements ATBookmarkItem {
 	private record: CardRecord;
 	private attachedNotes: Array<{ uri: string; text: string }>;
-	private collections: Array<{ uri: string; name: string }>;
+	private collections: Array<{ uri: string; name: string; source: string }>;
 	private plugin: AtmospherePlugin;
 
-	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, collections: Array<{ uri: string; name: string }>, plugin: AtmospherePlugin) {
+	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, collections: Array<{ uri: string; name: string; source: string }>, plugin: AtmospherePlugin) {
 		this.record = record;
 		this.attachedNotes = attachedNotes;
 		this.collections = collections;
@@ -43,6 +43,10 @@ class SembleItem implements ATBookmarkItem {
 
 	canAddNotes(): boolean {
 		return true;
+	}
+
+	canAddTags(): boolean {
+		return false;
 	}
 
 	canEdit(): boolean {
@@ -99,54 +103,11 @@ class SembleItem implements ATBookmarkItem {
 		return [];
 	}
 
-	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "atmosphere-detail-body" });
-		const card = this.record.value;
-
-		if (card.type === "NOTE") {
-			const content = card.content as NoteContent;
-			body.createEl("p", { text: content.text, cls: "atmosphere-semble-detail-text" });
-		} else if (card.type === "URL") {
-			const content = card.content as UrlContent;
-			const meta = content.metadata;
-
-			if (meta?.title) {
-				body.createEl("h2", { text: meta.title, cls: "atmosphere-detail-title" });
-			}
-
-			if (meta?.imageUrl) {
-				const img = body.createEl("img", { cls: "atmosphere-detail-image" });
-				img.src = meta.imageUrl;
-				img.alt = meta.title || "Image";
-			}
-
-			if (meta?.description) {
-				body.createEl("p", { text: meta.description, cls: "atmosphere-detail-description" });
-			}
-
-			if (meta?.siteName) {
-				const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
-				const item = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
-				item.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
-				item.createEl("span", { text: meta.siteName, cls: "atmosphere-detail-meta-value" });
-			}
-
-			const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
-			const link = linkWrapper.createEl("a", {
-				text: content.url,
-				href: content.url,
-				cls: "atmosphere-detail-link",
-			});
-			link.setAttr("target", "_blank");
-		}
-
-	}
-
-	getCollections(): Array<{ uri: string; name: string }> {
+	getCollections(): Array<{ uri: string; name: string; source: string }> {
 		return this.collections;
 	}
 
-	setCollections(collections: Array<{ uri: string; name: string }>) {
+	setCollections(collections: Array<{ uri: string; name: string; source: string }>) {
 		this.collections = collections;
 	}
 

@@ -1,8 +1,8 @@
 import type AtmospherePlugin from "../main";
 
 export interface ATBookmarkItem {
-	renderDetail(container: HTMLElement): void;
 	canAddNotes(): boolean;
+	canAddTags(): boolean;
 	canEdit(): boolean;
 	openEditModal(onSuccess?: () => void): void;
 	getUri(): string;
@@ -15,8 +15,8 @@ export interface ATBookmarkItem {
 	getUrl(): string | undefined;
 	getSiteName(): string | undefined;
 	getTags(): string[];
-	getCollections(): Array<{ uri: string; name: string }>;
-	setCollections(collections: Array<{ uri: string; name: string }>): void;
+	getCollections(): Array<{ uri: string; name: string; source: string }>;
+	setCollections(collections: Array<{ uri: string; name: string; source: string }>): void;
 	getAttachedNotes?(): Array<{ uri: string; text: string }>;
 }
 

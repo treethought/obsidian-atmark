@@ -11,7 +11,7 @@ type BookmarkRecord = Record & { value: Bookmark };
 class BookmarkItem implements ATBookmarkItem {
 	private record: BookmarkRecord;
 	private plugin: AtmospherePlugin;
-	private collections: Array<{ uri: string; name: string }> = [];
+	private collections: Array<{ uri: string; name: string; source: string }> = [];
 
 	constructor(record: BookmarkRecord, plugin: AtmospherePlugin) {
 		this.record = record;
@@ -42,12 +42,16 @@ class BookmarkItem implements ATBookmarkItem {
 		return true;
 	}
 
-	getCollections(): Array<{ uri: string; name: string }> {
+	getCollections(): Array<{ uri: string; name: string; source: string }> {
 		return this.collections;
 	}
 
-	setCollections(collections: Array<{ uri: string; name: string }>) {
+	setCollections(collections: Array<{ uri: string; name: string; source: string }>) {
 		this.collections = collections;
+	}
+
+	canAddTags(): boolean {
+		return true;
 	}
 
 	openEditModal(onSuccess?: () => void): void {
@@ -79,53 +83,6 @@ class BookmarkItem implements ATBookmarkItem {
 
 	getTags(): string[] {
 		return this.record.value.tags || [];
-	}
-
-	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "atmosphere-detail-body" });
-		const bookmark = this.record.value;
-		const enriched = bookmark.enriched;
-
-		const title = enriched?.title || bookmark.title;
-		if (title) {
-			body.createEl("h2", { text: title, cls: "atmosphere-detail-title" });
-		}
-
-		const imageUrl = enriched?.image || enriched?.thumb;
-		if (imageUrl) {
-			const img = body.createEl("img", { cls: "atmosphere-detail-image" });
-			img.src = imageUrl;
-			img.alt = title || "Image";
-		}
-
-		const description = enriched?.description || bookmark.description;
-		if (description) {
-			body.createEl("p", { text: description, cls: "atmosphere-detail-description" });
-		}
-
-		if (enriched?.siteName) {
-			const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
-			const item = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
-			item.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
-			item.createEl("span", { text: enriched.siteName, cls: "atmosphere-detail-meta-value" });
-		}
-
-		const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
-		const link = linkWrapper.createEl("a", {
-			text: bookmark.subject,
-			href: bookmark.subject,
-			cls: "atmosphere-detail-link",
-		});
-		link.setAttr("target", "_blank");
-
-		if (bookmark.tags && bookmark.tags.length > 0) {
-			const tagsSection = container.createEl("div", { cls: "atmosphere-item-tags-section" });
-			tagsSection.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
-			const tagsContainer = tagsSection.createEl("div", { cls: "atmosphere-item-tags" });
-			for (const tag of bookmark.tags) {
-				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
-			}
-		}
 	}
 
 	getRecord() {

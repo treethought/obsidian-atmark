@@ -15,9 +15,9 @@ type MarginCollectionItemRecord = Record & { value: MarginCollectionItem };
 class MarginItem implements ATBookmarkItem {
 	private record: MarginBookmarkRecord;
 	private plugin: AtmospherePlugin;
-	private collections: Array<{ uri: string; name: string }>;
+	private collections: Array<{ uri: string; name: string; source: string }>;
 
-	constructor(record: MarginBookmarkRecord, collections: Array<{ uri: string; name: string }>, plugin: AtmospherePlugin) {
+	constructor(record: MarginBookmarkRecord, collections: Array<{ uri: string; name: string; source: string }>, plugin: AtmospherePlugin) {
 		this.record = record;
 		this.collections = collections;
 		this.plugin = plugin;
@@ -41,6 +41,10 @@ class MarginItem implements ATBookmarkItem {
 
 	canAddNotes(): boolean {
 		return false;
+	}
+
+	canAddTags(): boolean {
+		return true;
 	}
 
 	canEdit(): boolean {
@@ -71,41 +75,11 @@ class MarginItem implements ATBookmarkItem {
 		return undefined;
 	}
 
-	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "atmosphere-detail-body" });
-		const bookmark = this.record.value;
-
-		if (bookmark.title) {
-			body.createEl("h2", { text: bookmark.title, cls: "atmosphere-detail-title" });
-		}
-
-		if (bookmark.description) {
-			body.createEl("p", { text: bookmark.description, cls: "atmosphere-detail-description" });
-		}
-
-		const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
-		const link = linkWrapper.createEl("a", {
-			text: bookmark.source,
-			href: bookmark.source,
-			cls: "atmosphere-detail-link",
-		});
-		link.setAttr("target", "_blank");
-
-		if (bookmark.tags && bookmark.tags.length > 0) {
-			const tagsSection = container.createEl("div", { cls: "atmosphere-item-tags-section" });
-			tagsSection.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
-			const tagsContainer = tagsSection.createEl("div", { cls: "atmosphere-item-tags" });
-			for (const tag of bookmark.tags) {
-				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
-			}
-		}
-	}
-
-	getCollections(): Array<{ uri: string; name: string }> {
+	getCollections(): Array<{ uri: string; name: string; source: string }> {
 		return this.collections;
 	}
 
-	setCollections(collections: Array<{ uri: string; name: string }>) {
+	setCollections(collections: Array<{ uri: string; name: string; source: string }>) {
 		this.collections = collections;
 	}
 

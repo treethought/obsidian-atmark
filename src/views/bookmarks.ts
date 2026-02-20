@@ -82,16 +82,21 @@ export class AtmosphereView extends ItemView {
 			Promise.all(activeSources.map(s => s.getCollectionAssociations?.() ?? Promise.resolve([]))),
 		]);
 
-		const collectionNameMap = new Map<string, string>(
-			nameResults.flat().map(c => [c.value, c.label ?? c.value])
-		);
+		const collectionNameMap = new Map<string, string>();
+		const collectionSourceMap = new Map<string, string>();
+		for (let i = 0; i < activeSources.length; i++) {
+			for (const c of nameResults[i]) {
+				collectionNameMap.set(c.value, c.label ?? c.value);
+				collectionSourceMap.set(c.value, activeSources[i].name);
+			}
+		}
 
-		const collectionsMap = new Map<string, Array<{ uri: string; name: string }>>();
+		const collectionsMap = new Map<string, Array<{ uri: string; name: string; source: string }>>();
 		for (const assoc of assocResults.flat()) {
 			const name = collectionNameMap.get(assoc.collection);
 			if (name) {
 				const existing = collectionsMap.get(assoc.record) ?? [];
-				existing.push({ uri: assoc.collection, name });
+				existing.push({ uri: assoc.collection, name, source: collectionSourceMap.get(assoc.collection) ?? "" });
 				collectionsMap.set(assoc.record, existing);
 			}
 		}

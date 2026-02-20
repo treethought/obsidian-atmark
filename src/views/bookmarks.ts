@@ -377,14 +377,27 @@ export class AtmosphereView extends ItemView {
 			cls: "atmosphere-date",
 		});
 
+		const center = footer.createEl("div", { cls: "atmosphere-item-footer-center" });
 		const notes = item.getAttachedNotes?.();
 		if (notes && notes.length > 0) {
-			const noteIndicator = footer.createEl("div", { cls: "atmosphere-note-indicator" });
+			const noteIndicator = center.createEl("div", { cls: "atmosphere-note-indicator" });
 			const icon = noteIndicator.createEl("span", { cls: "atmosphere-note-icon" });
 			setIcon(icon, "message-square");
 			noteIndicator.createEl("span", {
 				text: `${notes.length} note${notes.length > 1 ? 's' : ''}`,
 				cls: "atmosphere-note-count",
+			});
+		}
+
+		const right = footer.createEl("div", { cls: "atmosphere-item-footer-right" });
+		const collections = item.getCollections?.();
+		if (collections && collections.length > 0) {
+			const collectionIndicator = right.createEl("div", { cls: "atmosphere-collection-indicator" });
+			const collectionIcon = collectionIndicator.createEl("span", { cls: "atmosphere-collection-indicator-icon" });
+			setIcon(collectionIcon, "folder");
+			collectionIndicator.createEl("span", {
+				text: collections.length === 1 ? collections[0].name : `${collections.length} collections`,
+				cls: "atmosphere-collection-indicator-name",
 			});
 		}
 	}

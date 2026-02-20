@@ -55,12 +55,6 @@ class MarginItem implements ATBookmarkItem {
 		const el = container.createEl("div", { cls: "atmosphere-item-content" });
 		const bookmark = this.record.value;
 
-		if (this.collections.length > 0) {
-			const collectionsContainer = el.createEl("div", { cls: "atmosphere-item-collections" });
-			for (const collection of this.collections) {
-				collectionsContainer.createEl("span", { text: collection.name, cls: "atmosphere-collection" });
-			}
-		}
 
 		if (bookmark.tags && bookmark.tags.length > 0) {
 			const tagsContainer = el.createEl("div", { cls: "atmosphere-item-tags" });

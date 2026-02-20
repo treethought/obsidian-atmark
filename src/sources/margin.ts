@@ -108,15 +108,6 @@ class MarginItem implements ATBookmarkItem {
 		});
 		link.setAttr("target", "_blank");
 
-		if (this.collections.length > 0) {
-			const collectionsSection = container.createEl("div", { cls: "atmosphere-item-collections-section" });
-			collectionsSection.createEl("h3", { text: "Collections", cls: "atmosphere-detail-section-title" });
-			const collectionsContainer = collectionsSection.createEl("div", { cls: "atmosphere-item-collections" });
-			for (const collection of this.collections) {
-				collectionsContainer.createEl("span", { text: collection.name, cls: "atmosphere-collection" });
-			}
-		}
-
 		if (bookmark.tags && bookmark.tags.length > 0) {
 			const tagsSection = container.createEl("div", { cls: "atmosphere-item-tags-section" });
 			tagsSection.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
@@ -125,6 +116,14 @@ class MarginItem implements ATBookmarkItem {
 				tagsContainer.createEl("span", { text: tag, cls: "atmosphere-tag" });
 			}
 		}
+	}
+
+	getCollections(): Array<{ uri: string; name: string }> {
+		return this.collections;
+	}
+
+	setCollections(collections: Array<{ uri: string; name: string }>) {
+		this.collections = collections;
 	}
 
 	getTags() {
@@ -152,32 +151,6 @@ export class MarginSource implements DataSource {
 
 		let bookmarks = bookmarksResp.data.records as MarginBookmarkRecord[];
 
-		// Build collections map (annotation URI -> collection info) for display on items
-		//
-		// TODO prbly want to remove these calls to get collection links
-		// may wan tot just handle this in bookmarks view via getCollectionAssociations
-		const collectionsMap = new Map<string, Array<{ uri: string; name: string }>>();
-		const collectionsResp = await getMarginCollections(this.client, this.repo);
-		const itemsResp = await getMarginCollectionItems(this.client, this.repo);
-
-		if (collectionsResp.ok && itemsResp.ok) {
-			const collections = collectionsResp.data.records as MarginCollectionRecord[];
-			const collectionNameMap = new Map<string, string>();
-			for (const collection of collections) {
-				collectionNameMap.set(collection.uri, collection.value.name);
-			}
-
-			const items = itemsResp.data.records as MarginCollectionItemRecord[];
-			for (const item of items) {
-				const collectionName = collectionNameMap.get(item.value.collection);
-				if (collectionName) {
-					const existing = collectionsMap.get(item.value.annotation) || [];
-					existing.push({ uri: item.value.collection, name: collectionName });
-					collectionsMap.set(item.value.annotation, existing);
-				}
-			}
-		}
-
 		if (filteredCollections !== undefined) {
 			bookmarks = bookmarks.filter((bookmark: MarginBookmarkRecord) => filteredCollections.has(bookmark.uri));
 		}
@@ -189,7 +162,7 @@ export class MarginSource implements DataSource {
 		}
 
 		return bookmarks.map((record: MarginBookmarkRecord) =>
-			new MarginItem(record, collectionsMap.get(record.uri) || [], plugin)
+			new MarginItem(record, [], plugin)
 		);
 	}
 	async getAvailableCollections(): Promise<SourceFilter[]> {

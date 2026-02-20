@@ -30,6 +30,11 @@ export class CardDetailModal extends Modal {
 
 		this.item.renderDetail(contentEl);
 
+		const collections = this.item.getCollections();
+		if (collections.length > 0) {
+			this.renderCollectionsSection(contentEl, collections);
+		}
+
 		// semble
 		if (this.item.canAddNotes() && this.item.getAttachedNotes) {
 			this.renderNotesSection(contentEl);
@@ -44,6 +49,15 @@ export class CardDetailModal extends Modal {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
 			cls: "atmosphere-detail-date",
 		});
+	}
+
+	private renderCollectionsSection(contentEl: HTMLElement, collections: Array<{ uri: string; name: string }>) {
+		const section = contentEl.createEl("div", { cls: "atmosphere-detail-collections" });
+		section.createEl("span", { text: "In collections", cls: "atmosphere-detail-collections-label" });
+		const badges = section.createEl("div", { cls: "atmosphere-detail-collections-badges" });
+		for (const collection of collections) {
+			badges.createEl("span", { text: collection.name, cls: "atmosphere-collection" });
+		}
 	}
 
 	private renderNotesSection(contentEl: HTMLElement) {

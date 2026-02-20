@@ -11,6 +11,7 @@ type BookmarkRecord = Record & { value: Bookmark };
 class BookmarkItem implements ATBookmarkItem {
 	private record: BookmarkRecord;
 	private plugin: AtmospherePlugin;
+	private collections: Array<{ uri: string; name: string }> = [];
 
 	constructor(record: BookmarkRecord, plugin: AtmospherePlugin) {
 		this.record = record;
@@ -39,6 +40,14 @@ class BookmarkItem implements ATBookmarkItem {
 
 	canEdit(): boolean {
 		return true;
+	}
+
+	getCollections(): Array<{ uri: string; name: string }> {
+		return this.collections;
+	}
+
+	setCollections(collections: Array<{ uri: string; name: string }>) {
+		this.collections = collections;
 	}
 
 	openEditModal(onSuccess?: () => void): void {

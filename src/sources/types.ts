@@ -10,6 +10,8 @@ export interface ATBookmarkItem {
 	getCid(): string;
 	getCreatedAt(): string;
 	getSource(): "semble" | "bookmark" | "margin";
+	getCollections(): Array<{ uri: string; name: string }>;
+	setCollections(collections: Array<{ uri: string; name: string }>): void;
 	getAttachedNotes?(): Array<{ uri: string; text: string }>;
 }
 

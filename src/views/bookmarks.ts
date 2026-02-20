@@ -63,9 +63,42 @@ export class AtmosphereView extends ItemView {
 				return await sourceData.source.fetchItems(this.plugin, allowedUris, this.selectedTags);
 			})
 		);
-		return results.flat().sort((a, b) =>
+
+		const items = results.flat().sort((a, b) =>
 			new Date(b.getCreatedAt()).getTime() - new Date(a.getCreatedAt()).getTime()
 		);
+
+		await this.injectCollections(items);
+		return items;
+	}
+
+	private async injectCollections(items: ATBookmarkItem[]) {
+		const activeSources = Array.from(this.activeSources)
+			.map(s => this.sources.get(s)?.source)
+			.filter((s): s is DataSource => s !== undefined);
+
+		const [nameResults, assocResults] = await Promise.all([
+			Promise.all(activeSources.map(s => s.getAvailableCollections?.() ?? Promise.resolve([]))),
+			Promise.all(activeSources.map(s => s.getCollectionAssociations?.() ?? Promise.resolve([]))),
+		]);
+
+		const collectionNameMap = new Map<string, string>(
+			nameResults.flat().map(c => [c.value, c.label ?? c.value])
+		);
+
+		const collectionsMap = new Map<string, Array<{ uri: string; name: string }>>();
+		for (const assoc of assocResults.flat()) {
+			const name = collectionNameMap.get(assoc.collection);
+			if (name) {
+				const existing = collectionsMap.get(assoc.record) ?? [];
+				existing.push({ uri: assoc.collection, name });
+				collectionsMap.set(assoc.record, existing);
+			}
+		}
+
+		for (const item of items) {
+			item.setCollections(collectionsMap.get(item.getUri()) ?? []);
+		}
 	}
 
 	private async getFilteredItemUris(): Promise<Set<string>> {

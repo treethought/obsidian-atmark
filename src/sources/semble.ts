@@ -15,11 +15,13 @@ type CollectionLinkRecord = Record & { value: CollectionLink };
 class SembleItem implements ATBookmarkItem {
 	private record: CardRecord;
 	private attachedNotes: Array<{ uri: string; text: string }>;
+	private collections: Array<{ uri: string; name: string }>;
 	private plugin: AtmospherePlugin;
 
-	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, plugin: AtmospherePlugin) {
+	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, collections: Array<{ uri: string; name: string }>, plugin: AtmospherePlugin) {
 		this.record = record;
 		this.attachedNotes = attachedNotes;
+		this.collections = collections;
 		this.plugin = plugin;
 	}
 
@@ -136,6 +138,14 @@ class SembleItem implements ATBookmarkItem {
 
 	}
 
+	getCollections(): Array<{ uri: string; name: string }> {
+		return this.collections;
+	}
+
+	setCollections(collections: Array<{ uri: string; name: string }>) {
+		this.collections = collections;
+	}
+
 	getAttachedNotes() {
 		return this.attachedNotes;
 	}
@@ -187,7 +197,7 @@ export class SembleSource implements DataSource {
 		}
 
 		return sembleCards.map((record: CardRecord) =>
-			new SembleItem(record, notesMap.get(record.uri) || [], plugin)
+			new SembleItem(record, notesMap.get(record.uri) || [], [], plugin)
 		);
 	}
 

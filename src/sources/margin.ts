@@ -203,6 +203,36 @@ export class MarginSource implements DataSource {
 			new MarginItem(record, collectionsMap.get(record.uri) || [], plugin)
 		);
 	}
+	async getAvailableCollections(): Promise<SourceFilter[]> {
+		const collectionsResp = await getMarginCollections(this.client, this.repo);
+		if (!collectionsResp.ok) return [];
+
+		const collections = collectionsResp.data.records as MarginCollectionRecord[];
+		return collections.map((c: MarginCollectionRecord) => ({
+			type: "marginCollection",
+			value: c.uri,
+			label: c.value.name,
+		}));
+	}
+	async getAvilableTags(): Promise<SourceFilter[]> {
+		const resp = await getMarginBookmarks(this.client, this.repo);
+		if (!resp.ok) return [];
+
+		const records = resp.data.records as MarginBookmarkRecord[];
+		// return list of unique tags
+		const tagSet = new Set<string>();
+		records.forEach(record => {
+			if (record.value.tags) {
+				record.value.tags.forEach(tag => tagSet.add(tag));
+			}
+		});
+		return Array.from(tagSet).map(tag => ({
+			type: "marginTag",
+			value: tag,
+			label: tag,
+		}));
+
+	}
 
 	async getAvailableFilters(): Promise<SourceFilter[]> {
 		const filters: SourceFilter[] = [];

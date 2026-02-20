@@ -1,6 +1,6 @@
 import { Modal, Notice, setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { createNoteCard, deleteRecord } from "../lib";
+import { createSembleNote, deleteRecord } from "../lib";
 import type { ATBookmarkItem } from "../sources/types";
 
 export class CardDetailModal extends Modal {
@@ -94,7 +94,7 @@ export class CardDetailModal extends Modal {
 		}
 
 		try {
-			await createNoteCard(
+			await createSembleNote(
 				this.plugin.client,
 				this.plugin.settings.did!,
 				text,

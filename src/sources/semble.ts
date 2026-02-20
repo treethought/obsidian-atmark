@@ -2,7 +2,7 @@ import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import { setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { getCards, getCollections, getCollectionLinks } from "../lib";
+import { getSembleCollections, getSembleCards, getSembleCollectionLinks } from "../lib";
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
@@ -158,7 +158,7 @@ export class SembleSource implements DataSource {
 	}
 
 	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
-		const cardsResp = await getCards(this.client, this.repo);
+		const cardsResp = await getSembleCards(this.client, this.repo);
 		if (!cardsResp.ok) return [];
 
 		const allSembleCards = cardsResp.data.records as CardRecord[];
@@ -187,7 +187,7 @@ export class SembleSource implements DataSource {
 
 		const collectionFilter = filters.find(f => f.type === "sembleCollection");
 		if (collectionFilter && collectionFilter.value) {
-			const linksResp = await getCollectionLinks(this.client, this.repo);
+			const linksResp = await getSembleCollectionLinks(this.client, this.repo);
 			if (linksResp.ok) {
 				const links = linksResp.data.records as CollectionLinkRecord[];
 				const filteredLinks = links.filter((link: CollectionLinkRecord) =>
@@ -203,8 +203,8 @@ export class SembleSource implements DataSource {
 		);
 	}
 
-	async getAvailableFilters(): Promise<SourceFilter[]> {
-		const collectionsResp = await getCollections(this.client, this.repo);
+	async getAvailableCollections(): Promise<SourceFilter[]> {
+		const collectionsResp = await getSembleCollections(this.client, this.repo);
 		if (!collectionsResp.ok) return [];
 
 		const collections = collectionsResp.data.records as CollectionRecord[];
@@ -238,7 +238,7 @@ export class SembleSource implements DataSource {
 			onChange();
 		});
 
-		void this.getAvailableFilters().then(collections => {
+		void this.getAvailableCollections().then(collections => {
 			for (const collection of collections) {
 				const chip = chips.createEl("button", {
 					text: collection.label,

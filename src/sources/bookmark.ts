@@ -173,7 +173,7 @@ export class BookmarkSource implements DataSource {
 		return bookmarks.map((record: BookmarkRecord) => new BookmarkItem(record, plugin));
 	}
 
-	async getAvailableFilters(): Promise<SourceFilter[]> {
+	async getAvilableTags(): Promise<SourceFilter[]> {
 		const bookmarksResp = await getBookmarks(this.client, this.repo);
 		if (!bookmarksResp.ok) return [];
 

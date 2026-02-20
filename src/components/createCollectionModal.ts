@@ -1,6 +1,6 @@
 import { Modal, Notice } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { createCollection } from "../lib";
+import { createSembleCollection } from "../lib";
 
 export class CreateCollectionModal extends Modal {
 	plugin: AtmospherePlugin;
@@ -79,7 +79,7 @@ export class CreateCollectionModal extends Modal {
 		createBtn.textContent = "Creating...";
 
 		try {
-			await createCollection(
+			await createSembleCollection(
 				this.plugin.client,
 				this.plugin.settings.did!,
 				name,

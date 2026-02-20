@@ -22,6 +22,8 @@ export interface SourceFilter {
 export interface DataSource {
 	readonly name: "semble" | "bookmark" | "margin";
 	fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]>;
-	getAvailableFilters(): Promise<SourceFilter[]>;
+	getAvailableCollections?(): Promise<SourceFilter[]>;
+	getAvilableTags?(): Promise<SourceFilter[]>;
+
 	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void;
 }

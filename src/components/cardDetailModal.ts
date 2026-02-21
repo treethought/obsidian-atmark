@@ -1,6 +1,6 @@
 import { Modal, Notice, setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { createNoteCard, deleteRecord } from "../lib";
+import { createSembleNote, deleteRecord } from "../lib";
 import type { ATBookmarkItem } from "../sources/types";
 
 export class CardDetailModal extends Modal {
@@ -21,16 +21,17 @@ export class CardDetailModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("atmosphere-detail-modal");
 
-		const header = contentEl.createEl("div", { cls: "atmosphere-detail-header" });
-		const source = this.item.getSource();
-		header.createEl("span", {
-			text: source,
-			cls: `atmosphere-badge atmosphere-badge-source atmosphere-badge-${source}`,
-		});
+		this.renderBody(contentEl);
 
-		this.item.renderDetail(contentEl);
+		const collections = this.item.getCollections();
+		if (collections.length > 0) {
+			this.renderCollectionsSection(contentEl, collections);
+		}
 
-		// semble
+		if (this.item.canAddTags()) {
+			this.renderTagsSection(contentEl);
+		}
+
 		if (this.item.canAddNotes() && this.item.getAttachedNotes) {
 			this.renderNotesSection(contentEl);
 		}
@@ -40,10 +41,86 @@ export class CardDetailModal extends Modal {
 		}
 
 		const footer = contentEl.createEl("div", { cls: "atmosphere-detail-footer" });
-		footer.createEl("span", {
+		const footerLeft = footer.createEl("div", { cls: "atmosphere-detail-footer-left" });
+		const source = this.item.getSource();
+		const sourceBadge = footerLeft.createEl("span", { cls: `atmosphere-badge atmosphere-badge-${source}` });
+		setIcon(sourceBadge, sourceIconId(source));
+		footerLeft.createEl("span", {
 			text: `Created ${new Date(this.item.getCreatedAt()).toLocaleDateString()}`,
 			cls: "atmosphere-detail-date",
 		});
+
+		if (this.item.canEdit()) {
+			const editBtn = footer.createEl("button", { cls: "atmosphere-detail-edit-btn" });
+			setIcon(editBtn, "pencil");
+			editBtn.addEventListener("click", () => {
+				this.close();
+				this.item.openEditModal(this.onSuccess);
+			});
+		}
+	}
+
+	private renderBody(contentEl: HTMLElement) {
+		const body = contentEl.createEl("div", { cls: "atmosphere-detail-body" });
+
+		const title = this.item.getTitle();
+		if (title) {
+			body.createEl("h2", { text: title, cls: "atmosphere-detail-title" });
+		}
+
+		const imageUrl = this.item.getImageUrl();
+		if (imageUrl) {
+			const img = body.createEl("img", { cls: "atmosphere-detail-image" });
+			img.src = imageUrl;
+			img.alt = title || "Image";
+		}
+
+		const description = this.item.getDescription();
+		if (description) {
+			body.createEl("p", { text: description, cls: "atmosphere-detail-description" });
+		}
+
+		const siteName = this.item.getSiteName();
+		if (siteName) {
+			const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
+			const metaItem = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
+			metaItem.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
+			metaItem.createEl("span", { text: siteName, cls: "atmosphere-detail-meta-value" });
+		}
+
+		const url = this.item.getUrl();
+		if (url) {
+			const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
+			const link = linkWrapper.createEl("a", {
+				text: url,
+				href: url,
+				cls: "atmosphere-detail-link",
+			});
+			link.setAttr("target", "_blank");
+		}
+	}
+
+	private renderTagsSection(contentEl: HTMLElement) {
+		const tags = this.item.getTags();
+		if (tags.length === 0) return;
+		const section = contentEl.createEl("div", { cls: "atmosphere-detail-tags" });
+		section.createEl("h3", { text: "Tags", cls: "atmosphere-detail-section-title" });
+		const container = section.createEl("div", { cls: "atmosphere-item-tags" });
+		for (const tag of tags) {
+			container.createEl("span", { text: tag, cls: "atmosphere-tag" });
+		}
+	}
+
+	private renderCollectionsSection(contentEl: HTMLElement, collections: Array<{ uri: string; name: string; source: string }>) {
+		const section = contentEl.createEl("div", { cls: "atmosphere-detail-collections" });
+		section.createEl("span", { text: "In collections", cls: "atmosphere-detail-collections-label" });
+		const badges = section.createEl("div", { cls: "atmosphere-detail-collections-badges" });
+		for (const collection of collections) {
+			const badge = badges.createEl("span", { cls: "atmosphere-collection" });
+			const iconEl = badge.createEl("span", { cls: "atmosphere-collection-source-icon" });
+			setIcon(iconEl, sourceIconId(collection.source as "semble" | "bookmark" | "margin"));
+			badge.createEl("span", { text: collection.name });
+		}
 	}
 
 	private renderNotesSection(contentEl: HTMLElement) {
@@ -94,7 +171,7 @@ export class CardDetailModal extends Modal {
 		}
 
 		try {
-			await createNoteCard(
+			await createSembleNote(
 				this.plugin.client,
 				this.plugin.settings.did!,
 				text,
@@ -139,4 +216,10 @@ export class CardDetailModal extends Modal {
 	onClose() {
 		this.contentEl.empty();
 	}
+}
+
+function sourceIconId(source: "semble" | "bookmark" | "margin"): string {
+	if (source === "semble") return "atmosphere-semble";
+	if (source === "margin") return "atmosphere-margin";
+	return "bookmark";
 }

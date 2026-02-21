@@ -5,6 +5,7 @@ import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
 import { Clipper } from "lib/clipper";
+import { registerIcons } from "./icons";
 
 export default class AtmospherePlugin extends Plugin {
 	settings: AtProtoSettings = DEFAULT_SETTINGS;
@@ -12,6 +13,7 @@ export default class AtmospherePlugin extends Plugin {
 	clipper: Clipper;
 
 	async onload() {
+		registerIcons();
 		await this.loadSettings();
 		this.client = new ATClient();
 		this.clipper = new Clipper(this);

@@ -65,7 +65,7 @@
 	font-weight: var(--font-semibold);
 }
 
-.atmosphere-source-radio {
+.atmosphere-source-toggle {
 	display: none;
 }
 
@@ -120,6 +120,8 @@
 	margin-bottom: 2px;
 }
 
+
+
 .atmosphere-filter-title {
 	margin: 0;
 	font-size: var(--font-smallest);
@@ -133,27 +135,93 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	width: 18px;
-	height: 18px;
+	width: 22px;
+	height: 22px;
 	padding: 0;
 	background: transparent;
 	border: none;
 	border-radius: var(--radius-s);
 	cursor: pointer;
-	color: var(--text-faint);
+	color: var(--text-muted);
 	transition: all 0.15s ease;
-	opacity: 0.7;
 }
 
 .atmosphere-filter-create-btn:hover {
 	background: var(--background-modifier-hover);
 	color: var(--interactive-accent);
-	opacity: 1;
 }
 
 .atmosphere-filter-create-btn svg {
-	width: 12px;
-	height: 12px;
+	width: 16px;
+	height: 16px;
+}
+
+.atmosphere-filter-picker-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 5px;
+	height: 26px;
+	padding: 0 6px 0 4px;
+	background: transparent;
+	border: none;
+	border-radius: var(--radius-s);
+	cursor: pointer;
+	color: var(--text-faint);
+	opacity: 0.7;
+	transition: all 0.15s ease;
+}
+
+.atmosphere-filter-picker-btn:hover {
+	background: var(--background-modifier-hover);
+	color: var(--interactive-accent);
+	opacity: 1;
+}
+
+.atmosphere-filter-picker-btn svg {
+	width: 15px;
+	height: 15px;
+}
+
+.atmosphere-filter-active-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 4px;
+}
+
+.atmosphere-chip-removable {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 4px 2px 8px;
+	font-size: var(--font-smallest);
+}
+
+.atmosphere-chip-remove-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 14px;
+	height: 14px;
+	flex-shrink: 0;
+	padding: 0;
+	border: none;
+	background: transparent;
+	cursor: pointer;
+	color: currentColor;
+	opacity: 0.6;
+	border-radius: 2px;
+	line-height: 1;
+}
+
+.atmosphere-chip-remove-btn:hover {
+	opacity: 1;
+}
+
+.atmosphere-chip-remove-btn svg {
+	width: 10px;
+	height: 10px;
+	display: block;
 }
 
 .atmosphere-filter-chips {
@@ -166,8 +234,8 @@
 .atmosphere-chip {
 	padding: 3px 10px;
 	border-radius: var(--radius-m);
-	border: none;
-	background: var(--background-modifier-border);
+	border: 1px solid var(--background-modifier-border);
+	background: transparent;
 	color: var(--text-muted);
 	font-size: var(--font-smallest);
 	font-weight: var(--font-medium);
@@ -177,20 +245,20 @@
 }
 
 .atmosphere-chip:hover {
-	background: var(--background-modifier-border-hover);
+	border-color: var(--background-modifier-border-hover);
 	color: var(--text-normal);
-	transform: translateY(-1px);
 }
 
 .atmosphere-chip-active {
-	background: var(--interactive-accent);
-	color: var(--text-on-accent);
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+	border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
+	color: var(--interactive-accent);
 	font-weight: var(--font-semibold);
 }
 
 .atmosphere-chip-active:hover {
-	background: var(--interactive-accent-hover);
-	transform: translateY(-1px);
+	background: color-mix(in srgb, var(--interactive-accent) 20%, transparent);
+	border-color: var(--interactive-accent);
 }
 
 .atmosphere-grid {
@@ -221,6 +289,13 @@
 	justify-content: space-between;
 	align-items: flex-start;
 	gap: 8px;
+}
+
+
+.atmosphere-item-source-icon svg,
+.atmosphere-badge svg {
+	width: 14px;
+	height: 14px;
 }
 
 .atmosphere-item-edit-btn {
@@ -256,41 +331,49 @@
 }
 
 .atmosphere-badge {
-	font-size: 10px;
-	padding: 3px 8px;
-	border-radius: 12px;
-	text-transform: capitalize;
-	font-weight: var(--font-normal);
+	display: flex;
+	align-items: center;
 	flex-shrink: 0;
-	letter-spacing: 0.3px;
 }
 
+
 .atmosphere-badge-semble {
-	background: color-mix(in srgb, var(--color-orange) 15%, transparent);
 	color: var(--color-orange);
-	border: 1px solid color-mix(in srgb, var(--color-orange) 30%, transparent);
 }
 
 .atmosphere-badge-bookmark {
-	background: color-mix(in srgb, var(--color-cyan) 15%, transparent);
 	color: var(--color-cyan);
-	border: 1px solid color-mix(in srgb, var(--color-cyan) 30%, transparent);
 }
 
 .atmosphere-badge-margin {
-	background: color-mix(in srgb, var(--color-purple) 15%, transparent);
-	color: var(--color-purple);
-	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
+	color: #2563eb;
 }
 
 .atmosphere-item-footer {
-	display: flex;
-	justify-content: space-between;
+	display: grid;
+	grid-template-columns: 1fr auto 1fr;
+	align-items: center;
 	font-size: var(--font-smallest);
 	color: var(--text-faint);
 	margin-top: auto;
 	padding-top: 8px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmosphere-item-footer-left {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.atmosphere-item-footer-center {
+	display: flex;
+	justify-content: center;
+}
+
+.atmosphere-item-footer-right {
+	display: flex;
+	justify-content: flex-end;
 }
 
 .atmosphere-date {
@@ -385,12 +468,26 @@
 }
 
 .atmosphere-collection {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
 	font-size: var(--font-smallest);
 	padding: 2px 8px;
 	border-radius: var(--radius-s);
-	background: color-mix(in srgb, var(--color-purple) 10%, transparent);
-	color: var(--color-purple);
-	border: 1px solid color-mix(in srgb, var(--color-purple) 30%, transparent);
+	background: color-mix(in srgb, var(--interactive-accent) 10%, transparent);
+	color: var(--interactive-accent);
+	border: 1px solid color-mix(in srgb, var(--interactive-accent) 30%, transparent);
+}
+
+.atmosphere-collection-source-icon {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.atmosphere-collection-source-icon svg {
+	width: 10px;
+	height: 10px;
 }
 
 .atmosphere-item-collections-section {
@@ -426,6 +523,29 @@
 }
 
 .atmosphere-note-count {
+	font-size: var(--font-smallest);
+}
+
+.atmosphere-collection-indicator {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	font-size: var(--font-smallest);
+	color: var(--text-muted);
+}
+
+.atmosphere-collection-indicator-icon {
+	display: flex;
+	align-items: center;
+	color: var(--text-muted);
+}
+
+.atmosphere-collection-indicator-icon svg {
+	width: 12px;
+	height: 12px;
+}
+
+.atmosphere-collection-indicator-name {
 	font-size: var(--font-smallest);
 }
 
@@ -518,6 +638,37 @@
 	font-size: var(--h2-size);
 	font-weight: var(--font-semibold);
 	color: var(--text-normal);
+}
+
+.atmosphere-source-toggle-row {
+	display: flex;
+	gap: 6px;
+	margin-bottom: 16px;
+}
+
+.atmosphere-source-toggle-btn {
+	flex: 1;
+	padding: 6px 12px;
+	background: var(--background-modifier-hover);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-s);
+	color: var(--text-muted);
+	font-size: var(--font-ui-small);
+	font-weight: var(--font-medium);
+	cursor: pointer;
+	transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.atmosphere-source-toggle-btn:hover {
+	background: var(--background-modifier-border);
+	color: var(--text-normal);
+}
+
+.atmosphere-source-toggle-btn.is-active {
+	background: color-mix(in srgb, var(--interactive-accent) 12%, transparent);
+	border-color: color-mix(in srgb, var(--interactive-accent) 50%, transparent);
+	color: var(--interactive-accent);
+	font-weight: var(--font-semibold);
 }
 
 .atmosphere-form {
@@ -770,6 +921,31 @@
 	font-size: 1.1em;
 }
 
+.atmosphere-detail-collections {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 16px 0;
+	padding: 12px 16px;
+	background: var(--background-secondary);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: var(--radius-m);
+}
+
+.atmosphere-detail-collections-label {
+	font-size: var(--font-smallest);
+	font-weight: var(--font-semibold);
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+
+.atmosphere-detail-collections-badges {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+
 .atmosphere-semble-detail-notes-section {
 	margin-top: 20px;
 	padding-top: 20px;
@@ -823,10 +999,6 @@
 	color: var(--text-on-accent);
 }
 
-.atmosphere-badge-source {
-	font-size: var(--font-smallest);
-	opacity: 0.8;
-}
 
 .atmosphere-semble-badge-semble {
 	background: color-mix(in srgb, var(--color-green) 80%, var(--background-primary));
@@ -922,14 +1094,45 @@
 	max-width: 600px;
 }
 
-.atmosphere-detail-header {
-	margin-bottom: 16px;
-}
 
 .atmosphere-detail-footer {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
 	margin-top: 20px;
 	padding-top: 16px;
 	border-top: 1px solid var(--background-modifier-border);
+}
+
+.atmosphere-detail-footer-left {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.atmosphere-detail-edit-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 28px;
+	height: 28px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	border-radius: 4px;
+	color: var(--text-accent);
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s ease;
+}
+
+.atmosphere-detail-edit-btn:hover {
+	opacity: 1;
+}
+
+.atmosphere-detail-edit-btn svg {
+	width: 16px;
+	height: 16px;
 }
 
 .atmosphere-detail-date {

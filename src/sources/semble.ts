@@ -1,14 +1,12 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
-import { setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { getCards, getCollections, getCollectionLinks } from "../lib";
+import { getSembleCollections, getSembleCards, getSembleCollectionLinks } from "../lib";
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
-import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
+import type { ATBookmarkItem, CollectionAssociation, DataSource, SourceFilter } from "./types";
 import { EditCardModal } from "../components/editCardModal";
-import { CreateCollectionModal } from "../components/createCollectionModal";
 
 type CardRecord = Record & { value: Card };
 type CollectionRecord = Record & { value: Collection };
@@ -17,11 +15,13 @@ type CollectionLinkRecord = Record & { value: CollectionLink };
 class SembleItem implements ATBookmarkItem {
 	private record: CardRecord;
 	private attachedNotes: Array<{ uri: string; text: string }>;
+	private collections: Array<{ uri: string; name: string; source: string }>;
 	private plugin: AtmospherePlugin;
 
-	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, plugin: AtmospherePlugin) {
+	constructor(record: CardRecord, attachedNotes: Array<{ uri: string; text: string }>, collections: Array<{ uri: string; name: string; source: string }>, plugin: AtmospherePlugin) {
 		this.record = record;
 		this.attachedNotes = attachedNotes;
+		this.collections = collections;
 		this.plugin = plugin;
 	}
 
@@ -45,6 +45,10 @@ class SembleItem implements ATBookmarkItem {
 		return true;
 	}
 
+	canAddTags(): boolean {
+		return false;
+	}
+
 	canEdit(): boolean {
 		return true;
 	}
@@ -53,89 +57,58 @@ class SembleItem implements ATBookmarkItem {
 		new EditCardModal(this.plugin, this.record.uri, this.record.cid, onSuccess).open();
 	}
 
-	render(container: HTMLElement): void {
-		const el = container.createEl("div", { cls: "atmosphere-item-content" });
-
+	getTitle(): string | undefined {
 		const card = this.record.value;
-
-		if (card.type === "NOTE") {
-			const content = card.content as NoteContent;
-			el.createEl("p", { text: content.text, cls: "atmosphere-semble-card-text" });
-		} else if (card.type === "URL") {
-			const content = card.content as UrlContent;
-			const meta = content.metadata;
-
-			if (meta?.title) {
-				el.createEl("div", { text: meta.title, cls: "atmosphere-item-title" });
-			}
-
-			if (meta?.imageUrl) {
-				const img = el.createEl("img", { cls: "atmosphere-item-image" });
-				img.src = meta.imageUrl;
-				img.alt = meta.title || "Image";
-			}
-
-			if (meta?.description) {
-				const desc = meta.description.length > 200
-					? meta.description.slice(0, 200) + "…"
-					: meta.description;
-				el.createEl("p", { text: desc, cls: "atmosphere-item-desc" });
-			}
-
-			if (meta?.siteName) {
-				el.createEl("span", { text: meta.siteName, cls: "atmosphere-item-site" });
-			}
-
-			const link = el.createEl("a", {
-				text: content.url,
-				href: content.url,
-				cls: "atmosphere-item-url",
-			});
-			link.setAttr("target", "_blank");
+		if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.title || undefined;
 		}
+		return undefined;
 	}
 
-	renderDetail(container: HTMLElement): void {
-		const body = container.createEl("div", { cls: "atmosphere-detail-body" });
+	getDescription(): string | undefined {
 		const card = this.record.value;
-
 		if (card.type === "NOTE") {
-			const content = card.content as NoteContent;
-			body.createEl("p", { text: content.text, cls: "atmosphere-semble-detail-text" });
+			return (card.content as NoteContent).text;
 		} else if (card.type === "URL") {
-			const content = card.content as UrlContent;
-			const meta = content.metadata;
-
-			if (meta?.title) {
-				body.createEl("h2", { text: meta.title, cls: "atmosphere-detail-title" });
-			}
-
-			if (meta?.imageUrl) {
-				const img = body.createEl("img", { cls: "atmosphere-detail-image" });
-				img.src = meta.imageUrl;
-				img.alt = meta.title || "Image";
-			}
-
-			if (meta?.description) {
-				body.createEl("p", { text: meta.description, cls: "atmosphere-detail-description" });
-			}
-
-			if (meta?.siteName) {
-				const metaGrid = body.createEl("div", { cls: "atmosphere-detail-meta" });
-				const item = metaGrid.createEl("div", { cls: "atmosphere-detail-meta-item" });
-				item.createEl("span", { text: "Site", cls: "atmosphere-detail-meta-label" });
-				item.createEl("span", { text: meta.siteName, cls: "atmosphere-detail-meta-value" });
-			}
-
-			const linkWrapper = body.createEl("div", { cls: "atmosphere-detail-link-wrapper" });
-			const link = linkWrapper.createEl("a", {
-				text: content.url,
-				href: content.url,
-				cls: "atmosphere-detail-link",
-			});
-			link.setAttr("target", "_blank");
+			return (card.content as UrlContent).metadata?.description || undefined;
 		}
+		return undefined;
+	}
 
+	getImageUrl(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.imageUrl || undefined;
+		}
+		return undefined;
+	}
+
+	getUrl(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "URL") {
+			return (card.content as UrlContent).url;
+		}
+		return undefined;
+	}
+
+	getSiteName(): string | undefined {
+		const card = this.record.value;
+		if (card.type === "URL") {
+			return (card.content as UrlContent).metadata?.siteName || undefined;
+		}
+		return undefined;
+	}
+
+	getTags(): string[] {
+		return [];
+	}
+
+	getCollections(): Array<{ uri: string; name: string; source: string }> {
+		return this.collections;
+	}
+
+	setCollections(collections: Array<{ uri: string; name: string; source: string }>) {
+		this.collections = collections;
 	}
 
 	getAttachedNotes() {
@@ -157,8 +130,8 @@ export class SembleSource implements DataSource {
 		this.repo = repo;
 	}
 
-	async fetchItems(filters: SourceFilter[], plugin: AtmospherePlugin): Promise<ATBookmarkItem[]> {
-		const cardsResp = await getCards(this.client, this.repo);
+	async fetchItems(plugin: AtmospherePlugin, filteredCollections: Set<string> | undefined, _filteredTags: Set<string>): Promise<ATBookmarkItem[]> {
+		const cardsResp = await getSembleCards(this.client, this.repo);
 		if (!cardsResp.ok) return [];
 
 		const allSembleCards = cardsResp.data.records as CardRecord[];
@@ -179,76 +152,40 @@ export class SembleSource implements DataSource {
 		// Filter out NOTE cards that are attached to other cards
 		let sembleCards = allSembleCards.filter((record: CardRecord) => {
 			if (record.value.type === "NOTE") {
-				const hasParent = record.value.parentCard?.uri;
-				return !hasParent;
+				return !record.value.parentCard?.uri;
 			}
 			return true;
 		});
 
-		const collectionFilter = filters.find(f => f.type === "sembleCollection");
-		if (collectionFilter && collectionFilter.value) {
-			const linksResp = await getCollectionLinks(this.client, this.repo);
-			if (linksResp.ok) {
-				const links = linksResp.data.records as CollectionLinkRecord[];
-				const filteredLinks = links.filter((link: CollectionLinkRecord) =>
-					link.value.collection.uri === collectionFilter.value
-				);
-				const cardUris = new Set(filteredLinks.map((link: CollectionLinkRecord) => link.value.card.uri));
-				sembleCards = sembleCards.filter((card: CardRecord) => cardUris.has(card.uri));
-			}
+		if (filteredCollections && filteredCollections.size > 0) {
+			sembleCards = sembleCards.filter((card: CardRecord) => filteredCollections.has(card.uri));
 		}
 
 		return sembleCards.map((record: CardRecord) =>
-			new SembleItem(record, notesMap.get(record.uri) || [], plugin)
+			new SembleItem(record, notesMap.get(record.uri) || [], [], plugin)
 		);
 	}
 
-	async getAvailableFilters(): Promise<SourceFilter[]> {
-		const collectionsResp = await getCollections(this.client, this.repo);
+	async getAvailableCollections(): Promise<SourceFilter[]> {
+		const collectionsResp = await getSembleCollections(this.client, this.repo);
 		if (!collectionsResp.ok) return [];
 
 		const collections = collectionsResp.data.records as CollectionRecord[];
 		return collections.map((c: CollectionRecord) => ({
-			type: "sembleCollection",
 			value: c.uri,
 			label: c.value.name,
 		}));
 	}
 
-	renderFilterUI(container: HTMLElement, activeFilters: Map<string, SourceFilter>, onChange: () => void, onDataChange: () => void, plugin: AtmospherePlugin): void {
-		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
+	async getCollectionAssociations(): Promise<CollectionAssociation[]> {
+		const linksResp = await getSembleCollectionLinks(this.client, this.repo);
+		if (!linksResp.ok) return [];
 
-		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-		titleRow.createEl("h3", { text: "Semble collections", cls: "atmosphere-filter-title" });
-
-		const createBtn = titleRow.createEl("button", { cls: "atmosphere-filter-create-btn" });
-		setIcon(createBtn, "plus");
-		createBtn.addEventListener("click", () => {
-			new CreateCollectionModal(plugin, onDataChange).open();
-		});
-
-		const chips = section.createEl("div", { cls: "atmosphere-filter-chips" });
-
-		const allChip = chips.createEl("button", {
-			text: "All",
-			cls: `atmosphere-chip ${!activeFilters.has("sembleCollection") ? "atmosphere-chip-active" : ""}`,
-		});
-		allChip.addEventListener("click", () => {
-			activeFilters.delete("sembleCollection");
-			onChange();
-		});
-
-		void this.getAvailableFilters().then(collections => {
-			for (const collection of collections) {
-				const chip = chips.createEl("button", {
-					text: collection.label,
-					cls: `atmosphere-chip ${activeFilters.get("sembleCollection")?.value === collection.value ? "atmosphere-chip-active" : ""}`,
-				});
-				chip.addEventListener("click", () => {
-					activeFilters.set("sembleCollection", collection);
-					onChange();
-				});
-			}
-		});
+		return (linksResp.data.records as CollectionLinkRecord[]).map(link => ({
+			record: link.value.card.uri,
+			collection: link.value.collection.uri,
+		}));
 	}
+
 }
+

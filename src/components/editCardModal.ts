@@ -1,8 +1,8 @@
 import { Modal, Notice } from "obsidian";
 import type AtmospherePlugin from "../main";
-import { getCollections, getCollectionLinks, createCollectionLink, getRecord, deleteRecord } from "../lib";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
+import {getSembleCollections, getSembleCollectionLinks, deleteRecord, getRecord, createSembleCollectionLink} from "../lib";
 
 interface CollectionRecord {
 	uri: string;
@@ -53,8 +53,8 @@ export class EditCardModal extends Modal {
 
 		try {
 			const [collectionsResp, linksResp] = await Promise.all([
-				getCollections(this.plugin.client, this.plugin.settings.did!),
-				getCollectionLinks(this.plugin.client, this.plugin.settings.did!),
+				getSembleCollections(this.plugin.client, this.plugin.settings.did!),
+				getSembleCollectionLinks(this.plugin.client, this.plugin.settings.did!),
 			]);
 
 			loading.remove();
@@ -223,7 +223,7 @@ export class EditCardModal extends Modal {
 
 				if (!collectionResp.ok || !collectionResp.data.cid) continue;
 
-				await createCollectionLink(
+				await createSembleCollectionLink(
 					this.plugin.client,
 					this.plugin.settings.did!,
 					this.cardUri,

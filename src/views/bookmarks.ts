@@ -19,7 +19,7 @@ export class AtmosphereView extends ItemView {
 	activeSources: Set<SourceName> = new Set(["semble"]);
 	selectedCollections: Set<string> = new Set();
 	selectedTags: Set<string> = new Set();
-	sources: Map<SourceName, { source: DataSource }> = new Map();
+	sources: Map<SourceName, DataSource> = new Map();
 
 	constructor(leaf: WorkspaceLeaf, plugin: AtmospherePlugin) {
 		super(leaf);
@@ -29,9 +29,9 @@ export class AtmosphereView extends ItemView {
 	initSources() {
 		if (this.plugin.settings.did) {
 			const repo = this.plugin.settings.did;
-			this.sources.set("semble", { source: new SembleSource(this.plugin.client, repo) });
-			this.sources.set("bookmark", { source: new BookmarkSource(this.plugin.client, repo) });
-			this.sources.set("margin", { source: new MarginSource(this.plugin.client, repo) });
+			this.sources.set("semble", new SembleSource(this.plugin.client, repo));
+			this.sources.set("bookmark", new BookmarkSource(this.plugin.client, repo));
+			this.sources.set("margin", new MarginSource(this.plugin.client, repo));
 		}
 	}
 
@@ -47,6 +47,10 @@ export class AtmosphereView extends ItemView {
 		return "layers";
 	}
 
+	private get activeDatasources(): DataSource[] {
+		return Array.from(this.activeSources, s => this.sources.get(s)!);
+	}
+
 	async onOpen() {
 		this.initSources();
 		await this.render();
@@ -55,12 +59,12 @@ export class AtmosphereView extends ItemView {
 	async fetchItems(): Promise<ATBookmarkItem[]> {
 		const allowedUris = await this.getFilteredItemUris();
 
-		const results = await Promise.all(
-			Array.from(this.activeSources).map(async (sourceType) => {
-				const sourceData = this.sources.get(sourceType);
-				if (!sourceData) return [];
+		if (this.selectedCollections.size > 0 && allowedUris.size === 0) return [];
 
-				return await sourceData.source.fetchItems(this.plugin, allowedUris, this.selectedTags);
+		const results = await Promise.all(
+			this.activeDatasources.map(async (source) => {
+				if (this.selectedTags.size > 0 && !source.getAvilableTags) return [];
+				return source.fetchItems(this.plugin, allowedUris, this.selectedTags);
 			})
 		);
 
@@ -73,30 +77,24 @@ export class AtmosphereView extends ItemView {
 	}
 
 	private async injectCollections(items: ATBookmarkItem[]) {
-		const activeSources = Array.from(this.activeSources)
-			.map(s => this.sources.get(s)?.source)
-			.filter((s): s is DataSource => s !== undefined);
+		const sources = this.activeDatasources;
 
-		const [nameResults, assocResults] = await Promise.all([
-			Promise.all(activeSources.map(s => s.getAvailableCollections?.() ?? Promise.resolve([]))),
-			Promise.all(activeSources.map(s => s.getCollectionAssociations?.() ?? Promise.resolve([]))),
+		const [allCollections, assocResults] = await Promise.all([
+			Promise.all(sources.map(async s => {
+				const cols = await (s.getAvailableCollections?.() ?? Promise.resolve([]));
+				return cols.map(c => ({ value: c.value, name: c.label ?? c.value, source: s.name }));
+			})).then(r => r.flat()),
+			Promise.all(sources.map(s => s.getCollectionAssociations?.() ?? Promise.resolve([]))),
 		]);
 
-		const collectionNameMap = new Map<string, string>();
-		const collectionSourceMap = new Map<string, string>();
-		for (let i = 0; i < activeSources.length; i++) {
-			for (const c of nameResults[i]) {
-				collectionNameMap.set(c.value, c.label ?? c.value);
-				collectionSourceMap.set(c.value, activeSources[i].name);
-			}
-		}
+		const collectionMeta = new Map(allCollections.map(c => [c.value, { name: c.name, source: c.source }]));
 
 		const collectionsMap = new Map<string, Array<{ uri: string; name: string; source: string }>>();
 		for (const assoc of assocResults.flat()) {
-			const name = collectionNameMap.get(assoc.collection);
-			if (name) {
+			const meta = collectionMeta.get(assoc.collection);
+			if (meta) {
 				const existing = collectionsMap.get(assoc.record) ?? [];
-				existing.push({ uri: assoc.collection, name, source: collectionSourceMap.get(assoc.collection) ?? "" });
+				existing.push({ uri: assoc.collection, name: meta.name, source: meta.source });
 				collectionsMap.set(assoc.record, existing);
 			}
 		}
@@ -110,13 +108,9 @@ export class AtmosphereView extends ItemView {
 		if (this.selectedCollections.size === 0) return new Set<string>();
 
 		const allowedUris = new Set<string>();
-
-		for (const [sourceType, sourceData] of this.sources) {
-			if (!this.activeSources.has(sourceType)) continue;
-			if (!sourceData.source.getCollectionAssociations) continue;
-
-			const associations = await sourceData.source.getCollectionAssociations();
-			for (const assoc of associations) {
+		for (const source of this.activeDatasources) {
+			if (!source.getCollectionAssociations) continue;
+			for (const assoc of await source.getCollectionAssociations()) {
 				if (this.selectedCollections.has(assoc.collection)) {
 					allowedUris.add(assoc.record);
 				}
@@ -230,7 +224,7 @@ export class AtmosphereView extends ItemView {
 
 	private async fetchAllCollections(sources: SourceName[]): Promise<SourceFilter[]> {
 		const results = await Promise.all(
-			sources.map(s => this.sources.get(s)?.source.getAvailableCollections?.() ?? Promise.resolve([]))
+			sources.map(s => this.sources.get(s)?.getAvailableCollections?.() ?? Promise.resolve([]))
 		);
 		const seen = new Set<string>();
 		return results.flat().filter(c => !seen.has(c.value) && Boolean(seen.add(c.value)));
@@ -238,7 +232,7 @@ export class AtmosphereView extends ItemView {
 
 	private async fetchAllTags(sources: SourceName[]): Promise<SourceFilter[]> {
 		const results = await Promise.all(
-			sources.map(s => this.sources.get(s)?.source.getAvilableTags?.() ?? Promise.resolve([]))
+			sources.map(s => this.sources.get(s)?.getAvilableTags?.() ?? Promise.resolve([]))
 		);
 		const seen = new Set<string>();
 		return results.flat().filter(t => !seen.has(t.value) && Boolean(seen.add(t.value)));

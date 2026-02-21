@@ -221,17 +221,23 @@ export class AtmosphereView extends ItemView {
 		}
 	}
 
-	private async fetchAllCollections(sources: SourceName[]): Promise<SourceFilter[]> {
+	private async fetchAllCollections(sources: SourceName[]): Promise<(SourceFilter & { source: SourceName })[]> {
 		const results = await Promise.all(
-			sources.map(s => this.sources.get(s)?.getAvailableCollections?.() ?? Promise.resolve([]))
+			sources.map(async s => {
+				const items = await (this.sources.get(s)?.getAvailableCollections?.() ?? Promise.resolve([]));
+				return items.map(c => ({ ...c, source: s }));
+			})
 		);
 		const seen = new Set<string>();
 		return results.flat().filter(c => !seen.has(c.value) && Boolean(seen.add(c.value)));
 	}
 
-	private async fetchAllTags(sources: SourceName[]): Promise<SourceFilter[]> {
+	private async fetchAllTags(sources: SourceName[]): Promise<(SourceFilter & { source: SourceName })[]> {
 		const results = await Promise.all(
-			sources.map(s => this.sources.get(s)?.getAvilableTags?.() ?? Promise.resolve([]))
+			sources.map(async s => {
+				const items = await (this.sources.get(s)?.getAvilableTags?.() ?? Promise.resolve([]));
+				return items.map(t => ({ ...t, source: s }));
+			})
 		);
 		const seen = new Set<string>();
 		return results.flat().filter(t => !seen.has(t.value) && Boolean(seen.add(t.value)));
@@ -270,6 +276,7 @@ export class AtmosphereView extends ItemView {
 			for (const c of collections) {
 				menu.addItem(item => item
 					.setTitle(c.label ?? c.value)
+					.setIcon(sourceIconId(c.source))
 					.setChecked(this.selectedCollections.has(c.value))
 					.onClick(() => {
 						if (this.selectedCollections.has(c.value)) this.selectedCollections.delete(c.value);
@@ -326,6 +333,7 @@ export class AtmosphereView extends ItemView {
 			for (const t of tags) {
 				menu.addItem(item => item
 					.setTitle(t.label ?? t.value)
+					.setIcon(sourceIconId(t.source))
 					.setChecked(this.selectedTags.has(t.value))
 					.onClick(() => {
 						if (this.selectedTags.has(t.value)) this.selectedTags.delete(t.value);

@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, setIcon, Menu } from "obsidian";
+import { ItemView, WorkspaceLeaf, setIcon, Menu, SearchComponent } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { CardDetailModal } from "../components/cardDetailModal";
 import { CreateCollectionModal } from "../components/createCollectionModal";
@@ -19,6 +19,8 @@ export class BookmarksView extends ItemView {
 	selectedCollections: Set<string> = new Set();
 	selectedTags: Set<string> = new Set();
 	sources: Map<SourceName, DataSource> = new Map();
+	searchQuery: string = "";
+	private cachedItems: ATBookmarkItem[] = [];
 
 	constructor(leaf: WorkspaceLeaf, plugin: AtmospherePlugin) {
 		super(leaf);
@@ -135,27 +137,44 @@ export class BookmarksView extends ItemView {
 
 		try {
 			const items = await this.fetchItems();
+			this.cachedItems = items;
 			loading.remove();
-
-			if (items.length === 0) {
-				container.createEl("p", { text: "No items found." });
-				return;
-			}
-
-			const grid = container.createEl("div", { cls: "atmosphere-grid" });
-			for (const item of items) {
-				try {
-					void this.renderItem(grid, item);
-				} catch (err) {
-					const message = err instanceof Error ? err.message : String(err);
-					console.error(`Failed to render item ${item.getUri()}: ${message}`);
-				}
-			}
+			this.renderGrid(items);
 		} catch (err) {
 			loading.remove();
 			const message = err instanceof Error ? err.message : String(err);
 			container.createEl("p", { text: `Failed to load: ${message}`, cls: "atmosphere-error" });
 		}
+	}
+
+	private renderGrid(items: ATBookmarkItem[]) {
+		this.contentEl.querySelector(".atmosphere-grid")?.remove();
+		this.contentEl.querySelector(".atmosphere-empty")?.remove();
+
+		const query = this.searchQuery.trim().toLowerCase();
+		const filtered = query
+			? items.filter(item => this.matchesSearch(item, query))
+			: items;
+
+		if (filtered.length === 0) {
+			this.contentEl.createEl("p", { text: "No items found.", cls: "atmosphere-empty" });
+			return;
+		}
+		const grid = this.contentEl.createEl("div", { cls: "atmosphere-grid" });
+		for (const item of filtered) {
+			try { void this.renderItem(grid, item); }
+			catch (err) { console.error(`Failed to render item ${item.getUri()}:`, err); }
+		}
+	}
+
+	private matchesSearch(item: ATBookmarkItem, query: string): boolean {
+		return (
+			item.getTitle()?.toLowerCase().includes(query) ||
+			item.getDescription()?.toLowerCase().includes(query) ||
+			item.getUrl()?.toLowerCase().includes(query) ||
+			item.getSiteName()?.toLowerCase().includes(query) ||
+			item.getTags().some(t => t.toLowerCase().includes(query))
+		) ?? false;
 	}
 
 	private async refresh() {
@@ -220,6 +239,14 @@ export class BookmarksView extends ItemView {
 		if (tagSources.length > 0) {
 			void this.renderTagsFilter(filtersEl, tagSources);
 		}
+
+		const searchInput = new SearchComponent(filtersEl)
+		searchInput.setValue(this.searchQuery)
+		searchInput.setPlaceholder("Search bookmarks...");
+		searchInput.onChange(() => {
+			this.searchQuery = searchInput.getValue();
+			this.renderGrid(this.cachedItems);
+		})
 	}
 
 	private async fetchAllCollections(sources: SourceName[]): Promise<(SourceFilter & { source: SourceName })[]> {

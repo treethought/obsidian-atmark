@@ -1589,3 +1589,8 @@
 	width: 14px;
 	height: 14px;
 }
+
+.atmosphere-filters .search-input-container {
+	width: 180px;
+	margin: 0 auto;
+}

@@ -7,6 +7,7 @@ import type { Main as MarginBookmark } from "../lexicons/types/at/margin/bookmar
 import type { Main as MarginCollection } from "../lexicons/types/at/margin/collection";
 import type { Main as MarginCollectionItem } from "../lexicons/types/at/margin/collectionItem";
 import { EditMarginBookmarkModal } from "../components/editMarginBookmarkModal";
+import { fetchOgImage } from "../util"
 
 type MarginBookmarkRecord = Record & { value: MarginBookmark };
 type MarginCollectionRecord = Record & { value: MarginCollection };
@@ -63,8 +64,8 @@ class MarginItem implements ATBookmarkItem {
 		return this.record.value.description || undefined;
 	}
 
-	getImageUrl(): string | undefined {
-		return undefined;
+	async getImageUrl(): Promise<string | undefined> {
+		return fetchOgImage(this.record.value.source);
 	}
 
 	getUrl(): string | undefined {

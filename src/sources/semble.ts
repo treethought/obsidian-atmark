@@ -7,6 +7,7 @@ import type { Main as Collection } from "../lexicons/types/network/cosmik/collec
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
 import type { ATBookmarkItem, CollectionAssociation, DataSource, SourceFilter } from "./types";
 import { EditCardModal } from "../components/editCardModal";
+import { fetchOgImage } from "../util"
 
 type CardRecord = Record & { value: Card };
 type CollectionRecord = Record & { value: Collection };
@@ -75,10 +76,13 @@ class SembleItem implements ATBookmarkItem {
 		return undefined;
 	}
 
-	getImageUrl(): string | undefined {
+	async getImageUrl(): Promise<string | undefined> {
 		const card = this.record.value;
 		if (card.type === "URL") {
-			return (card.content as UrlContent).metadata?.imageUrl || undefined;
+			if ((card.content as UrlContent).metadata?.imageUrl) {
+				return (card.content as UrlContent).metadata?.imageUrl;
+			}
+			return fetchOgImage((card.content as UrlContent).url);
 		}
 		return undefined;
 	}

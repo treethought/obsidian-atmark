@@ -11,7 +11,7 @@ export interface ATBookmarkItem {
 	getSource(): "semble" | "bookmark" | "margin";
 	getTitle(): string | undefined;
 	getDescription(): string | undefined;
-	getImageUrl(): string | undefined;
+	getImageUrl(): Promise<string | undefined>;
 	getUrl(): string | undefined;
 	getSiteName(): string | undefined;
 	getTags(): string[];

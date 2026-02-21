@@ -1,6 +1,6 @@
 import { Notice, Plugin, WorkspaceLeaf } from "obsidian";
 import { DEFAULT_SETTINGS, AtProtoSettings, SettingTab } from "./settings";
-import { AtmosphereView, VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
+import { BookmarksView, VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { publishFileAsDocument } from "./commands/publishDocument";
 import { StandardFeedView, VIEW_ATMOSPHERE_STANDARD_FEED } from "views/standardfeed";
 import { ATClient } from "lib/client";
@@ -35,7 +35,7 @@ export default class AtmospherePlugin extends Plugin {
 		});
 
 		this.registerView(VIEW_TYPE_ATMOSPHERE_BOOKMARKS, (leaf) => {
-			return new AtmosphereView(leaf, this);
+			return new BookmarksView(leaf, this);
 		});
 
 		this.registerView(VIEW_ATMOSPHERE_STANDARD_FEED, (leaf) => {

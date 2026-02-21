@@ -5,6 +5,7 @@ import { getBookmarks } from "../lib";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
 import { EditBookmarkModal } from "../components/editBookmarkModal";
 import type { Main as Bookmark } from "../lexicons/types/community/lexicon/bookmarks/bookmark";
+import { fetchOgImage } from "../util"
 
 type BookmarkRecord = Record & { value: Bookmark };
 
@@ -68,9 +69,15 @@ class BookmarkItem implements ATBookmarkItem {
 		return enriched?.description || this.record.value.description || undefined;
 	}
 
-	getImageUrl(): string | undefined {
+	async getImageUrl(): Promise<string | undefined> {
 		const enriched = this.record.value.enriched;
-		return enriched?.image || enriched?.thumb || undefined;
+		if (enriched?.image) {
+			return enriched.image;
+		} else if (enriched?.thumb) {
+			return enriched.thumb;
+		} else {
+			return await fetchOgImage(this.record.value.subject);
+		}
 	}
 
 	getUrl(): string | undefined {

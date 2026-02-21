@@ -21,7 +21,7 @@ export class CardDetailModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass("atmosphere-detail-modal");
 
-		this.renderBody(contentEl);
+		void this.renderBody(contentEl);
 
 		const collections = this.item.getCollections();
 		if (collections.length > 0) {
@@ -60,7 +60,7 @@ export class CardDetailModal extends Modal {
 		}
 	}
 
-	private renderBody(contentEl: HTMLElement) {
+	private async renderBody(contentEl: HTMLElement) {
 		const body = contentEl.createEl("div", { cls: "atmosphere-detail-body" });
 
 		const title = this.item.getTitle();
@@ -68,7 +68,7 @@ export class CardDetailModal extends Modal {
 			body.createEl("h2", { text: title, cls: "atmosphere-detail-title" });
 		}
 
-		const imageUrl = this.item.getImageUrl();
+		const imageUrl = await this.item.getImageUrl();
 		if (imageUrl) {
 			const img = body.createEl("img", { cls: "atmosphere-detail-image" });
 			img.src = imageUrl;

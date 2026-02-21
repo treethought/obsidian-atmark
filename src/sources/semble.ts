@@ -158,7 +158,7 @@ export class SembleSource implements DataSource {
 		});
 
 		if (filteredCollections && filteredCollections.size > 0) {
-			sembleCards = sembleCards.filter((card: CardRecord) => filteredCollections!.has(card.uri));
+			sembleCards = sembleCards.filter((card: CardRecord) => filteredCollections.has(card.uri));
 		}
 
 		return sembleCards.map((record: CardRecord) =>

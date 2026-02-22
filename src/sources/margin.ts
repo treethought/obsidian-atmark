@@ -55,10 +55,6 @@ class MarginItem implements ATBookmarkItem {
 		return true;
 	}
 
-	openEditModal(onSuccess?: () => void): void {
-		const { EditItemModal } = require("../components/editItemModal");
-		new EditItemModal(this.plugin, this, onSuccess).open();
-	}
 
 	getTitle(): string | undefined {
 		return this.record.value.title || undefined;

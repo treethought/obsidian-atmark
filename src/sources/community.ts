@@ -58,10 +58,6 @@ class BookmarkItem implements ATBookmarkItem {
 		return false;
 	}
 
-	openEditModal(onSuccess?: () => void): void {
-		const { EditItemModal } = require("../components/editItemModal");
-		new EditItemModal(this.plugin, this, onSuccess).open();
-	}
 
 	getTitle(): string | undefined {
 		const enriched = this.record.value.enriched;

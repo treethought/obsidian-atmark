@@ -5,7 +5,6 @@ export interface ATBookmarkItem {
 	canAddTags(): boolean;
 	canAddToCollections(): boolean;
 	canEdit(): boolean;
-	openEditModal(onSuccess?: () => void): void;
 	getUri(): string;
 	getCid(): string;
 	getCreatedAt(): string;

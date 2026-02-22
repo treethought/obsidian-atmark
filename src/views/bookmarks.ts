@@ -1,6 +1,7 @@
 import { ItemView, WorkspaceLeaf, setIcon, Menu, SearchComponent } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { CardDetailModal } from "../components/cardDetailModal";
+import { EditItemModal } from "../components/editItemModal";
 import { CreateCollectionModal } from "../components/createCollectionModal";
 import { CreateTagModal } from "../components/createTagModal";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "../sources/types";
@@ -427,9 +428,7 @@ export class BookmarksView extends ItemView {
 			setIcon(editBtn, "more-vertical");
 			editBtn.addEventListener("click", (e) => {
 				e.stopPropagation();
-				item.openEditModal(() => {
-					void this.refresh();
-				});
+				new EditItemModal(this.plugin, item, () => void this.refresh()).open();
 			});
 		}
 

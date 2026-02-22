@@ -64,10 +64,10 @@ export class EditItemModal extends Modal {
 
 			const canCollect = this.item.canAddToCollections();
 			const [sembleColls, sembleAssocs, marginColls, marginAssocs, availableTags] = await Promise.all([
-				canCollect ? this.sembleSource.getAvailableCollections!() : Promise.resolve([]),
-				canCollect ? this.sembleSource.getCollectionAssociations!() : Promise.resolve([]),
-				canCollect ? this.marginSource.getAvailableCollections!() : Promise.resolve([]),
-				canCollect ? this.marginSource.getCollectionAssociations!() : Promise.resolve([]),
+				canCollect ? this.sembleSource.getAvailableCollections() : Promise.resolve([]),
+				canCollect ? this.sembleSource.getCollectionAssociations() : Promise.resolve([]),
+				canCollect ? this.marginSource.getAvailableCollections() : Promise.resolve([]),
+				canCollect ? this.marginSource.getCollectionAssociations() : Promise.resolve([]),
 				this.itemSource.getAvilableTags?.() ?? Promise.resolve(undefined),
 			]);
 
@@ -258,13 +258,13 @@ export class EditItemModal extends Modal {
 			for (const state of toRemove) {
 				if (state.linkUri) {
 					const source = state.source === "semble" ? this.sembleSource : this.marginSource;
-					await source.removeFromCollection!(state.linkUri);
+					await source.removeFromCollection(state.linkUri);
 				}
 			}
 
 			for (const state of toAdd) {
 				const source = state.source === "semble" ? this.sembleSource : this.marginSource;
-				await source.addToCollection!(this.item.getUri(), this.item.getCid(), state.uri);
+				await source.addToCollection(this.item.getUri(), this.item.getCid(), state.uri);
 			}
 
 			if (toAdd.length > 0) messages.push(`Added to ${toAdd.length} collection${toAdd.length > 1 ? "s" : ""}`);

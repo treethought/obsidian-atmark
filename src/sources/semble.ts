@@ -57,10 +57,6 @@ class SembleItem implements ATBookmarkItem {
 		return true;
 	}
 
-	openEditModal(onSuccess?: () => void): void {
-		const { EditItemModal } = require("../components/editItemModal");
-		new EditItemModal(this.plugin, this, onSuccess).open();
-	}
 
 	getTitle(): string | undefined {
 		const card = this.record.value;

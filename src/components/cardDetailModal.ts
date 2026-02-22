@@ -2,6 +2,7 @@ import { Modal, Notice, setIcon } from "obsidian";
 import type AtmospherePlugin from "../main";
 import { createSembleNote, deleteRecord } from "../lib";
 import type { ATBookmarkItem } from "../sources/types";
+import { EditItemModal } from "./editItemModal";
 
 export class CardDetailModal extends Modal {
 	plugin: AtmospherePlugin;
@@ -55,7 +56,7 @@ export class CardDetailModal extends Modal {
 			setIcon(editBtn, "pencil");
 			editBtn.addEventListener("click", () => {
 				this.close();
-				this.item.openEditModal(this.onSuccess);
+				new EditItemModal(this.plugin, this.item, this.onSuccess).open();
 			});
 		}
 	}

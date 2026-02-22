@@ -15,7 +15,7 @@ type SourceName = "semble" | "bookmark" | "margin";
 
 export class BookmarksView extends ItemView {
 	plugin: AtmospherePlugin;
-	activeSources: Set<SourceName> = new Set(["semble"]);
+	activeSources: Set<SourceName> = new Set(["semble", "margin", "bookmark"]);
 	selectedCollections: Set<string> = new Set();
 	selectedTags: Set<string> = new Set();
 	sources: Map<SourceName, DataSource> = new Map();

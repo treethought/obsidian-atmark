@@ -1,12 +1,16 @@
 import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import type AtmospherePlugin from "./main";
 import { isActorIdentifier } from "@atcute/lexicons/syntax";
-import { VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
+import { BookmarksView, VIEW_TYPE_ATMOSPHERE_BOOKMARKS } from "./views/bookmarks";
 import { VIEW_ATMOSPHERE_STANDARD_FEED } from "./views/standardfeed";
+
 
 export interface AtProtoSettings {
 	did?: string;
 	clipDir: string;
+	bookmarks: {
+		enabledSources: Record<string, boolean>;
+	}
 	publish: {
 		useFirstHeaderAsTitle: boolean;
 	};
@@ -14,9 +18,12 @@ export interface AtProtoSettings {
 
 export const DEFAULT_SETTINGS: AtProtoSettings = {
 	clipDir: "AtmosphereClips",
+	bookmarks: {
+		enabledSources: { "semble": true, "margin": true, "bookmark": true },
+	},
 	publish: {
 		useFirstHeaderAsTitle: false,
-	}
+	},
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -115,6 +122,37 @@ export class SettingTab extends PluginSettingTab {
 					})
 			);
 
+
+		new Setting(containerEl).setName("Bookmarks").setHeading()
+
+		const bookmarkSources: Array<{ name: string; label: string; desc: string }> = [
+			{ name: "semble", label: "Semble", desc: "Include Semble bookmarks" },
+			{ name: "margin", label: "Margin", desc: "Include Margin bookmarks" },
+			{ name: "bookmark", label: "Community", desc: "Include community lexcion bookmarks" },
+		];
+
+		for (const source of bookmarkSources) {
+			new Setting(containerEl)
+				.setName(source.label)
+				.setDesc(source.desc)
+				.addToggle(toggle =>
+					toggle
+						.setValue(this.plugin.settings.bookmarks?.enabledSources?.[source.name] ?? true)
+						.onChange(async (value) => {
+							this.plugin.settings.bookmarks.enabledSources[source.name] = value;
+							await this.plugin.saveSettings();
+							for (const leaf of this.app.workspace.getLeavesOfType(VIEW_TYPE_ATMOSPHERE_BOOKMARKS)) {
+								let view = leaf.view as BookmarksView;
+								if (view instanceof BookmarksView) {
+									await view.render()
+								}
+
+							}
+						})
+				);
+		}
+
+		new Setting(containerEl).setName("Publishing").setHeading()
 		new Setting(containerEl)
 			.setName("Use first header as publish title")
 			.setDesc('Use the first level one header instead of filename when no title property is set')

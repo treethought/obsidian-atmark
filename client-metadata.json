@@ -5,7 +5,7 @@
 	"redirect_uris": [
 		"https://treethought.github.io/obsidian-atmosphere/oauth-callback.html"
 	],
-	"scope": "atproto include:at.margin.authFull repo:site.standard.document repo:network.cosmik.card repo:network.cosmik.collection repo:network.cosmik.collectionLink, repo:community.lexicon.bookmarks.bookmark",
+	"scope": "atproto include:at.margin.authFull repo:site.standard.document repo:network.cosmik.card repo:network.cosmik.collection repo:network.cosmik.collectionLink repo:community.lexicon.bookmarks.bookmark",
 	"grant_types": ["authorization_code", "refresh_token"],
 	"response_types": ["code"],
 	"token_endpoint_auth_method": "none",

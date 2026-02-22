@@ -1,12 +1,11 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import type AtmospherePlugin from "../main";
-import { getMarginBookmarks, getMarginCollections, getMarginCollectionItems } from "../lib";
+import { getMarginBookmarks, getMarginCollections, getMarginCollectionItems, deleteRecord, createMarginCollectionItem, getRecord, putRecord } from "../lib";
 import type { ATBookmarkItem, CollectionAssociation, DataSource, SourceFilter } from "./types";
 import type { Main as MarginBookmark } from "../lexicons/types/at/margin/bookmark";
 import type { Main as MarginCollection } from "../lexicons/types/at/margin/collection";
 import type { Main as MarginCollectionItem } from "../lexicons/types/at/margin/collectionItem";
-import { EditMarginBookmarkModal } from "../components/editMarginBookmarkModal";
 import { fetchOgImage } from "../util"
 
 type MarginBookmarkRecord = Record & { value: MarginBookmark };
@@ -48,12 +47,17 @@ class MarginItem implements ATBookmarkItem {
 		return true;
 	}
 
+	canAddToCollections(): boolean {
+		return true;
+	}
+
 	canEdit(): boolean {
 		return true;
 	}
 
 	openEditModal(onSuccess?: () => void): void {
-		new EditMarginBookmarkModal(this.plugin, this.record, onSuccess).open();
+		const { EditItemModal } = require("../components/editItemModal");
+		new EditItemModal(this.plugin, this, onSuccess).open();
 	}
 
 	getTitle(): string | undefined {
@@ -131,8 +135,10 @@ export class MarginSource implements DataSource {
 		return collections.map((c: MarginCollectionRecord) => ({
 			value: c.uri,
 			label: c.value.name,
+			description: c.value.description,
 		}));
 	}
+
 	async getCollectionAssociations(): Promise<CollectionAssociation[]> {
 		const itemsResp = await getMarginCollectionItems(this.client, this.repo);
 		if (!itemsResp.ok) return [];
@@ -140,7 +146,33 @@ export class MarginSource implements DataSource {
 		return (itemsResp.data.records as MarginCollectionItemRecord[]).map(item => ({
 			record: item.value.annotation,
 			collection: item.value.collection,
+			linkUri: item.uri,
 		}));
+	}
+
+	async deleteItem(itemUri: string): Promise<void> {
+		const rkey = itemUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid URI");
+		await deleteRecord(this.client, this.repo, "at.margin.bookmark", rkey);
+	}
+
+	async addToCollection(itemUri: string, _itemCid: string, collectionUri: string): Promise<void> {
+		await createMarginCollectionItem(this.client, this.repo, itemUri, collectionUri);
+	}
+
+	async removeFromCollection(linkUri: string): Promise<void> {
+		const rkey = linkUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid link URI");
+		await deleteRecord(this.client, this.repo, "at.margin.collectionItem", rkey);
+	}
+
+	async updateTags(itemUri: string, tags: string[]): Promise<void> {
+		const rkey = itemUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid URI");
+		const resp = await getRecord(this.client, this.repo, "at.margin.bookmark", rkey);
+		if (!resp.ok) throw new Error("Failed to fetch record");
+		const existing = resp.data.value as MarginBookmark;
+		await putRecord(this.client, this.repo, "at.margin.bookmark", rkey, { ...existing, tags });
 	}
 
 	async getAvilableTags(): Promise<SourceFilter[]> {

@@ -1,9 +1,8 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import type AtmospherePlugin from "../main";
-import { getBookmarks } from "../lib";
+import { getBookmarks, deleteRecord, getRecord, putRecord } from "../lib";
 import type { ATBookmarkItem, DataSource, SourceFilter } from "./types";
-import { EditBookmarkModal } from "../components/editBookmarkModal";
 import type { Main as Bookmark } from "../lexicons/types/community/lexicon/bookmarks/bookmark";
 import { fetchOgImage } from "../util"
 
@@ -55,8 +54,13 @@ class BookmarkItem implements ATBookmarkItem {
 		return true;
 	}
 
+	canAddToCollections(): boolean {
+		return false;
+	}
+
 	openEditModal(onSuccess?: () => void): void {
-		new EditBookmarkModal(this.plugin, this.record, onSuccess).open();
+		const { EditItemModal } = require("../components/editItemModal");
+		new EditItemModal(this.plugin, this, onSuccess).open();
 	}
 
 	getTitle(): string | undefined {
@@ -122,6 +126,21 @@ export class BookmarkSource implements DataSource {
 		}
 
 		return bookmarks.map((record: BookmarkRecord) => new BookmarkItem(record, plugin));
+	}
+
+	async deleteItem(itemUri: string): Promise<void> {
+		const rkey = itemUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid URI");
+		await deleteRecord(this.client, this.repo, "community.lexicon.bookmarks.bookmark", rkey);
+	}
+
+	async updateTags(itemUri: string, tags: string[]): Promise<void> {
+		const rkey = itemUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid URI");
+		const resp = await getRecord(this.client, this.repo, "community.lexicon.bookmarks.bookmark", rkey);
+		if (!resp.ok) throw new Error("Failed to fetch record");
+		const existing = resp.data.value as unknown as Bookmark;
+		await putRecord(this.client, this.repo, "community.lexicon.bookmarks.bookmark", rkey, { ...existing, tags });
 	}
 
 	async getAvilableTags(): Promise<SourceFilter[]> {

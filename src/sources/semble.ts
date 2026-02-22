@@ -1,12 +1,11 @@
 import type { Client } from "@atcute/client";
 import type { Record } from "@atcute/atproto/types/repo/listRecords";
 import type AtmospherePlugin from "../main";
-import { getSembleCollections, getSembleCards, getSembleCollectionLinks } from "../lib";
+import { getSembleCollections, getSembleCards, getSembleCollectionLinks, deleteRecord, getRecord, createSembleCollectionLink } from "../lib";
 import type { Main as Card, NoteContent, UrlContent } from "../lexicons/types/network/cosmik/card";
 import type { Main as Collection } from "../lexicons/types/network/cosmik/collection";
 import type { Main as CollectionLink } from "../lexicons/types/network/cosmik/collectionLink";
 import type { ATBookmarkItem, CollectionAssociation, DataSource, SourceFilter } from "./types";
-import { EditCardModal } from "../components/editCardModal";
 import { fetchOgImage } from "../util"
 
 type CardRecord = Record & { value: Card };
@@ -50,12 +49,17 @@ class SembleItem implements ATBookmarkItem {
 		return false;
 	}
 
+	canAddToCollections(): boolean {
+		return true;
+	}
+
 	canEdit(): boolean {
 		return true;
 	}
 
 	openEditModal(onSuccess?: () => void): void {
-		new EditCardModal(this.plugin, this.record.uri, this.record.cid, onSuccess).open();
+		const { EditItemModal } = require("../components/editItemModal");
+		new EditItemModal(this.plugin, this, onSuccess).open();
 	}
 
 	getTitle(): string | undefined {
@@ -178,6 +182,7 @@ export class SembleSource implements DataSource {
 		return collections.map((c: CollectionRecord) => ({
 			value: c.uri,
 			label: c.value.name,
+			description: c.value.description,
 		}));
 	}
 
@@ -188,7 +193,28 @@ export class SembleSource implements DataSource {
 		return (linksResp.data.records as CollectionLinkRecord[]).map(link => ({
 			record: link.value.card.uri,
 			collection: link.value.collection.uri,
+			linkUri: link.uri,
 		}));
+	}
+
+	async deleteItem(itemUri: string): Promise<void> {
+		const rkey = itemUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid URI");
+		await deleteRecord(this.client, this.repo, "network.cosmik.card", rkey);
+	}
+
+	async addToCollection(itemUri: string, itemCid: string, collectionUri: string): Promise<void> {
+		const collectionRkey = collectionUri.split("/").pop();
+		if (!collectionRkey) throw new Error("Invalid collection URI");
+		const collectionResp = await getRecord(this.client, this.repo, "network.cosmik.collection", collectionRkey);
+		if (!collectionResp.ok || !collectionResp.data.cid) throw new Error("Failed to fetch collection");
+		await createSembleCollectionLink(this.client, this.repo, itemUri, itemCid, collectionUri, String(collectionResp.data.cid));
+	}
+
+	async removeFromCollection(linkUri: string): Promise<void> {
+		const rkey = linkUri.split("/").pop();
+		if (!rkey) throw new Error("Invalid link URI");
+		await deleteRecord(this.client, this.repo, "network.cosmik.collectionLink", rkey);
 	}
 
 }

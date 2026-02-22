@@ -12,14 +12,11 @@ import { renderLoginMessage } from "components/loginMessage";
 
 export const VIEW_TYPE_ATMOSPHERE_BOOKMARKS = "atmosphere-bookmarks";
 
-type SourceName = "semble" | "bookmark" | "margin";
-
 export class BookmarksView extends ItemView {
 	plugin: AtmospherePlugin;
-	activeSources: Set<SourceName> = new Set(["semble", "margin", "bookmark"]);
 	selectedCollections: Set<string> = new Set();
 	selectedTags: Set<string> = new Set();
-	sources: Map<SourceName, DataSource> = new Map();
+	sources: Map<string, DataSource> = new Map();
 	searchQuery: string = "";
 	private cachedItems: ATBookmarkItem[] = [];
 
@@ -29,11 +26,13 @@ export class BookmarksView extends ItemView {
 	}
 
 	initSources() {
+		this.sources.clear();
 		if (this.plugin.settings.did) {
+			const { enabledSources } = this.plugin.settings.bookmarks;
 			const repo = this.plugin.settings.did;
-			this.sources.set("semble", new SembleSource(this.plugin.client, repo));
-			this.sources.set("bookmark", new BookmarkSource(this.plugin.client, repo));
-			this.sources.set("margin", new MarginSource(this.plugin.client, repo));
+			if (enabledSources["semble"]) this.sources.set("semble", new SembleSource(this.plugin.client, repo));
+			if (enabledSources["bookmark"]) this.sources.set("bookmark", new BookmarkSource(this.plugin.client, repo));
+			if (enabledSources["margin"]) this.sources.set("margin", new MarginSource(this.plugin.client, repo));
 		}
 	}
 
@@ -50,7 +49,7 @@ export class BookmarksView extends ItemView {
 	}
 
 	private get activeDatasources(): DataSource[] {
-		return Array.from(this.activeSources, s => this.sources.get(s)!);
+		return Array.from(this.sources.values());
 	}
 
 	async onOpen() {
@@ -123,6 +122,7 @@ export class BookmarksView extends ItemView {
 	}
 
 	async render() {
+		this.initSources();
 		const container = this.contentEl;
 		container.empty();
 		container.addClass("atmosphere-view");
@@ -184,47 +184,6 @@ export class BookmarksView extends ItemView {
 	}
 
 	private renderHeader(container: HTMLElement) {
-		const header = container.createEl("div", { cls: "atmosphere-header" });
-
-		const topRow = header.createEl("div", { cls: "atmosphere-header-top-row" });
-
-		const sourceSelector = topRow.createEl("div", { cls: "atmosphere-source-selector" });
-		const sources: SourceName[] = ["semble", "margin", "bookmark"];
-
-		for (const source of sources) {
-			const label = sourceSelector.createEl("label", { cls: "atmosphere-source-option" });
-
-			const checkbox = label.createEl("input", {
-				type: "checkbox",
-				cls: "atmosphere-source-toggle",
-			});
-			checkbox.checked = this.activeSources.has(source);
-			checkbox.addEventListener("change", () => {
-				if (checkbox.checked) {
-					this.activeSources.add(source);
-				} else {
-					this.activeSources.delete(source);
-				}
-				void this.render();
-			});
-
-			label.createEl("span", {
-				text: source.charAt(0).toUpperCase() + source.slice(1),
-				cls: "atmosphere-source-text",
-			});
-		}
-
-		const refreshBtn = topRow.createEl("button", {
-			cls: "atmosphere-refresh-btn",
-			attr: { "aria-label": "Refresh bookmarks" },
-		});
-		setIcon(refreshBtn, "refresh-cw");
-		refreshBtn.addEventListener("click", () => {
-			refreshBtn.addClass("atmosphere-refresh-btn-spinning");
-			void this.refresh();
-			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
-		});
-
 		this.renderFilters(container);
 	}
 
@@ -232,12 +191,12 @@ export class BookmarksView extends ItemView {
 		const filtersEl = container.createEl("div", { cls: "atmosphere-filters" });
 		const toolbarRow = filtersEl.createEl("div", { cls: "atmosphere-filter-toolbar" });
 
-		const collectionSources = (["semble", "margin"] as SourceName[]).filter(s => this.activeSources.has(s));
+		const collectionSources = (["semble", "margin"]).filter(s => this.sources.has(s));
 		if (collectionSources.length > 0) {
 			this.renderCollectionsFilterBtn(toolbarRow, collectionSources);
 		}
 
-		const tagSources = (["margin", "bookmark"] as SourceName[]).filter(s => this.activeSources.has(s));
+		const tagSources = (["margin", "bookmark"]).filter(s => this.sources.has(s));
 		if (tagSources.length > 0) {
 			this.renderTagsFilterBtn(toolbarRow, tagSources);
 		}
@@ -248,6 +207,17 @@ export class BookmarksView extends ItemView {
 		searchInput.onChange(() => {
 			this.searchQuery = searchInput.getValue();
 			this.renderGrid(this.cachedItems);
+		});
+
+		const refreshBtn = toolbarRow.createEl("button", {
+			cls: "atmosphere-refresh-btn",
+			attr: { "aria-label": "Refresh bookmarks" },
+		});
+		setIcon(refreshBtn, "refresh-cw");
+		refreshBtn.addEventListener("click", () => {
+			refreshBtn.addClass("atmosphere-refresh-btn-spinning");
+			void this.refresh();
+			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
 		});
 
 		if (this.selectedCollections.size > 0 || this.selectedTags.size > 0) {
@@ -261,7 +231,7 @@ export class BookmarksView extends ItemView {
 		}
 	}
 
-	private renderCollectionsFilterBtn(toolbar: HTMLElement, collectionSources: SourceName[]) {
+	private renderCollectionsFilterBtn(toolbar: HTMLElement, collectionSources: string[]) {
 		const group = toolbar.createEl("div", { cls: "atmosphere-filter-btn-group" });
 
 		const pickerBtn = group.createEl("button", {
@@ -287,7 +257,7 @@ export class BookmarksView extends ItemView {
 		});
 	}
 
-	private renderTagsFilterBtn(toolbar: HTMLElement, tagSources: SourceName[]) {
+	private renderTagsFilterBtn(toolbar: HTMLElement, tagSources: string[]) {
 		const group = toolbar.createEl("div", { cls: "atmosphere-filter-btn-group" });
 
 		const pickerBtn = group.createEl("button", {
@@ -308,7 +278,7 @@ export class BookmarksView extends ItemView {
 		}
 	}
 
-	private async fetchAllCollections(sources: SourceName[]): Promise<(SourceFilter & { source: SourceName })[]> {
+	private async fetchAllCollections(sources: string[]): Promise<(SourceFilter & { source: string })[]> {
 		const results = await Promise.all(
 			sources.map(async s => {
 				const items = await (this.sources.get(s)?.getAvailableCollections?.() ?? Promise.resolve([]));
@@ -319,7 +289,7 @@ export class BookmarksView extends ItemView {
 		return results.flat().filter(c => !seen.has(c.value) && Boolean(seen.add(c.value)));
 	}
 
-	private async fetchAllTags(sources: SourceName[]): Promise<(SourceFilter & { source: SourceName })[]> {
+	private async fetchAllTags(sources: string[]): Promise<(SourceFilter & { source: string })[]> {
 		const results = await Promise.all(
 			sources.map(async s => {
 				const items = await (this.sources.get(s)?.getAvilableTags?.() ?? Promise.resolve([]));
@@ -330,7 +300,7 @@ export class BookmarksView extends ItemView {
 		return results.flat().filter(t => !seen.has(t.value) && Boolean(seen.add(t.value)));
 	}
 
-	private async renderActiveCollectionChips(chipsRow: HTMLElement, collectionSources: SourceName[]) {
+	private async renderActiveCollectionChips(chipsRow: HTMLElement, collectionSources: string[]) {
 		const collections = await this.fetchAllCollections(collectionSources);
 		for (const c of collections) {
 			if (!this.selectedCollections.has(c.value)) continue;
@@ -346,7 +316,7 @@ export class BookmarksView extends ItemView {
 		}
 	}
 
-	private async renderActiveTagChips(chipsRow: HTMLElement, tagSources: SourceName[]) {
+	private async renderActiveTagChips(chipsRow: HTMLElement, tagSources: string[]) {
 		const tags = await this.fetchAllTags(tagSources);
 		for (const t of tags) {
 			if (!this.selectedTags.has(t.value)) continue;
@@ -362,7 +332,7 @@ export class BookmarksView extends ItemView {
 		}
 	}
 
-	private async showCollectionsMenu(e: MouseEvent, sources: SourceName[]) {
+	private async showCollectionsMenu(e: MouseEvent, sources: string[]) {
 		e.stopPropagation();
 		const collections = (await this.fetchAllCollections(sources))
 			.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
@@ -382,7 +352,7 @@ export class BookmarksView extends ItemView {
 		menu.showAtMouseEvent(e);
 	}
 
-	private async showTagsMenu(e: MouseEvent, sources: SourceName[]) {
+	private async showTagsMenu(e: MouseEvent, sources: string[]) {
 		e.stopPropagation();
 		const tags = (await this.fetchAllTags(sources))
 			.sort((a, b) => (a.label ?? a.value).localeCompare(b.label ?? b.value));
@@ -503,7 +473,7 @@ export class BookmarksView extends ItemView {
 	async onClose() { }
 }
 
-function sourceIconId(source: "semble" | "bookmark" | "margin"): string {
+function sourceIconId(source: string): string {
 	if (source === "semble") return "atmosphere-semble";
 	if (source === "margin") return "atmosphere-margin";
 	return "bookmark";

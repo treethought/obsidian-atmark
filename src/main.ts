@@ -131,7 +131,21 @@ export default class AtmospherePlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<AtProtoSettings>);
+		const saved = await this.loadData() as Partial<AtProtoSettings>;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, saved, {
+			bookmarks: {
+				...DEFAULT_SETTINGS.bookmarks,
+				...saved?.bookmarks,
+				enabledSources: {
+					...DEFAULT_SETTINGS.bookmarks.enabledSources,
+					...saved?.bookmarks?.enabledSources,
+				},
+			},
+			publish: {
+				...DEFAULT_SETTINGS.publish,
+				...saved?.publish,
+			},
+		});
 	}
 
 	async saveSettings() {

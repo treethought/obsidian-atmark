@@ -229,24 +229,82 @@ export class BookmarksView extends ItemView {
 
 	private renderFilters(container: HTMLElement) {
 		const filtersEl = container.createEl("div", { cls: "atmosphere-filters" });
+		const toolbarRow = filtersEl.createEl("div", { cls: "atmosphere-filter-toolbar" });
 
 		const collectionSources = (["semble", "margin"] as SourceName[]).filter(s => this.activeSources.has(s));
 		if (collectionSources.length > 0) {
-			void this.renderCollectionsFilter(filtersEl, collectionSources);
+			this.renderCollectionsFilterBtn(toolbarRow, collectionSources);
 		}
 
 		const tagSources = (["margin", "bookmark"] as SourceName[]).filter(s => this.activeSources.has(s));
 		if (tagSources.length > 0) {
-			void this.renderTagsFilter(filtersEl, tagSources);
+			this.renderTagsFilterBtn(toolbarRow, tagSources);
 		}
 
-		const searchInput = new SearchComponent(filtersEl)
-		searchInput.setValue(this.searchQuery)
+		const searchInput = new SearchComponent(toolbarRow);
+		searchInput.setValue(this.searchQuery);
 		searchInput.setPlaceholder("Search bookmarks...");
 		searchInput.onChange(() => {
 			this.searchQuery = searchInput.getValue();
 			this.renderGrid(this.cachedItems);
-		})
+		});
+
+		if (this.selectedCollections.size > 0 || this.selectedTags.size > 0) {
+			const chipsRow = filtersEl.createEl("div", { cls: "atmosphere-active-chips-row" });
+			if (this.selectedCollections.size > 0 && collectionSources.length > 0) {
+				void this.renderActiveCollectionChips(chipsRow, collectionSources);
+			}
+			if (this.selectedTags.size > 0 && tagSources.length > 0) {
+				void this.renderActiveTagChips(chipsRow, tagSources);
+			}
+		}
+	}
+
+	private renderCollectionsFilterBtn(toolbar: HTMLElement, collectionSources: SourceName[]) {
+		const group = toolbar.createEl("div", { cls: "atmosphere-filter-btn-group" });
+
+		const pickerBtn = group.createEl("button", {
+			cls: "atmosphere-filter-picker-btn",
+			attr: { "aria-label": "Filter collections" },
+		});
+		setIcon(pickerBtn, "folder");
+		pickerBtn.createEl("span", { text: "Collections", cls: "atmosphere-filter-title" });
+		pickerBtn.addEventListener("click", (e) => void this.showCollectionsMenu(e, collectionSources));
+
+		const btn = group.createEl("button", {
+			cls: "atmosphere-filter-create-btn",
+			attr: { "aria-label": "New collection" },
+		});
+		setIcon(btn, "plus");
+		btn.addEventListener("click", (e) => {
+			e.stopPropagation();
+			new CreateCollectionModal(
+				this.plugin,
+				collectionSources as ("semble" | "margin")[],
+				() => void this.refresh()
+			).open();
+		});
+	}
+
+	private renderTagsFilterBtn(toolbar: HTMLElement, tagSources: SourceName[]) {
+		const group = toolbar.createEl("div", { cls: "atmosphere-filter-btn-group" });
+
+		const pickerBtn = group.createEl("button", {
+			cls: "atmosphere-filter-picker-btn",
+			attr: { "aria-label": "Filter tags" },
+		});
+		setIcon(pickerBtn, "tag");
+		pickerBtn.createEl("span", { text: "Tags", cls: "atmosphere-filter-title" });
+		pickerBtn.addEventListener("click", (e) => void this.showTagsMenu(e, tagSources));
+
+		if (tagSources.includes("bookmark")) {
+			const btn = group.createEl("button", {
+				cls: "atmosphere-filter-create-btn",
+				attr: { "aria-label": "New tag" },
+			});
+			setIcon(btn, "plus");
+			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateTagModal(this.plugin, () => void this.refresh()).open(); });
+		}
 	}
 
 	private async fetchAllCollections(sources: SourceName[]): Promise<(SourceFilter & { source: SourceName })[]> {
@@ -271,89 +329,35 @@ export class BookmarksView extends ItemView {
 		return results.flat().filter(t => !seen.has(t.value) && Boolean(seen.add(t.value)));
 	}
 
-	private async renderCollectionsFilter(container: HTMLElement, collectionSources: SourceName[]) {
-		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
-
-		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-
-		const pickerBtn = titleRow.createEl("button", {
-			cls: "atmosphere-filter-picker-btn",
-			attr: { "aria-label": "Filter collections" },
-		});
-		setIcon(pickerBtn, "folder");
-		pickerBtn.createEl("span", { text: "Collections", cls: "atmosphere-filter-title" });
-
-		const btn = titleRow.createEl("button", {
-			cls: "atmosphere-filter-create-btn",
-			attr: { "aria-label": "New collection" },
-		});
-		setIcon(btn, "plus");
-		btn.addEventListener("click", (e) => {
-			e.stopPropagation();
-			new CreateCollectionModal(
-				this.plugin,
-				collectionSources as ("semble" | "margin")[],
-				() => void this.refresh()
-			).open();
-		});
-		pickerBtn.addEventListener("click", (e) => void this.showCollectionsMenu(e, collectionSources));
-
-		if (this.selectedCollections.size > 0) {
-			const chipsRow = section.createEl("div", { cls: "atmosphere-filter-active-chips" });
-			const collections = await this.fetchAllCollections(collectionSources);
-			for (const c of collections) {
-				if (!this.selectedCollections.has(c.value)) continue;
-				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
-				setIcon(chip, sourceIconId(c.source));
-				chip.createEl("span", { text: c.label ?? c.value });
-				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${c.label ?? c.value}` } });
-				setIcon(x, "x");
-				x.addEventListener("click", () => {
-					this.selectedCollections.delete(c.value);
-					void this.render();
-				});
-			}
+	private async renderActiveCollectionChips(chipsRow: HTMLElement, collectionSources: SourceName[]) {
+		const collections = await this.fetchAllCollections(collectionSources);
+		for (const c of collections) {
+			if (!this.selectedCollections.has(c.value)) continue;
+			const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
+			setIcon(chip, sourceIconId(c.source));
+			chip.createEl("span", { text: c.label ?? c.value });
+			const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${c.label ?? c.value}` } });
+			setIcon(x, "x");
+			x.addEventListener("click", () => {
+				this.selectedCollections.delete(c.value);
+				void this.render();
+			});
 		}
 	}
 
-	private async renderTagsFilter(container: HTMLElement, tagSources: SourceName[]) {
-		const section = container.createEl("div", { cls: "atmosphere-filter-section" });
-
-		const titleRow = section.createEl("div", { cls: "atmosphere-filter-title-row" });
-
-		const pickerBtn = titleRow.createEl("button", {
-			cls: "atmosphere-filter-picker-btn",
-			attr: { "aria-label": "Filter tags" },
-		});
-		setIcon(pickerBtn, "tag");
-		pickerBtn.createEl("span", { text: "Tags", cls: "atmosphere-filter-title" });
-
-		if (tagSources.includes("bookmark")) {
-			const btn = titleRow.createEl("button", {
-				cls: "atmosphere-filter-create-btn",
-				attr: { "aria-label": "New tag" },
+	private async renderActiveTagChips(chipsRow: HTMLElement, tagSources: SourceName[]) {
+		const tags = await this.fetchAllTags(tagSources);
+		for (const t of tags) {
+			if (!this.selectedTags.has(t.value)) continue;
+			const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
+			setIcon(chip, sourceIconId(t.source));
+			chip.createEl("span", { text: "#" + (t.label ?? t.value) });
+			const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${t.label ?? t.value}` } });
+			setIcon(x, "x");
+			x.addEventListener("click", () => {
+				this.selectedTags.delete(t.value);
+				void this.render();
 			});
-			setIcon(btn, "plus");
-			btn.addEventListener("click", (e) => { e.stopPropagation(); new CreateTagModal(this.plugin, () => void this.refresh()).open(); });
-		}
-		pickerBtn.addEventListener("click", (e) => void this.showTagsMenu(e, tagSources));
-
-		if (this.selectedTags.size > 0) {
-			const chipsRow = section.createEl("div", { cls: "atmosphere-filter-active-chips" });
-			const tags = await this.fetchAllTags(tagSources);
-			for (const t of tags) {
-				if (!this.selectedTags.has(t.value)) continue;
-				const chip = chipsRow.createEl("span", { cls: "atmosphere-chip atmosphere-chip-active atmosphere-chip-removable" });
-				setIcon(chip, sourceIconId(t.source))
-
-				chip.createEl("span", { text: t.label ?? t.value });
-				const x = chip.createEl("button", { cls: "atmosphere-chip-remove-btn", attr: { "aria-label": `Remove ${t.label ?? t.value}` } });
-				setIcon(x, "x");
-				x.addEventListener("click", () => {
-					this.selectedTags.delete(t.value);
-					void this.render();
-				});
-			}
 		}
 	}
 

@@ -103,21 +103,28 @@
 .atmosphere-filters {
 	display: flex;
 	flex-direction: column;
-	gap: 16px;
+	gap: 8px;
 	margin-bottom: 16px;
+	container-type: inline-size;
 }
 
-.atmosphere-filter-section {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-}
-
-.atmosphere-filter-title-row {
+.atmosphere-filter-toolbar {
 	display: flex;
 	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.atmosphere-filter-btn-group {
+	display: inline-flex;
+	align-items: center;
+	gap: 2px;
+}
+
+.atmosphere-active-chips-row {
+	display: flex;
+	flex-wrap: wrap;
 	gap: 6px;
-	margin-bottom: 2px;
 }
 
 
@@ -1224,8 +1231,9 @@
 		gap: 12px;
 	}
 
-	.atmosphere-filter-section {
-		margin-bottom: 12px;
+	.atmosphere-filter-toolbar {
+		flex-wrap: wrap;
+		gap: 6px;
 	}
 }
 
@@ -1590,7 +1598,13 @@
 	height: 14px;
 }
 
-.atmosphere-filters .search-input-container {
-	width: 180px;
-	margin: 0 auto;
+.atmosphere-filter-toolbar .search-input-container {
+	width: 160px;
+	margin-left: auto;
+}
+
+@container (max-width: 380px) {
+	.atmosphere-filter-toolbar .search-input-container {
+		margin: 0 auto;
+	}
 }

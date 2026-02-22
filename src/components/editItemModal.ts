@@ -160,7 +160,15 @@ export class EditItemModal extends Modal {
 			const collectionsGroup = form.createEl("div", { cls: "atmosphere-form-group" });
 			collectionsGroup.createEl("label", { text: "Collections" });
 
+			const searchInput = collectionsGroup.createEl("input", {
+				type: "text",
+				cls: "atmosphere-input atmosphere-collection-search",
+				attr: { placeholder: "Search collections..." },
+			});
+
 			const collectionsList = collectionsGroup.createEl("div", { cls: "atmosphere-collection-list" });
+
+			const rows: { el: HTMLElement; name: string }[] = [];
 			for (const state of this.collectionStates) {
 				const item = collectionsList.createEl("label", { cls: "atmosphere-collection-item" });
 
@@ -176,7 +184,16 @@ export class EditItemModal extends Modal {
 
 				const sourceIcon = item.createEl("span", { cls: "atmosphere-collection-source-icon" });
 				setIcon(sourceIcon, state.source === "semble" ? "atmosphere-semble" : "atmosphere-margin");
+
+				rows.push({ el: item, name: state.name.toLowerCase() });
 			}
+
+			searchInput.addEventListener("input", () => {
+				const query = searchInput.value.toLowerCase();
+				for (const row of rows) {
+					row.el.style.display = row.name.includes(query) ? "" : "none";
+				}
+			});
 		}
 
 		const actions = contentEl.createEl("div", { cls: "atmosphere-modal-actions" });

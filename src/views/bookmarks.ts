@@ -184,21 +184,6 @@ export class BookmarksView extends ItemView {
 	}
 
 	private renderHeader(container: HTMLElement) {
-		const header = container.createEl("div", { cls: "atmosphere-header" });
-
-		const topRow = header.createEl("div", { cls: "atmosphere-header-top-row" });
-
-		const refreshBtn = topRow.createEl("button", {
-			cls: "atmosphere-refresh-btn",
-			attr: { "aria-label": "Refresh bookmarks" },
-		});
-		setIcon(refreshBtn, "refresh-cw");
-		refreshBtn.addEventListener("click", () => {
-			refreshBtn.addClass("atmosphere-refresh-btn-spinning");
-			void this.refresh();
-			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
-		});
-
 		this.renderFilters(container);
 	}
 
@@ -222,6 +207,17 @@ export class BookmarksView extends ItemView {
 		searchInput.onChange(() => {
 			this.searchQuery = searchInput.getValue();
 			this.renderGrid(this.cachedItems);
+		});
+
+		const refreshBtn = toolbarRow.createEl("button", {
+			cls: "atmosphere-refresh-btn",
+			attr: { "aria-label": "Refresh bookmarks" },
+		});
+		setIcon(refreshBtn, "refresh-cw");
+		refreshBtn.addEventListener("click", () => {
+			refreshBtn.addClass("atmosphere-refresh-btn-spinning");
+			void this.refresh();
+			refreshBtn.removeClass("atmosphere-refresh-btn-spinning");
 		});
 
 		if (this.selectedCollections.size > 0 || this.selectedTags.size > 0) {
